@@ -1,1 +1,112 @@
-# katalon-test
+# katalon-test — content parity, Sitecore → AEM
+
+A Katalon Studio project that answers **one** question about every migrated page:
+
+> Is the text of the live page still on the new page?
+
+Live is `www.prudential.com.sg` (Sitecore). New is `aem-uat.prudential.com.sg` (AEM). The
+live page is a **subset baseline**: whatever it has, the new page must have. Extra text on
+the new page is reported and never fails.
+
+Images, screenshots, GA4, metadata and HTTP status are **out of scope by design** — see
+[docs/architecture/scope.md](docs/architecture/scope.md) for what was left out and why.
+
+## Two results per page — never merged
+
+| | Question it answers | Values |
+|---|---|---|
+| **verdict** | Does this page pass? | `PASS` / `WARN` / `FAIL` / `NOT_RUN` |
+| **score** | How much work does this page need, relative to the others? | 0-100 + grade + confidence |
+
+They are deliberately independent. A page that lost one button out of 127 items scores
+**99.2 and is still a FAIL** — any `MISSING_ON_AEM`, `WRONG_TAB`, `NUMBER_CHANGED` or
+`LINK_CHANGED` fails the page however large it is. Full table:
+[docs/reference/verdicts-and-score.md](docs/reference/verdicts-and-score.md).
+
+## How it works, in three stages
+
+1. **Crawl** — open each URL in a real browser, scroll it, read the content out with
+   injected JavaScript, write `<slug>.<side>.json` + `.html`.
+2. **Extract** — one *content item* per element inside a resolved content root
+   (`main[role=main]` on Sitecore, `main.main__container` on AEM). Tab panels and accordion
+   sections are read from the DOM without clicking. Per-host selectors live in
+   `Data Files/site-profiles.json`, not in code.
+3. **Compare** — pair the two sides' tabs by score, then diff item by item. **No browser,
+   no network**: it reads two JSON files, which is what makes the matching rules and the
+   score weights tunable against real data in seconds.
+
+Details: [docs/architecture/how-the-check-works.md](docs/architecture/how-the-check-works.md).
+
+## Requirements
+
+| | |
+|---|---|
+| Katalon Studio | 11.4 Enterprise (the project was created and last modified with it) |
+| OS | macOS — `tools/offline-checks/run.sh` expects `/Applications/Katalon Studio.app`, override with `KATALON_APP` |
+| Browser | Chrome, for the crawl modes only |
+| VPN | **Only** for AEM UAT. The live Sitecore side is public, so a baseline run needs no VPN |
+| Java | none of your own — everything runs on Katalon's bundled Groovy and JRE |
+
+## Quickstart
+
+**1. Verify the checkout without a browser** (seconds, no VPN, no Studio):
+
+```bash
+tools/offline-checks/run.sh          # compile every keyword + rule + report-contract assertions
+tools/offline-checks/run.sh replay   # ...and re-diff every snapshot on disk, then rebuild the reports
+```
+
+Run this after every keyword edit. A change to a matching rule or a score weight is not done
+until `replay` shows what it did to the real numbers.
+
+**2. First run inside Studio** — open `katalon-test.prj`, then run:
+
+```
+Test Suites/migration-aem/normal-pages/by-page/TS_GeneralContentDetailPage_Recompare
+```
+
+It re-judges the 9 General Content Detail rows against the 8 snapshot pairs already in the
+repo — no browser, no VPN — and rebuilds the report. (The ninth URL serves a PDF and can
+never have a snapshot; it is recorded `NOT_RUN`.) Open `Reports/parity-report/index.html`
+when it finishes.
+
+Everything else — the four modes, which suite to run, and the crawl-once/re-judge-often
+loop — is in [docs/guides/getting-started.md](docs/guides/getting-started.md) and
+[docs/guides/running-tests.md](docs/guides/running-tests.md).
+
+## Layout
+
+| Path | What |
+|---|---|
+| `Keywords/migration/` | the whole implementation — 8 Groovy files: crawl, extract, compare, score, report |
+| `Test Cases/migration-aem/` | 3 page-type templates + 3 thin report wrappers |
+| `Test Suites/migration-aem/` | 9 suites; the suite sets the `mode` and binds the data file |
+| `Data Files/aem-url-mapping.csv` | **the** source of URLs — 20 pairs today, ~2,000 the long-term target |
+| `Data Files/baselines/` | the crawled snapshots — tracked in git, because `replay` re-diffs them |
+| `Reports/` | all generated output — **gitignored** |
+| `tools/offline-checks/` | run the whole compare half outside Katalon |
+| `docs/` | all documentation, starting at [docs/README.md](docs/README.md) |
+
+## Where the results land
+
+| File | What |
+|---|---|
+| `Reports/parity-report/index.html` | the report — cover, at-a-glance matrix, filter bar, one page per URL |
+| `Reports/publish/` | the same site with no local paths — copy this to a report server |
+| `Reports/ContentAudit/<slug>/findings.csv` | every finding, with its score weight |
+| `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, confidence |
+| `Reports/parity-results/<slug>/content.txt` | the verdict on line 1, the summary from line 2 |
+| `Reports/baseline-summary.html` | which pages have both sides captured and can be compared |
+
+`Reports/` is regenerated by every run and is not tracked; nothing in it needs to be kept.
+
+## Status
+
+Current scope is 20 URL pairs in `Data Files/aem-url-mapping.csv` (1 LBU Homepage, 9 General
+Content Detail, 10 PRULink fund pages), with snapshots captured for 8 of the GCDP pages.
+Long-term target: ~2,000 pages.
+
+Not everything described in the docs exists yet: only the four `by-page` suites and
+`TS_IlpFund_Compare` are runnable — the group suites bind page-type test cases that have not
+been written. Live status, open points and the changelog:
+[docs/overview/project-tracking.md](docs/overview/project-tracking.md).

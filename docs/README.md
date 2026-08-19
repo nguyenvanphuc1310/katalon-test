@@ -15,11 +15,13 @@ and why.
 | [architecture/](architecture/) | How the check works and how the project is laid out |
 | [reference/](reference/) | Stable reference: verdicts, the score, the report contract |
 | [guides/](guides/) | How-to: running the suites, the tuning loop, troubleshooting |
-| [flows/](flows/) | Runbooks for proven workflows — written after the workflow ran green |
-| [plans/](plans/) | Dated design plans (historical archive) |
+| `flows/` | Runbooks for proven workflows — written after the workflow ran green. *Not created yet* |
+| `plans/` | Dated design plans (historical archive). *Not created yet* |
 
 ## Start here
 
+0. [guides/getting-started.md](guides/getting-started.md) — fresh clone → a run that
+   produces a report, plus what to do when it breaks.
 1. [overview/project-tracking.md](overview/project-tracking.md) — current status, what to do next.
 2. [architecture/how-the-check-works.md](architecture/how-the-check-works.md) — crawl → extract → compare, end to end.
 3. [reference/verdicts-and-score.md](reference/verdicts-and-score.md) — what each verdict means, and how the score is computed.
@@ -28,11 +30,17 @@ and why.
 
 ## Quick run matrix
 
+Suite paths are under `Test Suites/migration-aem/`.
+
 | Goal | Run | Needs |
 |---|---|---|
-| Capture the live side, everything | `collections/TSC_PreT0_Baseline_All` | nothing (the live site is public) |
-| Compare everything against it | `collections/TSC_PostT0_Compare_All` | VPN |
-| One page type, end to end | `collections/TSC_GCDP_Content_Full` | VPN |
-| One page type, compare only | `<group>/by-page/TS_<Type>_Compare` | VPN |
+| Everything, outside Katalon, in seconds | `tools/offline-checks/run.sh replay` | nothing |
 | Re-judge without re-crawling | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | nothing |
-| Everything, outside Katalon | `tools/offline-checks/run.sh replay` | nothing |
+| Capture the live side, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | Chrome (the live site is public) |
+| Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | Chrome + VPN |
+| Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` | Chrome + VPN |
+| PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | Chrome + VPN |
+
+Those are all of them. The group suites (`TS_Normal_*`, `TS_Custom_*`) bind page-type test
+cases that have not been written, and there are no test-suite collections in the repository
+— see [guides/getting-started.md](guides/getting-started.md#7-known-gaps--what-you-cannot-run-yet).

@@ -14,8 +14,8 @@ worst pages can be fixed first.
 Sitecore is the **subset baseline**: whatever it has, AEM must have; extra content on AEM is
 not an error.
 
-- Current scope: 21 URL pairs in `Data Files/aem-url-mapping.csv`
-  (1 LBU Homepage, 9 General Content Detail, 11 Custom Page / PRULink funds)
+- Current scope: 20 URL pairs in `Data Files/aem-url-mapping.csv`
+  (1 LBU Homepage, 9 General Content Detail, 10 Custom Page / PRULink funds)
 - Long-term target: ~2,000 pages
 
 ## Where this project came from
@@ -43,7 +43,8 @@ the 8 GCDP snapshots already captured. Added: the score.
 | Rule + score assertions (`verdict-rules.groovy`) | 🟢 23/23 |
 | Report contract assertions (`report-contract.groovy`) | 🟢 11/11 |
 | Offline replay over the 8 carried snapshots | 🟢 scores reproduce the design table exactly |
-| 30 test cases, 36 suites, 3 collections — no duplicate GUIDs, no mismatched `variableId` | 🟢 |
+| 6 test cases, 9 suites, 0 collections on disk — no duplicate GUIDs, no mismatched `variableId` | 🟢 |
+| The other 23 page-type test cases, `TC_Build_Mastersheet_Column` and the 3 collections | 🔴 wired into suites, not written — see open point 4 |
 | `TS_GeneralContentDetailPage_Recompare` inside Studio | 🟢 9/9 pages judged |
 | Live baseline + compare inside Studio | 🟡 in progress |
 
@@ -58,7 +59,16 @@ the 8 GCDP snapshots already captured. Added: the score.
    content before collection, `scrollFullPage` measuring `documentElement`). A fresh
    baseline + capture at `@5` is what makes the numbers final.
 3. **11 Custom Pages are not published on AEM UAT** (301 → 404). No baseline for them yet.
-4. **`REWORD_OVERLAP = 0.9` is a tuning candidate.** One real reword on `young_family` sits
+4. **Only five suites can actually be run.** The repository holds 6 test cases, 9 suites and
+   no collections. The four group suites bind 19 (normal) and 7 (custom) page-type test
+   cases, of which only `TC_GeneralContentDetailPage`, `TC_LbuHomepage` and `TC_IlpFund`
+   exist, so they cannot start. `TC_Build_Mastersheet_Column` is referenced as the last step
+   of four suites and has no `.tc` file — the keyword method behind it
+   (`ReportBuilder.buildMastersheetColumn()`) is only reachable through
+   `tools/offline-checks/run.sh replay`, which is therefore the only way `Reports/report.xlsx`
+   currently gets written. Runnable today:
+   `TS_GeneralContentDetailPage_{Baseline,Capture,Compare,Recompare}` and `TS_IlpFund_Compare`.
+5. **`REWORD_OVERLAP = 0.9` is a tuning candidate.** One real reword on `young_family` sits
    at 0.75 and is therefore reported as an error-level `MISSING_ON_AEM` rather than a
    warning-level `TEXT_CHANGED`.
 
@@ -66,5 +76,6 @@ the 8 GCDP snapshots already captured. Added: the score.
 
 | Date | Change |
 |---|---|
+| 2026-08-19 | **Entry documentation written, and the run tables corrected to match the repository.** The root `README.md` was a single empty heading; it now describes what the project checks, the verdict/score split, the requirements, a two-step quickstart (offline runner first, then `TS_GeneralContentDetailPage_Recompare`), the layout and where results land, linking into `docs/` for everything deeper. New [guides/getting-started.md](../guides/getting-started.md) covers the path `running-tests.md` assumed: prerequisites, what the clone does and does not contain, verifying the install with `tools/offline-checks/run.sh` before opening Studio, the first run, reading the output, the four known failure signatures, and the known gaps. Writing it surfaced that the docs described a project larger than the one on disk: the "quick run matrix" in [docs/README.md](../README.md) and the suite table in [guides/running-tests.md](../guides/running-tests.md) both pointed at three `collections/TSC_…` entries, and **no `.tsc` file exists anywhere**; `TC_Build_Mastersheet_Column` is the last step of four suites and has no `.tc` file; the group suites bind 26 page-type test cases of which 3 exist; and the URL count was 21 where the CSV has 20 rows (10 PRULink funds, not 11). All four pages were corrected to what runs, with the gap recorded as open point 4 rather than fixed — creating the missing entities is a separate job. No keyword, suite or data file was touched. `run.sh replay` could **not** be re-run to confirm: this working copy's `.classpath` has been overwritten by Buildship (JRE container + `gradleclasspathcontainer`, zero jar entries), which is the exact failure the runner detects and refuses to proceed on. Recovery is the one it prints — close Studio, delete `.classpath`, `.project`, `.settings/org.eclipse.{buildship.core,jdt.core}.prefs`, `.gradle` and `bin`, reopen the project — and it is pending. |
 | 2026-08-19 | **Version control added.** The project is now a git repository on `main`, tracking 112 files, with `origin` set to `github.com/nguyenvanphuc1310/katalon-test`. The pre-existing Katalon `.gitignore` was kept as-is, so `Reports/` (21 MB of generated output), `bin/`, `Libs/`, `.gradle` and `.cache` stay untracked; `Data Files/baselines/` (6.9 MB of HTML snapshots) **is** tracked, because `tools/offline-checks/run.sh replay` re-diffs those snapshots — they are input, not output. The Katalon project file was renamed `parity.prj` -> `katalon-test.prj` (and its `<name>` element with it) to match the repo. The word "parity" everywhere else — docs, keyword names, `TC_Build_Parity_Report` — is domain vocabulary for the content-parity check and was deliberately left alone. |
 | 2026-08-19 | **Project created.** Content-only fork of `test-1` with a 0-100 score per page. Copied `ContentScope` / `ContentSnapshot` / `ContentCompare` / `StateMatch` / `site-profiles.json` / URL mapping / 8 GCDP snapshots unchanged; trimmed `AuditUtils` (259→90 lines, the download/hash/HTTP half belonged to the image check), `WebActions` (700→217, every screenshot and diff-highlight member removed) and `ReportBuilder` (1,745→~1,370: image evidence, screenshot layers, the lightbox, asset copying and JPEG downscaling all gone, `CHECK_ORDER` down to one check). Dropped `ImageAssets`, `ImageHashCheck`, `DiffEvidence`, `PageCollectors`, `Ga4Check`, `MetadataCheck`, `HttpRedirectCheck`, the WebP jars and the `build.gradle` dependency on them. `ContentTextCheck` lost its `evidence` mode and is now 86 lines. **Added scoring**: `ContentCompare.WEIGHTS` + `score()`, a `weight` column in `findings.csv` and a new `score.csv`, a score chip in every table, a score panel showing the arithmetic on each page, a score-band filter replacing the now-meaningless "failing check" filter, and `score`/`grade`/`confidence` columns in `report.xlsx` — the score written as a real number, because a text column sorts 9 above 85. Two design decisions worth keeping: the score never overrides the verdict (one lost CTA on a 127-item page is 99.2 **and** a FAIL), and a weak score is shown with its reason rather than adjusted or hidden — on the carried data *every* score is weak, so the site average is withheld and the report says so at the top. Verified by 34 offline assertions, a full replay reproducing the design table exactly, and `TS_GeneralContentDetailPage_Recompare` inside Studio. **Two defects found by running it rather than assuming**: (1) the generated test-suite *collections* used a `<testSuiteRunConfiguration>` shape Katalon does not read — the run sat at PENDING and never started, fixed to the `<testSuiteRunConfigurations>` / `<TestSuiteRunConfiguration>` / `<configuration>` nesting Studio actually writes; (2) `recompare` hard-failed on a URL that serves a PDF, demanding "run mode=baseline first" — a baseline that can never produce a snapshot. It now honours a recorded `NOT_RUN`, which is what the baseline run correctly concluded. Also caught before it shipped: adding the `weight` column would have made `contentFindings`' `$`-anchored regex drop **every** row in silence — exactly the failure the report contract exists to prevent — so the column is optional in the pattern and asserted both ways. |

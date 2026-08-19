@@ -15,17 +15,28 @@ score weight changes.
 
 ## Which suite
 
-| Goal | Suite |
-|---|---|
-| Live baseline, everything | `collections/TSC_PreT0_Baseline_All` |
-| Compare everything | `collections/TSC_PostT0_Compare_All` |
-| One page type, end to end | `collections/TSC_GCDP_Content_Full` |
-| One page type, compare | `<group>/by-page/TS_<Type>_Compare` |
-| One page type, live baseline | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` |
-| Re-judge, no crawl | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` |
+All paths are under `Test Suites/migration-aem/`. These five are the suites that actually
+execute today:
 
-Every compare/recompare suite ends with `TC_Build_Parity_Report` and
-`TC_Build_Mastersheet_Column`, so any run regenerates the reports.
+| Goal | Suite | mode | VPN |
+|---|---|---|---|
+| Live baseline, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | `baseline` | no |
+| Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | `capture` | yes |
+| Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` | `compare` | yes |
+| Re-judge, no crawl | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | `recompare` | no |
+| PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | `compare` | yes |
+
+Every compare/recompare suite ends with `TC_Build_Parity_Report`, so any run regenerates the
+reports; the `baseline` suites end with `TC_Build_Baseline_Summary`.
+
+**Not runnable yet.** The four group suites (`normal-pages/TS_Normal_PreT0_Baseline`,
+`TS_Normal_PostT0_Compare`, `custom-pages/TS_Custom_PreT0_Baseline`,
+`TS_Custom_PostT0_Compare`) bind 19 and 7 page-type test cases respectively, of which only
+`TC_GeneralContentDetailPage`, `TC_LbuHomepage` and `TC_IlpFund` have been written. There
+are **no test-suite collections** (`.tsc`) in the repository. `TS_IlpFund_Compare` and the
+group compare suites also end with `TC_Build_Mastersheet_Column`, which does not exist as a
+test case either — only as `ReportBuilder.mastersheetColumn`. See
+[getting-started.md](getting-started.md#7-known-gaps--what-you-cannot-run-yet).
 
 ## Without Katalon Studio
 
@@ -48,7 +59,7 @@ live sites.
 |---|---|
 | `Reports/parity-report/index.html` | the report — cover, at-a-glance matrix, filter bar, one file per page |
 | `Reports/publish/` | the same site with no local paths — copy this to a report server |
-| `Reports/report.xlsx` | one row per URL: verdict, score, grade, confidence, summary |
+| `Reports/report.xlsx` | one row per URL: verdict, score, grade, confidence, summary. Written by `ReportBuilder.buildMastersheetColumn()`, which today **only** `run.sh replay` calls — the `TC_Build_Mastersheet_Column` test case the suites reference does not exist |
 | `Reports/baseline-summary.html` | which pages have both sides captured and can be compared |
 | `Reports/ContentAudit/<slug>/findings.csv` | every finding, with its score weight |
 

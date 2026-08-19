@@ -30,18 +30,31 @@ the check wrote only because both go through it.
 
 ## Test cases
 
+Six on disk, all under `Test Cases/migration-aem/`:
+
 - `checks/TC_Check_Content_Text` — the check itself (`sitecoreurl`, `pageurl`, `mode`).
-- `checks/TC_Build_Parity_Report`, `TC_Build_Mastersheet_Column`, `TC_Build_Baseline_Summary`
-  — thin wrappers, 3–8 lines each, over `ReportBuilder`.
-- `templates/<group>/TC_<PageType>` — 26 of them, one per page type. Each guards on
-  `pagetype` and calls the content check.
+- `checks/TC_Build_Parity_Report`, `checks/TC_Build_Baseline_Summary` — thin wrappers,
+  3–8 lines each, over `ReportBuilder`.
+- `templates/normal-pages/TC_GeneralContentDetailPage`, `templates/normal-pages/TC_LbuHomepage`,
+  `templates/custom-pages/TC_IlpFund` — one per page type. Each guards on `pagetype` and
+  calls the content check.
+
+The target is one template per page type (26 of them). The remaining 23 are wired into the
+group suites but have not been written; neither has `TC_Build_Mastersheet_Column`, which
+four suites reference — `ReportBuilder.buildMastersheetColumn()` exists, the test case that
+would call it does not, so `Reports/report.xlsx` is produced only by
+`tools/offline-checks/run.sh replay`.
 
 ## Test suites
 
-- `<group>/TS_<Group>_PreT0_Baseline` / `TS_<Group>_PostT0_Compare` — whole group.
-- `<group>/by-page/TS_<Type>_Compare` — one page type. The proven type
-  (`GeneralContentDetailPage`) also has `_Baseline`, `_Capture` and `_Recompare`.
-- `collections/TSC_PreT0_Baseline_All`, `TSC_PostT0_Compare_All`, `TSC_GCDP_Content_Full`.
+Nine on disk, all under `Test Suites/migration-aem/`:
+
+- `<group>/by-page/TS_<Type>_Compare` — one page type: `TS_GeneralContentDetailPage_Compare`
+  and `TS_IlpFund_Compare`. The proven type (`GeneralContentDetailPage`) also has
+  `_Baseline`, `_Capture` and `_Recompare`. **These five are the runnable ones.**
+- `<group>/TS_<Group>_PreT0_Baseline` / `TS_<Group>_PostT0_Compare` — whole group, four of
+  them. They cannot start until the missing page-type test cases exist.
+- No test-suite collections (`.tsc`) exist yet.
 
 **Suites bind the data file and set `mode` themselves.** Editing a test case's variables by
 hand is for investigating one page, not for running a suite.
