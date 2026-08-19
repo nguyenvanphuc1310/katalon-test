@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestSuiteEntity>
+   <description>Recompare run for the &quot;General Content Detail Page&quot; page type only. Re-diff the snapshots already on disk and rebuild the reports. No browser, no VPN, seconds rather than minutes — this is the loop to use while tuning a matching rule or a score weight.</description>
+   <name>TS_GeneralContentDetailPage_Recompare</name>
+   <tag>normal,general-content-detail-page,recompare,by-page</tag>
+   <isRerun>false</isRerun>
+   <mailRecipient></mailRecipient>
+   <maxConcurrentInstances>1</maxConcurrentInstances>
+   <numberOfRerun>0</numberOfRerun>
+   <orchestration>CLASSIC</orchestration>
+   <pageLoadTimeout>30</pageLoadTimeout>
+   <pageLoadTimeoutDefault>false</pageLoadTimeoutDefault>
+   <rerunFailedTestCasesOnly>false</rerunFailedTestCasesOnly>
+   <rerunImmediately>false</rerunImmediately>
+   <testSuiteGuid>89630479-39e0-4398-92ef-7234e6cb5038</testSuiteGuid>
+   <testCaseLink>
+      <guid>1e22d48e-2f71-4b5d-ae75-e2ff2dd7d88a</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/templates/normal-pages/TC_GeneralContentDetailPage</testCaseId>
+      <testDataLink>
+         <combinationType>ONE</combinationType>
+         <id>31404fba-1b06-42ca-af47-5991ca21bf57</id>
+         <iterationEntity>
+            <iterationType>ALL</iterationType>
+            <value></value>
+         </iterationEntity>
+         <testDataId>Data Files/url-mapping/normal-pages/GeneralContentDetailPage</testDataId>
+      </testDataLink>
+      <usingDataBindingAtTestSuiteLevel>true</usingDataBindingAtTestSuiteLevel>
+      <variableLink>
+         <testDataLinkId>31404fba-1b06-42ca-af47-5991ca21bf57</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemurl</value>
+         <variableId>c647c4ac-b521-47d1-9d24-822d03bb3b0b</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>31404fba-1b06-42ca-af47-5991ca21bf57</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemtemplate</value>
+         <variableId>7d00176a-304d-471b-ae25-3ec4f7a91ff8</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>31404fba-1b06-42ca-af47-5991ca21bf57</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>sitecoreurl</value>
+         <variableId>d5e3c615-52cf-45f8-8ff2-4205789ae6aa</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>31404fba-1b06-42ca-af47-5991ca21bf57</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>pagetype</value>
+         <variableId>14d0f79d-1d5b-4f02-93c3-62914876d149</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'recompare'</value>
+         <variableId>4761f407-5b7b-4baf-aafa-087b457f55ce</variableId>
+      </variableLink>
+   </testCaseLink>
+   <testCaseLink>
+      <guid>93c0a603-5ca2-432f-bb94-d75ea470c7d8</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Parity_Report</testCaseId>
+      <usingDataBindingAtTestSuiteLevel>true</usingDataBindingAtTestSuiteLevel>
+   </testCaseLink>
+</TestSuiteEntity>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestSuiteEntity>
+   <description>Compare run for the "ILP Fund" page type only. Capture the new side, then diff it against the live snapshot and rebuild the reports. Needs VPN.</description>
+   <name>TS_IlpFund_Compare</name>
+   <tag>custom,ilp-fund,compare,by-page</tag>
+   <isRerun>false</isRerun>
+   <mailRecipient></mailRecipient>
+   <maxConcurrentInstances>1</maxConcurrentInstances>
+   <numberOfRerun>0</numberOfRerun>
+   <orchestration>CLASSIC</orchestration>
+   <pageLoadTimeout>30</pageLoadTimeout>
+   <pageLoadTimeoutDefault>false</pageLoadTimeoutDefault>
+   <rerunFailedTestCasesOnly>false</rerunFailedTestCasesOnly>
+   <rerunImmediately>false</rerunImmediately>
+   <testSuiteGuid>0809e1af-afb4-4d7f-835c-41c27257e27c</testSuiteGuid>
+   <testCaseLink>
+      <guid>79950083-9fdc-4bf3-9343-68947e127037</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/templates/custom-pages/TC_IlpFund</testCaseId>
+      <testDataLink>
+         <combinationType>ONE</combinationType>
+         <id>ee1f8771-3c64-4587-96c0-6fff587141ab</id>
+         <iterationEntity>
+            <iterationType>ALL</iterationType>
+            <value></value>
+         </iterationEntity>
+         <testDataId>Data Files/url-mapping/custom-pages/IlpFund</testDataId>
+      </testDataLink>
+      <usingDataBindingAtTestSuiteLevel>true</usingDataBindingAtTestSuiteLevel>
+      <variableLink>
+         <testDataLinkId>ee1f8771-3c64-4587-96c0-6fff587141ab</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemurl</value>
+         <variableId>8a65da25-c81c-41a1-b386-46149eedd3bf</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>ee1f8771-3c64-4587-96c0-6fff587141ab</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemtemplate</value>
+         <variableId>a7affb2a-f94d-4ce4-91c8-f619b35de3c1</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>ee1f8771-3c64-4587-96c0-6fff587141ab</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>sitecoreurl</value>
+         <variableId>ab0995df-03c1-44da-94fe-766932d65ccb</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>ee1f8771-3c64-4587-96c0-6fff587141ab</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>pagetype</value>
+         <variableId>c6fb5449-b410-424b-b174-2d5338c5edda</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'compare'</value>
+         <variableId>f784b504-b575-4fd9-9ddb-704cba901ccb</variableId>
+      </variableLink>
+   </testCaseLink>
+   <testCaseLink>
+      <guid>5f2b4c77-0317-48c4-91bf-c7ce4d19280d</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Parity_Report</testCaseId>
+   </testCaseLink>
+   <testCaseLink>
+      <guid>32a379ed-39ad-425b-b5a8-158ef0156a76</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Mastersheet_Column</testCaseId>
+   </testCaseLink>
+</TestSuiteEntity>

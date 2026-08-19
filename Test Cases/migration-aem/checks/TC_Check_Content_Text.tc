@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Compare the CONTENT of the AEM page against the Sitecore page. mode: baseline (capture live) | capture (capture new) | compare (capture new + diff) | recompare (diff the snapshots on disk, no browser).</description>
+   <name>TC_Check_Content_Text</name>
+   <tag>check,content</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b0b274a0-5ab5-41b6-b53b-11c1ceaf04b4</testCaseGuid>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Sitecore source URL — the live page, which is the reference</description>
+      <id>1ff2922e-5908-4dd4-8591-dce77b3652bc</id>
+      <masked>false</masked>
+      <name>sitecoreurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM page URL — the page under test</description>
+      <id>41179c68-6083-4748-b146-9c5428944302</id>
+      <masked>false</masked>
+      <name>pageurl</name>
+   </variable>
+   <variable>
+      <defaultValue>'compare'</defaultValue>
+      <description>baseline | capture | compare | recompare</description>
+      <id>be94bdb5-80d4-4ea1-9562-85d454c8bda0</id>
+      <masked>false</masked>
+      <name>mode</name>
+   </variable>
+</TestCaseEntity>

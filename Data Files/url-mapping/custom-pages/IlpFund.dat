@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "ILP Fund" page type (custom-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>IlpFund</name>
+   <tag>custom,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>ffb454d3-2408-40a4-acdd-92fa3785381a</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/custom-pages/ilp-fund.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

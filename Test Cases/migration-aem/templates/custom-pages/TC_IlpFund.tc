@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Parent test for the "ILP Fund" page type (custom-pages): runs the content check. Bound to Data Files/url-mapping/custom-pages/ilp-fund.csv</description>
+   <name>TC_IlpFund</name>
+   <tag>template,custom,ilp-fund</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>022f23a8-c13b-4914-9563-e8e9d56d1919</testCaseGuid>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM page URL (aemurl column)</description>
+      <id>8a65da25-c81c-41a1-b386-46149eedd3bf</id>
+      <masked>false</masked>
+      <name>pageurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM template name of the row (aemtemplate column)</description>
+      <id>a7affb2a-f94d-4ce4-91c8-f619b35de3c1</id>
+      <masked>false</masked>
+      <name>aemtemplate</name>
+   </variable>
+   <variable>
+      <defaultValue>'baseline'</defaultValue>
+      <description>baseline (capture live) | capture (capture new) | compare | recompare</description>
+      <id>f784b504-b575-4fd9-9ddb-704cba901ccb</id>
+      <masked>false</masked>
+      <name>mode</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Sitecore source URL — the live page (sitecoreurl column)</description>
+      <id>ab0995df-03c1-44da-94fe-766932d65ccb</id>
+      <masked>false</masked>
+      <name>sitecoreurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Page type slug of the row (pagetype column)</description>
+      <id>c6fb5449-b410-424b-b174-2d5338c5edda</id>
+      <masked>false</masked>
+      <name>pagetype</name>
+   </variable>
+</TestCaseEntity>

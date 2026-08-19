@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Parent test for the "General Content Detail Page" page type (normal-pages): runs the content check. Bound to Data Files/url-mapping/normal-pages/general-content-detail-page.csv</description>
+   <name>TC_GeneralContentDetailPage</name>
+   <tag>template,normal,general-content-detail-page</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>919d264a-af8b-480f-9cf0-0a88089cea44</testCaseGuid>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM page URL (aemurl column)</description>
+      <id>c647c4ac-b521-47d1-9d24-822d03bb3b0b</id>
+      <masked>false</masked>
+      <name>pageurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM template name of the row (aemtemplate column)</description>
+      <id>7d00176a-304d-471b-ae25-3ec4f7a91ff8</id>
+      <masked>false</masked>
+      <name>aemtemplate</name>
+   </variable>
+   <variable>
+      <defaultValue>'baseline'</defaultValue>
+      <description>baseline (capture live) | capture (capture new) | compare | recompare</description>
+      <id>4761f407-5b7b-4baf-aafa-087b457f55ce</id>
+      <masked>false</masked>
+      <name>mode</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Sitecore source URL — the live page (sitecoreurl column)</description>
+      <id>d5e3c615-52cf-45f8-8ff2-4205789ae6aa</id>
+      <masked>false</masked>
+      <name>sitecoreurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Page type slug of the row (pagetype column)</description>
+      <id>14d0f79d-1d5b-4f02-93c3-62914876d149</id>
+      <masked>false</masked>
+      <name>pagetype</name>
+   </variable>
+</TestCaseEntity>

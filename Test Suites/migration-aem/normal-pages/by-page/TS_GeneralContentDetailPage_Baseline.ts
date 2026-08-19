@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestSuiteEntity>
+   <description>Baseline run for the "General Content Detail Page" page type only. Capture the LIVE (Sitecore) side. No VPN needed — the live site is public.</description>
+   <name>TS_GeneralContentDetailPage_Baseline</name>
+   <tag>normal,general-content-detail-page,baseline,by-page</tag>
+   <isRerun>false</isRerun>
+   <mailRecipient></mailRecipient>
+   <maxConcurrentInstances>1</maxConcurrentInstances>
+   <numberOfRerun>0</numberOfRerun>
+   <orchestration>CLASSIC</orchestration>
+   <pageLoadTimeout>30</pageLoadTimeout>
+   <pageLoadTimeoutDefault>false</pageLoadTimeoutDefault>
+   <rerunFailedTestCasesOnly>false</rerunFailedTestCasesOnly>
+   <rerunImmediately>false</rerunImmediately>
+   <testSuiteGuid>e8afea27-f6bb-49d4-9cf4-b1ff8773dc27</testSuiteGuid>
+   <testCaseLink>
+      <guid>b725c615-a8f0-49b5-a51d-f487e90a005f</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/templates/normal-pages/TC_GeneralContentDetailPage</testCaseId>
+      <testDataLink>
+         <combinationType>ONE</combinationType>
+         <id>10845d5f-c268-4646-a06b-4f0c17bd5a07</id>
+         <iterationEntity>
+            <iterationType>ALL</iterationType>
+            <value></value>
+         </iterationEntity>
+         <testDataId>Data Files/url-mapping/normal-pages/GeneralContentDetailPage</testDataId>
+      </testDataLink>
+      <usingDataBindingAtTestSuiteLevel>true</usingDataBindingAtTestSuiteLevel>
+      <variableLink>
+         <testDataLinkId>10845d5f-c268-4646-a06b-4f0c17bd5a07</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemurl</value>
+         <variableId>c647c4ac-b521-47d1-9d24-822d03bb3b0b</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>10845d5f-c268-4646-a06b-4f0c17bd5a07</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemtemplate</value>
+         <variableId>7d00176a-304d-471b-ae25-3ec4f7a91ff8</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>10845d5f-c268-4646-a06b-4f0c17bd5a07</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>sitecoreurl</value>
+         <variableId>d5e3c615-52cf-45f8-8ff2-4205789ae6aa</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>10845d5f-c268-4646-a06b-4f0c17bd5a07</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>pagetype</value>
+         <variableId>14d0f79d-1d5b-4f02-93c3-62914876d149</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'baseline'</value>
+         <variableId>4761f407-5b7b-4baf-aafa-087b457f55ce</variableId>
+      </variableLink>
+   </testCaseLink>
+   <testCaseLink>
+      <guid>144d30c8-9d30-4bd4-acab-5ff553495df4</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Baseline_Summary</testCaseId>
+   </testCaseLink>
+</TestSuiteEntity>

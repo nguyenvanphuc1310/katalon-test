@@ -1,0 +1,116 @@
+{
+  "_comment": "Per-host content-extraction profile. Selectors verified against the live DOM of both sites on 2026-08-18. Adding a CMS means adding a block here, not changing code. Profile ids are bumped whenever the SHAPE of a snapshot changes, so a snapshot taken before the change is identifiable: @5 adds a link destination per CTA item and a formOptions list. See docs/plans/2026-08-19-image-content-check-hardening.md",
+  "profiles": {
+    "www.prudential.com.sg": {
+      "id": "prudential-sitecore@5",
+      "contentRoot": [
+        "main[role=main]",
+        "main",
+        "[role=main]",
+        "#main-content"
+      ],
+      "noise": [
+        "script",
+        "style",
+        "noscript",
+        "template",
+        "option",
+        ".sr-only",
+        ".visually-hidden",
+        ".screen-reader-text",
+        ".km-diff-badge"
+      ],
+      "tabs": {
+        "mode": "attr",
+        "group": "ul.tabs-primary",
+        "tab": "li > a[data-tab]",
+        "tabAttr": "data-tab",
+        "container": ".card-list-tabs",
+        "panel": ".card-list-tabs__content",
+        "panelAttr": "data-content"
+      },
+      "accordionTrigger": [
+        "[data-toggle=collapse]",
+        "[aria-expanded]",
+        "details > summary",
+        ".accordion-toggle",
+        ".accordion__header",
+        ".accordion-comp-header"
+      ],
+      "expandTrigger": [
+        "ul.tabs-primary li a",
+        "[data-toggle=collapse]",
+        "details:not([open]) > summary",
+        ".accordion-comp-header"
+      ],
+      "accordionPanel": ".accordion-comp-content-area"
+    },
+    "aem-uat.prudential.com.sg": {
+      "id": "prudential-aem@5",
+      "contentRoot": [
+        "main.main__container",
+        "main",
+        "[role=main]",
+        "#main-content"
+      ],
+      "noise": [
+        "script",
+        "style",
+        "noscript",
+        "template",
+        "option",
+        ".sr-only",
+        ".visually-hidden",
+        ".cmp-link-accessibility",
+        ".km-diff-badge"
+      ],
+      "tabs": {
+        "mode": "aria",
+        "group": "[role=tablist]",
+        "tab": "[role=tab]"
+      },
+      "accordionTrigger": [
+        "[aria-expanded]",
+        "[data-cmp-hook-accordion=button]",
+        "details > summary"
+      ],
+      "expandTrigger": [
+        "[aria-expanded=false]",
+        "details:not([open]) > summary"
+      ]
+    }
+  },
+  "default": {
+    "id": "generic@4",
+    "contentRoot": [
+      "main[role=main]",
+      "main",
+      "[role=main]",
+      "#main-content",
+      "#content"
+    ],
+    "noise": [
+      "script",
+      "style",
+      "noscript",
+      "template",
+      "option",
+      ".sr-only",
+      ".visually-hidden",
+      ".km-diff-badge"
+    ],
+    "tabs": {
+      "mode": "aria",
+      "group": "[role=tablist]",
+      "tab": "[role=tab]"
+    },
+    "accordionTrigger": [
+      "[aria-expanded]",
+      "details > summary"
+    ],
+    "expandTrigger": [
+      "[aria-expanded=false]",
+      "details:not([open]) > summary"
+    ]
+  }
+}

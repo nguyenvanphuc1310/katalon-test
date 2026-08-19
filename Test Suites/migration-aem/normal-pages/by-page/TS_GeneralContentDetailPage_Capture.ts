@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestSuiteEntity>
+   <description>Capture run for the "General Content Detail Page" page type only. Capture the NEW (AEM UAT) side. Needs VPN.</description>
+   <name>TS_GeneralContentDetailPage_Capture</name>
+   <tag>normal,general-content-detail-page,capture,by-page</tag>
+   <isRerun>false</isRerun>
+   <mailRecipient></mailRecipient>
+   <maxConcurrentInstances>1</maxConcurrentInstances>
+   <numberOfRerun>0</numberOfRerun>
+   <orchestration>CLASSIC</orchestration>
+   <pageLoadTimeout>30</pageLoadTimeout>
+   <pageLoadTimeoutDefault>false</pageLoadTimeoutDefault>
+   <rerunFailedTestCasesOnly>false</rerunFailedTestCasesOnly>
+   <rerunImmediately>false</rerunImmediately>
+   <testSuiteGuid>a7c36789-5176-48dd-b4b9-73b20c8f5503</testSuiteGuid>
+   <testCaseLink>
+      <guid>aa4604d9-3d5d-4fb4-ac5f-101ccbff0ec9</guid>
+      <isReuseDriver>false</isReuseDriver>
+      <isRun>true</isRun>
+      <testCaseId>Test Cases/migration-aem/templates/normal-pages/TC_GeneralContentDetailPage</testCaseId>
+      <testDataLink>
+         <combinationType>ONE</combinationType>
+         <id>eeade05a-0360-4ac7-8df3-4a19ed1bde59</id>
+         <iterationEntity>
+            <iterationType>ALL</iterationType>
+            <value></value>
+         </iterationEntity>
+         <testDataId>Data Files/url-mapping/normal-pages/GeneralContentDetailPage</testDataId>
+      </testDataLink>
+      <usingDataBindingAtTestSuiteLevel>true</usingDataBindingAtTestSuiteLevel>
+      <variableLink>
+         <testDataLinkId>eeade05a-0360-4ac7-8df3-4a19ed1bde59</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemurl</value>
+         <variableId>c647c4ac-b521-47d1-9d24-822d03bb3b0b</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>eeade05a-0360-4ac7-8df3-4a19ed1bde59</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>aemtemplate</value>
+         <variableId>7d00176a-304d-471b-ae25-3ec4f7a91ff8</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>eeade05a-0360-4ac7-8df3-4a19ed1bde59</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>sitecoreurl</value>
+         <variableId>d5e3c615-52cf-45f8-8ff2-4205789ae6aa</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId>eeade05a-0360-4ac7-8df3-4a19ed1bde59</testDataLinkId>
+         <type>DATA_COLUMN</type>
+         <value>pagetype</value>
+         <variableId>14d0f79d-1d5b-4f02-93c3-62914876d149</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'capture'</value>
+         <variableId>4761f407-5b7b-4baf-aafa-087b457f55ce</variableId>
+      </variableLink>
+   </testCaseLink>
+</TestSuiteEntity>

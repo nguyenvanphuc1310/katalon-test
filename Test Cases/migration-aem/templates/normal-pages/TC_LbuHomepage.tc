@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Parent test for the "LBU Homepage" page type (normal-pages): runs the content check. Bound to Data Files/url-mapping/normal-pages/lbu-homepage.csv</description>
+   <name>TC_LbuHomepage</name>
+   <tag>template,normal,lbu-homepage</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>638736a5-c383-4225-9be8-48f9443803b2</testCaseGuid>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM page URL (aemurl column)</description>
+      <id>e1581414-f330-495d-b6d7-874658d02b9a</id>
+      <masked>false</masked>
+      <name>pageurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>AEM template name of the row (aemtemplate column)</description>
+      <id>6129f54c-240c-4ce4-8bef-720609370b7c</id>
+      <masked>false</masked>
+      <name>aemtemplate</name>
+   </variable>
+   <variable>
+      <defaultValue>'baseline'</defaultValue>
+      <description>baseline (capture live) | capture (capture new) | compare | recompare</description>
+      <id>4c4271b5-5be9-4ccd-9b41-5c702cb0e5e3</id>
+      <masked>false</masked>
+      <name>mode</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Sitecore source URL — the live page (sitecoreurl column)</description>
+      <id>843a6cbe-d649-44c9-b484-c638bbf49b41</id>
+      <masked>false</masked>
+      <name>sitecoreurl</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Page type slug of the row (pagetype column)</description>
+      <id>49f791be-f182-44e4-99ff-796bc830beaa</id>
+      <masked>false</masked>
+      <name>pagetype</name>
+   </variable>
+</TestCaseEntity>

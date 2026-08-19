@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Aggregate the latest compare run into the HTML content-parity report and the publishable copy.</description>
+   <name>TC_Build_Parity_Report</name>
+   <tag>report</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2f071d8a-58ab-4c60-a20f-f73a5e1e701a</testCaseGuid>
+</TestCaseEntity>

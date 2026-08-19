@@ -1,0 +1,13 @@
+plugins {
+  id 'java'
+  id "com.katalon.gradle-plugin" version "0.1.2"
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // Nothing. The content check reads text, not pixels: no image decoding, no WebP reader,
+  // no extra jars in Drivers/. Apache POI (report.xlsx) ships with Katalon Studio itself.
+}
