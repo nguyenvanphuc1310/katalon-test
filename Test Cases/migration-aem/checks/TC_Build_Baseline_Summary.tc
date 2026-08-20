@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TestCaseEntity>
-   <description>Which pages have both snapshots captured and can therefore be compared offline.</description>
-   <name>TC_Build_Baseline_Summary</name>
-   <tag>report</tag>
-   <comment></comment>
-   <recordOption>OTHER</recordOption>
-   <testCaseGuid>c72a1e01-3310-4c1e-98ab-75c49fe11353</testCaseGuid>
-</TestCaseEntity>
