@@ -1,7 +1,7 @@
 {
     "url": "https://www.prudential.com.sg/piliproductdeck",
     "side": "sitecore",
-    "capturedAt": "2026-08-19T16:42:25",
+    "capturedAt": "2026-08-20T13:45:14",
     "profile": "prudential-sitecore@5",
     "contentRoot": "main[role=main]",
     "tabGroups": [
@@ -10,9 +10,9 @@
     "skipped": {
         "formLabel": 0,
         "hidden": 0,
-        "noText": 24,
+        "noText": 29,
         "noise": 0,
-        "scanned": 29,
+        "scanned": 38,
         "tooShort": 0
     },
     "rootText": "PRUIndex Lifetime Income Product Deck One Agency English SCB English UOB English",
@@ -73,6 +73,46 @@
         {
             "full": "English",
             "href": "/-/media/project/prudential/pdf/piliproductdeck/pruindex_lifetime_income_oa.pdf",
+            "kind": "cta",
+            "path": "section:Product Deck",
+            "reach": "visible",
+            "stateId": "acc:0",
+            "tab": "",
+            "text": "English"
+        },
+        {
+            "full": "SCB",
+            "href": "",
+            "kind": "para",
+            "path": "section:Product Deck",
+            "reach": "visible",
+            "stateId": "acc:0",
+            "tab": "",
+            "text": "SCB"
+        },
+        {
+            "full": "English",
+            "href": "/piliproductdeck##",
+            "kind": "cta",
+            "path": "section:Product Deck",
+            "reach": "visible",
+            "stateId": "acc:0",
+            "tab": "",
+            "text": "English"
+        },
+        {
+            "full": "UOB",
+            "href": "",
+            "kind": "para",
+            "path": "section:Product Deck",
+            "reach": "visible",
+            "stateId": "acc:0",
+            "tab": "",
+            "text": "UOB"
+        },
+        {
+            "full": "English",
+            "href": "/-/media/project/prudential/pdf/piliproductdeck/pruindex_lifetime_income_uob.pdf",
             "kind": "cta",
             "path": "section:Product Deck",
             "reach": "visible",

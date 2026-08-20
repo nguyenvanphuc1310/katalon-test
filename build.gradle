@@ -3,6 +3,15 @@ plugins {
   id "com.katalon.gradle-plugin" version "0.1.2"
 }
 
+// Katalon Studio runs on a Java 21 JRE (class-file version 65). Pin the toolchain so a
+// Gradle/Buildship build cannot emit newer bytecode into bin/ — a version-70 CustomKeywords
+// kills every launch with "exit code: 1" before the first test case starts.
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(21)
+  }
+}
+
 repositories {
   mavenCentral()
 }

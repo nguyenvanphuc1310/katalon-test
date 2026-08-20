@@ -1,5 +1,13 @@
 # The report contract
 
+> **This is the live contract.** `ReportBuilder` is the only renderer, and the `content.txt` +
+> CSV scraping described here is how it gets its data. The JSON replacement once planned in
+> [content-result-contract.md](content-result-contract.md) was deleted on 2026-08-20 along with
+> its renderer; that page is now a design record, not a description of the code.
+>
+> `AuditUtils.recordResult` writes `content.txt`, so it is both the Katalon pass/fail marker and
+> half of this contract.
+
 `ReportBuilder` is built entirely from **files on disk**. It never reads the Katalon log.
 Anything a check wants rendered, it must write. Read this before adding or changing a check.
 
@@ -26,28 +34,40 @@ page absent from that CSV is never rendered at all.
 
 ## Parsed by regex
 
-`summaryOf()` matches the first detail line with a literal pattern:
+`itemsCompared()` reads **one number** out of the first detail line:
 
 ```
-<N> live items compared: <N> missing, <N> in the wrong tab, <N> reworded, <N> only on the new page
+<N> live items compared: ...
 ```
 
-and a second one for `... with changed figures, ... appearing fewer times`. **Change the
-wording, change the regex.** New counters must be *appended* after both clauses — which is
-why the score is appended last, and why `tools/offline-checks/report-contract.groovy`
-asserts that ordering.
+That opening clause is the whole of the prose contract now. `summaryOf()` — which re-parsed
+the entire line (`... missing, ... in the wrong tab, ... reworded, ... only on the new page`,
+plus `... with changed figures, ... appearing fewer times`) into an English sentence — was
+**removed on 2026-08-20** along with the sentence it printed: the per-page counts are taken
+from `findings.csv`, where each finding is a row with its own verdict, instead of from prose.
+The clause must still lead the line: new counters go **after** the existing ones, never in
+front of it.
 
 ## Evidence files
 
 | File | Format | Notes |
 |---|---|---|
-| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | strict regex; the `weight` column is optional so pre-scoring files still render |
+| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | strict `$`-anchored regex; the `weight` column **must** stay optional in it — see below |
 | `ContentAudit/<slug>/score.csv` | `field,value` quoted pairs | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy` |
 | `ContentAudit/<slug>/state_pairs.csv` | `pair,sc_id,sc_label,aem_id,aem_label,by,score` | rendered as the tab-pairing table |
 
 The parsers are strict and **drop rows they cannot match without saying so**. That is the
 worst failure mode a report can have — it just goes quiet — which is why the contract has
 its own assertion harness.
+
+It has happened. `ReportBuilder`'s findings reader required the five quoted columns and
+nothing after them, while every `findings.csv` on disk ends with `,1.0`. The `$` anchor
+therefore rejected **every row of every page**, and each page rendered "no findings" under a
+`FAIL` verdict — with no error anywhere. Fixed 2026-08-20 by making the trailing weight
+optional (`(?:,[-0-9.]+)?$`). If you touch that pattern, run
+check a rendered page actually lists its findings. An empty page and a correct one look
+identical from the outside, and nothing asserts this any more — the harness that did was
+removed with `tools/` on 2026-08-20.
 
 ## Checklist for a new check
 
@@ -56,6 +76,6 @@ its own assertion harness.
 3. Put the headline on the **first** detail line; add a `summaryOf()` branch if it needs
    turning into plain English.
 4. Write evidence under `Reports/<Kind>/<slug>/` and render it from `renderCheckCard`.
-5. Add assertions to `tools/offline-checks/report-contract.groovy` for every regex and every
-   positional reader you introduced.
+5. Re-render the report and open a page that should show the new evidence. Every parser here
+   is strict and silent, so "it compiled" is not the test — "the page shows the row" is.
 6. Update this page and `docs/overview/project-tracking.md` in the same session.

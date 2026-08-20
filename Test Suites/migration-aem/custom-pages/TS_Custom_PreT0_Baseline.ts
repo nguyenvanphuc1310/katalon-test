@@ -335,10 +335,4 @@
          <variableId>7d256add-2ea4-4ca3-a11c-5b9470611345</variableId>
       </variableLink>
    </testCaseLink>
-   <testCaseLink>
-      <guid>817afa2d-1c22-4dd2-aadf-a06f8e6db29d</guid>
-      <isReuseDriver>false</isReuseDriver>
-      <isRun>true</isRun>
-      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Baseline_Summary</testCaseId>
-   </testCaseLink>
 </TestSuiteEntity>

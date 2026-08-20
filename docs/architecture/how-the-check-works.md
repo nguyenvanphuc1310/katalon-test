@@ -1,5 +1,8 @@
 # How the content check works — crawl, extract, compare
 
+For *what code runs and in which mode*, see [workflow.md](workflow.md) — this page is about how a
+page is judged once the crawl has happened.
+
 Three stages. The first two need a browser, the third does not — and that split is what
 makes the matching rules and the score weights tunable against real data.
 
@@ -93,6 +96,9 @@ than the page.
 | File | Contents |
 |---|---|
 | `Reports/parity-results/<slug>/content.txt` | verdict on line 1, summary from line 2 |
-| `Reports/ContentAudit/<slug>/findings.csv` | one row per finding, with its score weight |
-| `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, confidence |
+| `Reports/ContentAudit/<slug>/findings.csv` | one row per finding, with its score weight * |
+| `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, confidence * |
 | `Reports/ContentAudit/<slug>/state_pairs.csv` | which tab paired with which, and how |
+
+\* The `weight` column and `score.csv` are not written by the code currently on disk — see the
+note in [verdicts-and-score.md](../reference/verdicts-and-score.md#score--the-ranking).

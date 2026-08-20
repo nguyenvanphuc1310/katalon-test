@@ -13,7 +13,7 @@ and why.
 |---|---|
 | [overview/](overview/) | Living status doc: scope, phases, changelog, next steps |
 | [architecture/](architecture/) | How the check works and how the project is laid out |
-| [reference/](reference/) | Stable reference: verdicts, the score, the report contract |
+| [reference/](reference/) | Stable reference: verdicts, the contract `ReportBuilder` reads, the deferred score and the unimplemented JSON contract |
 | [guides/](guides/) | How-to: running the suites, the tuning loop, troubleshooting |
 | `flows/` | Runbooks for proven workflows — written after the workflow ran green. *Not created yet* |
 | `plans/` | Dated design plans (historical archive). *Not created yet* |
@@ -23,10 +23,12 @@ and why.
 0. [guides/getting-started.md](guides/getting-started.md) — fresh clone → a run that
    produces a report, plus what to do when it breaks.
 1. [overview/project-tracking.md](overview/project-tracking.md) — current status, what to do next.
-2. [architecture/how-the-check-works.md](architecture/how-the-check-works.md) — crawl → extract → compare, end to end.
-3. [reference/verdicts-and-score.md](reference/verdicts-and-score.md) — what each verdict means, and how the score is computed.
-4. [reference/report-contract.md](reference/report-contract.md) — **read before writing a check**: what must land on disk for the report to render it.
-5. [guides/running-tests.md](guides/running-tests.md) — the four modes and which suite to run.
+2. [architecture/workflow.md](architecture/workflow.md) — **the map**: diagrams of the call chain and the four modes.
+3. [architecture/how-the-check-works.md](architecture/how-the-check-works.md) — crawl → extract → compare, end to end.
+4. [reference/verdicts-and-score.md](reference/verdicts-and-score.md) — what each verdict means (and the deferred score spec).
+5. [reference/report-contract.md](reference/report-contract.md) — **the contract `ReportBuilder` actually reads**: the files on disk it turns into the report.
+6. [reference/content-result-contract.md](reference/content-result-contract.md) — a JSON contract specified but **never implemented**; its renderer was deleted on 2026-08-20. Kept as a design record, not as a description of the code.
+7. [guides/running-tests.md](guides/running-tests.md) — the four modes and which suite to run.
 
 ## Quick run matrix
 
@@ -34,7 +36,6 @@ Suite paths are under `Test Suites/migration-aem/`.
 
 | Goal | Run | Needs |
 |---|---|---|
-| Everything, outside Katalon, in seconds | `tools/offline-checks/run.sh replay` | nothing |
 | Re-judge without re-crawling | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | nothing |
 | Capture the live side, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | Chrome (the live site is public) |
 | Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | Chrome + VPN |

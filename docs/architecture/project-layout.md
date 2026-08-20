@@ -4,14 +4,14 @@
 
 | File | Lines | Role |
 |---|---:|---|
-| `migration/ContentScope.groovy` | 328 | The JavaScript that reads a page: resolve the content root, enumerate tabs/accordions, emit content items. All per-host selectors come from `site-profiles.json`. |
+| `migration/ContentScope.groovy` | 340 | The JavaScript that reads a page: resolve the content root, enumerate tabs/accordions, emit content items. All per-host selectors come from `site-profiles.json`. |
 | `migration/ContentSnapshot.groovy` | 100 | Navigate, read through `ContentScope`, write `<slug>.<side>.json` + `.html`. |
-| `migration/StateMatch.groovy` | 167 | Pair the tab panels and accordion sections of the two sides by score, not by label. |
-| `migration/checks/ContentCompare.groovy` | ~530 | The diff and the score. **No browser, no network** — reads two JSON files. |
-| `migration/checks/ContentTextCheck.groovy` | 86 | Orchestrates the four modes and records the verdict. |
+| `migration/StateMatch.groovy` | 151 | Pair the tab panels and accordion sections of the two sides by score, not by label. |
+| `migration/checks/ContentCompare.groovy` | 434 | The diff and the score. **No browser, no network** — reads two JSON files. |
+| `migration/checks/ContentTextCheck.groovy` | 92 | Orchestrates the four modes and records the verdict. |
 | `migration/WebActions.groovy` | 217 | Open a page, pin the viewport, dismiss cookies, scroll, expand hidden content. |
 | `migration/AuditUtils.groovy` | 90 | The on-disk contract: `slugOf`, `baselinePath`, `reportDir`, `recordResult`, `csvq`. |
-| `migration/ReportBuilder.groovy` | ~1,370 | The HTML report, the publish bundle, `report.xlsx`, the baseline summary. |
+| `migration/ReportBuilder.groovy` | 753 | **The only renderer.** The HTML report and nothing else: index + one file per template + one file per page, under `Reports/parity-report/`. |
 
 `AuditUtils` is the shared floor, not a helper for `ReportBuilder`: it defines the slug, the
 baseline paths, the evidence paths and the verdict file format. `ReportBuilder` can read what
@@ -30,20 +30,21 @@ the check wrote only because both go through it.
 
 ## Test cases
 
-Six on disk, all under `Test Cases/migration-aem/`:
+Five on disk, all under `Test Cases/migration-aem/`:
 
 - `checks/TC_Check_Content_Text` — the check itself (`sitecoreurl`, `pageurl`, `mode`).
-- `checks/TC_Build_Parity_Report`, `checks/TC_Build_Baseline_Summary` — thin wrappers,
-  3–8 lines each, over `ReportBuilder`.
+- `checks/TC_Build_Parity_Report` — a three-line wrapper over `ReportBuilder.build()`.
 - `templates/normal-pages/TC_GeneralContentDetailPage`, `templates/normal-pages/TC_LbuHomepage`,
   `templates/custom-pages/TC_IlpFund` — one per page type. Each guards on `pagetype` and
   calls the content check.
 
 The target is one template per page type (26 of them). The remaining 23 are wired into the
-group suites but have not been written; neither has `TC_Build_Mastersheet_Column`, which
-four suites reference — `ReportBuilder.buildMastersheetColumn()` exists, the test case that
-would call it does not, so `Reports/report.xlsx` is produced only by
-`tools/offline-checks/run.sh replay`.
+group suites but have not been written.
+
+`TC_Build_Baseline_Summary` was **deleted on 2026-08-20** together with `Exports.groovy`, and
+the step was removed from the three baseline suites that ran it. `Reports/baseline-summary.html`
+is no longer produced by anything. Verifying a capture is now a manual read of the snapshot
+JSON — see [../guides/running-tests.md](../guides/running-tests.md#after-a-capture-verify-the-snapshot).
 
 ## Test suites
 
@@ -61,6 +62,5 @@ hand is for investigating one page, not for running a suite.
 
 ## Tools
 
-`tools/offline-checks/run.sh` — compile, rule assertions, contract assertions, and with
-`replay`, the whole compare half over the snapshots on disk plus a report rebuild. Runs on
-Katalon's own Groovy and JRE.
+None. `tools/` (the offline runner and the report demo) was removed on 2026-08-20 — everything
+runs through Katalon Studio.

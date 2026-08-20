@@ -1,0 +1,16 @@
+{
+  // Katalon Studio executes on its own Java 21 JRE (class-file version 65). Anything else that
+  // compiles this project — the VS Code Java language server, Gradle/Buildship — must target 21
+  // too: a single class written at version 70 into bin/ makes every Katalon launch die with
+  // "Launch terminated with non-zero exit code: 1" before the first test case starts.
+  "java.jdt.ls.java.home": "/usr/local/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "/usr/local/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home",
+      "default": true
+    }
+  ],
+  "java.import.gradle.java.home": "/usr/local/Cellar/openjdk@21/21.0.11/libexec/openjdk.jdk/Contents/Home",
+  "java.autobuild.enabled": false
+}

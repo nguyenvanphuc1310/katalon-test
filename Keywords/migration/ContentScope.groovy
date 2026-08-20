@@ -275,13 +275,17 @@ public class ContentScope {
 			// wording and changed its destination passed every check on the page.
 			var href = '';
 			if (kind === 'cta') {
-				var a = el.closest('a');
-				if (a && a.getAttribute('href')) {
+				// NOT `var a`: `a` is the index of the enclosing item loop and `var` is
+				// function-scoped, so naming the anchor `a` overwrote the counter with an
+				// element, made `a++` NaN and ended the whole crawl at the FIRST CTA on the
+				// page — which is how a 1,122-element page snapshotted as 3 items.
+				var anchor = el.closest('a');
+				if (anchor && anchor.getAttribute('href')) {
 					try {
-						var u = new URL(a.href, document.baseURI);
+						var u = new URL(anchor.href, document.baseURI);
 						// path only: the domain legitimately changes between the two systems
 						href = u.pathname.replace(/\\/+$/, '') + (u.hash || '');
-					} catch (e) { href = a.getAttribute('href') || ''; }
+					} catch (e) { href = anchor.getAttribute('href') || ''; }
 				}
 			}
 

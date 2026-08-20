@@ -893,10 +893,4 @@
       <isRun>true</isRun>
       <testCaseId>Test Cases/migration-aem/checks/TC_Build_Parity_Report</testCaseId>
    </testCaseLink>
-   <testCaseLink>
-      <guid>9549e70e-b201-432b-91a7-84481d883e62</guid>
-      <isReuseDriver>false</isReuseDriver>
-      <isRun>true</isRun>
-      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Mastersheet_Column</testCaseId>
-   </testCaseLink>
 </TestSuiteEntity>

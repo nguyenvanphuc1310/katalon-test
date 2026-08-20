@@ -27,7 +27,8 @@ execute today:
 | PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | `compare` | yes |
 
 Every compare/recompare suite ends with `TC_Build_Parity_Report`, so any run regenerates the
-reports; the `baseline` suites end with `TC_Build_Baseline_Summary`.
+report. The `baseline` suites end with the last page they capture — they write snapshots and
+nothing else, so verify them by reading the snapshot JSON (below).
 
 **Not runnable yet.** The four group suites (`normal-pages/TS_Normal_PreT0_Baseline`,
 `TS_Normal_PostT0_Compare`, `custom-pages/TS_Custom_PreT0_Baseline`,
@@ -40,27 +41,42 @@ test case either — only as `ReportBuilder.mastersheetColumn`. See
 
 ## Without Katalon Studio
 
-```bash
-tools/offline-checks/run.sh          # compile + rule assertions + report contract
-tools/offline-checks/run.sh replay   # ...and re-diff every snapshot, then rebuild the reports
+Nothing in the repository runs the check outside Studio any more — `tools/` was removed on
+2026-08-20. `TS_GeneralContentDetailPage_Recompare` is the equivalent inside Studio: it
+re-judges the snapshots already on disk, with no browser and no VPN.
+
+Anything run by hand must use **Katalon's own Groovy and JRE** under
+`/Applications/Katalon Studio.app/Contents/Eclipse`: the system `java` is newer than Groovy 3
+can read while Katalon executes on 21, and that mismatch is what produces the misleading
+`UnsupportedClassVersionError` inside Studio.
+
+`TS_GeneralContentDetailPage_Recompare` ends with `TC_Build_Parity_Report`, so one run
+re-judges every snapshot and rebuilds the report. Use it to see what a rule change did to the
+real numbers before running anything against the live sites.
+
+## After a capture, verify the snapshot
+
+A capture **overwrites** `Data Files/baselines/…/snapshot/<slug>.<side>.json` unconditionally, and
+a crawl that read the page wrongly still writes a file and still passes. Open one of the files it
+just wrote:
+
+```
+"items": 168,                    # 150-400 for a General Content Detail page; under 10 = broken
+"skipped": { "scanned": 1070 },  # 1,000-1,600; under 50 = the item walk died early
+"rootText": "…"                  # 10,000+ characters
 ```
 
-Runs on Katalon's own Groovy and JRE — deliberately, because the system `java` is newer than
-Groovy 3 can read while Katalon executes on 21, and that mismatch is what produces the
-misleading `UnsupportedClassVersionError` inside Studio.
-
-`replay` is the same work as `mode=recompare` plus the two report test cases. Use it to see
-what a rule or weight change did to the real numbers before running anything against the
-live sites.
+If those are wrong, do **not** run recompare: it will overwrite the previous results with a
+comparison against nothing, and pages will flip to PASS because there was nothing left to miss.
+Re-run the capture instead.
 
 ## Reading the results
 
 | Where | What |
 |---|---|
-| `Reports/parity-report/index.html` | the report — cover, at-a-glance matrix, filter bar, one file per page |
-| `Reports/publish/` | the same site with no local paths — copy this to a report server |
-| `Reports/report.xlsx` | one row per URL: verdict, score, grade, confidence, summary. Written by `ReportBuilder.buildMastersheetColumn()`, which today **only** `run.sh replay` calls — the `TC_Build_Mastersheet_Column` test case the suites reference does not exist |
-| `Reports/baseline-summary.html` | which pages have both sides captured and can be compared |
+| `Reports/parity-report/index.html` | the report — run facts and one row per template; open a template to reach its pages |
+| `Reports/parity-report/templates/<group>-<pagetype>.html` | one file per template — its pages, with texts compared and texts failed per page |
+| `Reports/parity-report/pages/<slug>.html` | one file per compared page — the counts, then every failing text |
 | `Reports/ContentAudit/<slug>/findings.csv` | every finding, with its score weight |
 
 ## Traps

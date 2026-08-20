@@ -2,6 +2,12 @@
 
 Two results per page. They answer different questions and are deliberately not merged.
 
+> **The score is deferred.** `ReportBuilder` renders the **verdict only** — see
+> [report-contract.md](report-contract.md). The verdict table below is
+> live and is the source of the 11 finding values; [the score section](#score--the-ranking) is
+> kept as the specification to restore, not as something the report reads. The two must still
+> never be derived from one another when the score returns.
+
 ## Verdict — the gate
 
 Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`.
@@ -22,6 +28,23 @@ Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`.
 
 `NOT_RUN` means the check does not apply (the URL serves a PDF). It is not the same as a
 missing file, which means the page has not been checked yet.
+
+### How the three levels render
+
+`ReportBuilder.level()` maps every verdict to one of three levels, and each finding block on a
+page carries it **three ways at once** — a coloured left rule, a tinted header band, and a
+spelled-out label:
+
+| Level | Label printed | Colour | Verdicts |
+|---|---|---|---|
+| error | `FAILS THE PAGE` | red `--fail` `#B3261E` on `--fail-soft` | the four in `ContentCompare.ERRORS` |
+| warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the six warnings above |
+| info | `FOR INFORMATION` | neutral `--muted` on `--sunk` | `ONLY_ON_AEM` |
+
+The label is not decoration: this report is printed, forwarded and read on strange screens, and
+roughly one man in twelve cannot separate the red rule from the amber one. Colour is the fast
+signal; the label is the statement. Adding a verdict means adding it to `ERRORS`, `WARNINGS` or
+`INFOS` in `ReportBuilder` — an unlisted verdict silently renders as a warning.
 
 ### Why figures are compared separately
 
@@ -55,6 +78,15 @@ text of at least 40 characters is counted at all: counting substrings, `Protecti
 failed the page.
 
 ## Score — the ranking
+
+> **Deferred by decision — not implemented, and not rendered by the report.** The current
+> report scope is verdict-only, so nothing consumes a score today. `ContentCompare` also has no
+> `WEIGHTS` and no `score()`, `write()` emits no `weight` column and no `score.csv`, and
+> `ReportBuilder` renders no score. The generated files under `Reports/` were produced by an
+> earlier build that had it. (The offline harness that asserted the score was removed with
+> `tools/` on 2026-08-20.) Everything
+> below is the specification to restore it to; see
+> [open point 6](../overview/project-tracking.md#open-points).
 
 ```
 score = 100 × (1 − Σ weight(finding) / items compared)

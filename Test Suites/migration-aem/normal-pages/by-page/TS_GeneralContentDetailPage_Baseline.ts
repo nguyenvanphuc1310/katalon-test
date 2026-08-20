@@ -59,10 +59,4 @@
          <variableId>4761f407-5b7b-4baf-aafa-087b457f55ce</variableId>
       </variableLink>
    </testCaseLink>
-   <testCaseLink>
-      <guid>144d30c8-9d30-4bd4-acab-5ff553495df4</guid>
-      <isReuseDriver>false</isReuseDriver>
-      <isRun>true</isRun>
-      <testCaseId>Test Cases/migration-aem/checks/TC_Build_Baseline_Summary</testCaseId>
-   </testCaseLink>
 </TestSuiteEntity>
