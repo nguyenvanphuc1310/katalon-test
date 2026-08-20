@@ -6,6 +6,24 @@
    <comment></comment>
    <recordOption>OTHER</recordOption>
    <testCaseGuid>b0b274a0-5ab5-41b6-b53b-11c1ceaf04b4</testCaseGuid>
+   <variableLinks>
+      <testDataLinkId></testDataLinkId>
+      <type>DEFAULT</type>
+      <value></value>
+      <variableId>1ff2922e-5908-4dd4-8591-dce77b3652bc</variableId>
+   </variableLinks>
+   <variableLinks>
+      <testDataLinkId></testDataLinkId>
+      <type>DEFAULT</type>
+      <value></value>
+      <variableId>41179c68-6083-4748-b146-9c5428944302</variableId>
+   </variableLinks>
+   <variableLinks>
+      <testDataLinkId></testDataLinkId>
+      <type>DEFAULT</type>
+      <value></value>
+      <variableId>be94bdb5-80d4-4ea1-9562-85d454c8bda0</variableId>
+   </variableLinks>
    <variable>
       <defaultValue>''</defaultValue>
       <description>Sitecore source URL — the live page, which is the reference</description>
