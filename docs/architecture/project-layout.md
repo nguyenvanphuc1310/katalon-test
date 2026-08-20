@@ -11,7 +11,20 @@
 | `migration/checks/ContentTextCheck.groovy` | 92 | Orchestrates the four modes and records the verdict. |
 | `migration/WebActions.groovy` | 217 | Open a page, pin the viewport, dismiss cookies, scroll, expand hidden content. |
 | `migration/AuditUtils.groovy` | 90 | The on-disk contract: `slugOf`, `baselinePath`, `reportDir`, `recordResult`, `csvq`. |
-| `migration/ReportBuilder.groovy` | 753 | **The only renderer.** The HTML report and nothing else: index + one file per template + one file per page, under `Reports/parity-report/`. |
+| `migration/ReportBuilder.groovy` | 989 | **The only renderer.** The HTML report and nothing else, under `Reports/parity-report/`: index + one file per template + one file per page + one file per test case of a page. |
+
+The report has four levels, each listing only what the next one opens:
+
+| File | Lists |
+|---|---|
+| `index.html` | the run, then one row per template |
+| `templates/<group>-<pagetype>.html` | the pages of that template, with how many test cases each one passed and failed |
+| `pages/<slug>.html` | the test cases run against that URL |
+| `pages/<slug>__<check>.html` | one test case on one URL — its counts and its findings |
+
+A **test case is a check id** — one entry of `CHECK_ORDER`. Only `content` has a producer
+today; GA4, images and metadata are registry entries away. The contract for adding one is in
+[report-contract.md](../reference/report-contract.md).
 
 `AuditUtils` is the shared floor, not a helper for `ReportBuilder`: it defines the slug, the
 baseline paths, the evidence paths and the verdict file format. `ReportBuilder` can read what

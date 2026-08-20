@@ -7,19 +7,20 @@ import com.kms.katalon.core.util.KeywordUtil
 /**
  * The client-facing HTML report for the content-parity check.
  *
- * Three levels, one file each, and every level lists only what the next one opens:
+ * Four levels, one file each, and every level lists only what the next one opens:
  *
  *   index.html                              the run, then one row per template
  *   templates/<group>-<pagetype>.html       the pages of that template
- *   pages/<slug>.html                       the texts of that page that did not survive
+ *   pages/<slug>.html                       the test cases run against that page
+ *   pages/<slug>__<check>.html              one test case on one page — its findings
  *
  * Nothing is listed twice and no single file grows with the whole site — the target is
  * ~2,000 URLs, where one long document is not a report, it is a download.
  *
- * The report answers two numbers per page and stays out of the way otherwise: how many texts
- * of the live page were compared, and how many of them failed. What the check writes but a
- * reader cannot act on — the raw summary line, the score, the description of what the check
- * does — is deliberately not rendered.
+ * A "test case" is a check id: one entry of CHECK_ORDER, run against one URL. Only `content`
+ * has a producer today; the others (GA4, images, metadata) get their row as soon as they write
+ * their result file, without touching the report. What the check writes but a reader cannot act
+ * on — the raw summary line, the score — is deliberately not rendered.
  *
  * A page fails on any MISSING_ON_AEM / WRONG_TAB / NUMBER_CHANGED / LINK_CHANGED, however
  * large the page is: losing one button is losing content. The live page is the reference and
@@ -28,8 +29,9 @@ import com.kms.katalon.core.util.KeywordUtil
  * Input is files on disk, never the Katalon log:
  *
  *   Data Files/aem-url-mapping.csv                  which pages exist, and their template
- *   Reports/parity-results/<slug>/content.txt       verdict + the check's detail lines
- *   Reports/ContentAudit/<slug>/findings.csv        one row per finding — the evidence
+ *   Reports/parity-results/<slug>/<check>.txt       verdict + that check's detail lines
+ *   Reports/<Kind>/<slug>/findings.csv              one row per finding — the evidence
+ *                                                   (<Kind> per check: see CHECK_EVIDENCE)
  *
  * Output is self-contained apart from one stylesheet and one script under assets/_site/, and
  * every navigation step is a plain link, so it works from file:// with JavaScript off.
@@ -45,9 +47,32 @@ public class ReportBuilder {
 
 	static final List ACRONYMS = ['ilp', 'ga4', 'ppc', 'pru', 'lbu', 'pva', 'http', 'gtm']
 
+	/**
+	 * The test cases, in the order they are listed against every URL.
+	 *
+	 * One id here is one test case: it reads `Reports/parity-results/<slug>/<id>.txt` for its
+	 * verdict and `Reports/<CHECK_EVIDENCE[id]>/<slug>/findings.csv` for its evidence, and it
+	 * gets a row on every page of the report plus a file of its own per URL.
+	 *
+	 * This is a CLOSED list. A result file written under an id that is not here is written and
+	 * then ignored — silently. Adding GA4, images or metadata is: one id here, one title, one
+	 * description, one evidence folder, and a producer that writes the two files. Nothing else in
+	 * this class changes.
+	 */
+	static final List CHECK_ORDER = ['content']
+
+	static final Map CHECK_TITLE = [content: 'Content parity']
+
+	/** One sentence: what this test case asserts, printed on its own page. */
+	static final Map CHECK_DESC = [
+		content: 'Every text of the live page is still on the new page.']
+
+	/** `Reports/<folder>/<slug>/findings.csv` — where this test case leaves its evidence. */
+	static final Map CHECK_EVIDENCE = [content: 'ContentAudit']
+
 	/** Most severe first: the reading order of the blocks on a page */
 	static final List FINDING_ORDER = ['MISSING_ON_AEM', 'NUMBER_CHANGED', 'LINK_CHANGED',
-		'WRONG_TAB', 'SCOPE_ASYMMETRY', 'COUNT_MISMATCH', 'OPTION_MISSING', 'TEXT_CHANGED',
+		'WRONG_TAB', 'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY',
 		'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW', 'ONLY_ON_AEM']
 
 	static final Map FINDING_TITLE = [
@@ -57,7 +82,6 @@ public class ReportBuilder {
 		WRONG_TAB: 'Present, but under a different tab',
 		SCOPE_ASYMMETRY: 'The two pages were not read comparably',
 		COUNT_MISMATCH: 'Appears fewer times than on the live page',
-		OPTION_MISSING: 'Dropdown choice not offered on the new page',
 		TEXT_CHANGED: 'Wording changed',
 		STATE_ONLY_ON_LIVE: 'Tab/section with no counterpart on the new page',
 		STATE_ONLY_ON_NEW: 'Tab/section only on the new page',
@@ -70,18 +94,17 @@ public class ReportBuilder {
 		LINK_CHANGED: 'Same wording, different destination.',
 		WRONG_TAB: 'On the new page, but under a different tab.',
 		SCOPE_ASYMMETRY: 'The two pages were not read on equal terms, so these findings rest on a weaker measurement.',
-		COUNT_MISMATCH: 'On the new page, but fewer times than on the live page.',
-		OPTION_MISSING: 'A dropdown choice the new page does not offer.',
-		TEXT_CHANGED: 'Same place, reworded.',
+		COUNT_MISMATCH: 'On the new page, but fewer times than on the live page — the missing appearances are missing content.',
+		TEXT_CHANGED: 'Same place, reworded — the live wording is not on the new page.',
 		STATE_ONLY_ON_LIVE: 'A tab or section of the live page with no counterpart found on the new page.',
 		STATE_ONLY_ON_NEW: 'A tab or section that exists only on the new page.',
 		ONLY_ON_AEM: 'Extra text on the new page. The live page is a subset baseline, so this never fails.']
 
-	/** The four that fail a page. Kept identical to ContentCompare.ERRORS. */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED']
+	/** The six that fail a page. Kept identical to ContentCompare.ERRORS. */
+	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED',
+		'COUNT_MISMATCH', 'TEXT_CHANGED']
 	/** Worth reading, but they do not fail the page */
-	static final List WARNINGS = ['SCOPE_ASYMMETRY', 'COUNT_MISMATCH', 'OPTION_MISSING', 'TEXT_CHANGED',
-		'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
+	static final List WARNINGS = ['SCOPE_ASYMMETRY', 'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
 	/** Never a problem: the live page is a subset baseline */
 	static final List INFOS = ['ONLY_ON_AEM']
 
@@ -125,6 +148,7 @@ public class ReportBuilder {
 			if (c.length < 3) return
 			String aem = c[1].trim()
 			String slug = AuditUtils.slugOf(aem)
+			Map results = CHECK_ORDER.collectEntries { String id -> [id, readResult(proj, slug, id)] }
 			pages << [
 				sc      : c[0].trim(),
 				aem     : aem,
@@ -132,15 +156,23 @@ public class ReportBuilder {
 				group   : c.length > 3 && c[3].trim() ? c[3].trim() : 'normal',
 				pagetype: c.length > 4 ? c[4].trim() : '',
 				slug    : slug,
-				result  : readResult(proj, slug),
+				// one entry per test case; null = that check never ran on this page
+				results : results,
+				// the content check still decides whether the page gets a file of its own
+				result  : results['content'],
 			]
 		}
 		return pages
 	}
 
-	/** content.txt: line 1 is the verdict, the rest is the check's detail. null = never checked. */
-	private static Map readResult(String proj, String slug) {
-		File f = new File(proj + '/Reports/parity-results/' + slug + '/content.txt')
+	/**
+	 * `<checkId>.txt`: line 1 is the verdict, the rest is that check's detail.
+	 *
+	 * null (no file) means "not checked yet"; a file reading NOT_RUN means "does not apply here".
+	 * They render differently and must not be collapsed into one.
+	 */
+	private static Map readResult(String proj, String slug, String checkId) {
+		File f = new File(proj + '/Reports/parity-results/' + slug + '/' + checkId + '.txt')
 		if (!f.exists()) return null
 		List lines = f.readLines('UTF-8')
 		return [verdict: lines ? lines[0].trim() : 'NA',
@@ -156,8 +188,10 @@ public class ReportBuilder {
 	 * reads "no findings" on a page that failed. That is not hypothetical — it shipped once; see
 	 * docs/reference/report-contract.md.
 	 */
-	private static List readFindings(String proj, String slug) {
-		File f = new File(proj + '/Reports/ContentAudit/' + slug + '/findings.csv')
+	private static List readFindings(String proj, String slug, String checkId) {
+		String kind = CHECK_EVIDENCE[checkId]
+		if (!kind) return []
+		File f = new File(proj + '/Reports/' + kind + '/' + slug + '/findings.csv')
 		if (!f.exists()) return []
 		List rows = []
 		f.readLines('UTF-8').drop(1).each { String line ->
@@ -180,16 +214,56 @@ public class ReportBuilder {
 		return m.find() ? (m.group(1) as int) : 0
 	}
 
-	/** Everything one page contributes to the report, read once. */
-	private static Map statsOf(String proj, Map p) {
-		Map res = (Map) p.result
-		List rows = readFindings(proj, (String) p.slug)
-		return [verdict: res ? (String) res.verdict : 'NA',
+	/** Everything one test case on one page contributes to the report, read once. */
+	private static Map checkStatsOf(String proj, Map p, String checkId) {
+		Map res = (Map) ((Map) p.results)[checkId]
+		List rows = res == null ? [] : readFindings(proj, (String) p.slug, checkId)
+		return [check  : checkId,
+			verdict: res ? (String) res.verdict : 'NA',
 			items  : itemsCompared(res == null ? null : (String) res.detail),
 			rows   : rows,
 			failed : rows.count { ERRORS.contains(it.verdict) },
 			warned : rows.count { WARNINGS.contains(it.verdict) },
 			extra  : rows.count { INFOS.contains(it.verdict) }]
+	}
+
+	/** The content test case — what the index and the template tables still count in texts. */
+	private static Map statsOf(String proj, Map p) {
+		return checkStatsOf(proj, p, 'content')
+	}
+
+	/** Every test case of one page, in CHECK_ORDER — the rows of that page's own file. */
+	private static List casesOf(String proj, Map p) {
+		return CHECK_ORDER.collect { String id -> checkStatsOf(proj, p, id) }
+	}
+
+	/**
+	 * How many test cases of this page passed and failed.
+	 *
+	 * A test case with no result file, or one reading NOT_RUN, is in neither half — exactly the
+	 * rule `rateOf` applies to pages. Counting it as a failure would report a verdict nobody
+	 * reached; counting it as a pass would hide the work that has not been done.
+	 */
+	/**
+	 * The verdict of a whole page: the worst verdict any of its test cases reached.
+	 *
+	 * One failed test case fails the page, however many others passed — the same gate the content
+	 * check already applies to a single missing text. Today this is exactly the content verdict,
+	 * because content is the only test case; the day GA4 lands it stops being.
+	 */
+	private static String pageVerdict(Map p) {
+		Collection res = ((Map) p.results).values().findAll { it != null }
+		if (res.any { it.verdict == 'FAIL' }) return 'FAIL'
+		if (res.any { it.verdict == 'WARN' }) return 'WARN'
+		if (res.any { it.verdict == 'PASS' }) return 'PASS'
+		if (res.any { it.verdict == 'NOT_RUN' }) return 'NOT_RUN'
+		return 'NA'
+	}
+
+	private static Map caseTallyOf(List cases) {
+		return [pass  : cases.count { it.verdict == 'PASS' },
+			fail  : cases.count { it.verdict == 'FAIL' },
+			notRun: cases.count { !JUDGED.contains(it.verdict) }]
 	}
 
 	/** Pages of one group bucketed by template (the `pagetype` slug of the mapping) */
@@ -212,29 +286,31 @@ public class ReportBuilder {
 		}.join(' ')
 	}
 
-	/**
-	 * How many of the compared pages passed.
-	 *
-	 * The denominator everywhere in this report is the pages actually compared in this run: a
-	 * page nobody checked can neither pass nor fail, and counting it would move the rate every
-	 * time the batch changes rather than when the site changes.
-	 */
-	private static int passedOf(List stats) {
-		return stats.count { it.verdict == 'PASS' }
-	}
+	/** The only two verdicts a pass rate can be counted from. */
+	static final List JUDGED = ['PASS', 'FAIL']
 
 	/**
-	 * "90% (18 of 20)" — the pass rate of a set of compared pages.
+	 * The pass rate of a set of pages, as `[html, cls]`: "90% (18 of 20)" plus good/bad.
 	 *
-	 * This is a page-level rate and nothing else. It counts whole pages that passed the verdict
-	 * gate, never texts: a page that lost one text out of 127 counts as one failed page here,
-	 * exactly as it does everywhere else in the report. Nothing compared prints no rate at all,
-	 * never 0% — an empty batch is not a total failure.
+	 * Two rules this rate must keep.
+	 *
+	 * It is a **page**-level rate and never a text-level one. It counts whole pages that cleared
+	 * the verdict gate; a page that lost one text out of 127 is one failed page here, exactly as
+	 * it is everywhere else in the report. The two numbers answer different questions and must
+	 * not be blended into a "% of texts that survived".
+	 *
+	 * Its denominator is the pages actually judged — PASS or FAIL. A page with no result on
+	 * disk, or one whose result reads NOT_RUN, is in neither half: in the denominator it would
+	 * read as a failure the check never made, in the numerator it would hide. Nothing judged
+	 * prints no rate at all rather than 0% — an empty batch is not a total failure.
 	 */
-	private static String rate(int passed, int total) {
-		if (total <= 0) return '&mdash;'
+	private static Map rateOf(List verdicts) {
+		int total = verdicts.count { JUDGED.contains(it) }
+		int passed = verdicts.count { it == 'PASS' }
+		if (total <= 0) return [html: '&mdash;', cls: '']
 		int p = (int) Math.round(passed * 100.0d / total)
-		return p + '% <span class="of">(' + passed + ' of ' + total + ')</span>'
+		return [html: p + '% <span class="of">(' + passed + ' of ' + total + ')</span>',
+			cls : passed == total ? 'good' : 'bad']
 	}
 
 	// ---------------------------------------------------------------- rendering
@@ -273,19 +349,30 @@ public class ReportBuilder {
 		tplNav.each { Map m ->
 			((Map) m.t).pages.findAll { it.result != null }.each { Map p -> nav << [g: m.g, t: m.t, p: p] }
 		}
+		int caseFiles = 0
 		nav.eachWithIndex { Map n, int i ->
-			new File(pagesDir, n.p.slug + '.html').setText(renderPageFile(proj, n, nav, i), 'UTF-8')
+			List cases = casesOf(proj, (Map) n.p)
+			new File(pagesDir, n.p.slug + '.html').setText(renderPageFile(proj, n, nav, i, cases), 'UTF-8')
+			// One file per test case that actually ran: a test case with no result on disk is a
+			// row on the page above, not an empty file of its own.
+			cases.eachWithIndex { Map c, int j ->
+				if (c.verdict == 'NA') return
+				new File(pagesDir, checkFile((Map) n.p, (String) c.check))
+						.setText(renderCheckFile(n, cases, j), 'UTF-8')
+				caseFiles++
+			}
 		}
 
 		KeywordUtil.logInfo("Parity report -> " + index.getAbsolutePath() +
-			" (${tplNav.size()} template file(s), ${nav.size()} page file(s))")
+			" (${tplNav.size()} template file(s), ${nav.size()} page file(s), ${caseFiles} test-case file(s))")
 		return index.getAbsolutePath()
 	}
 
 	/** index.html: the run, then one row per template. No individual page is listed here. */
 	private static String renderIndex(String proj, List pages, List groups, Map byGroup) {
 		int compared = pages.count { it.result != null }
-		int withFindings = pages.count { it.result != null && it.result.verdict == 'FAIL' }
+		int withFindings = pages.count { pageVerdict(it) == 'FAIL' }
+		Map overall = rateOf(pages.collect { Map p -> pageVerdict(p) })
 
 		StringBuilder h = new StringBuilder()
 		h << head('', '')
@@ -293,32 +380,37 @@ public class ReportBuilder {
 		h << '<p class="eyebrow">Website migration &middot; quality assurance</p>'
 		h << '<h1>Migration parity report</h1>'
 		h << '<p class="lede">Every page of the new site is compared against the live site, which is the reference. '
-		h << 'Open a template to see its pages; open a page to see the texts that did not survive.</p>'
+		h << 'Open a template to see its pages, a page to see the test cases run against it, '
+		h << 'and a test case to see the texts that did not survive.</p>'
 		h << '<dl class="facts">'
 		h << "<div><dt>Generated</dt><dd>${new Date().format('yyyy-MM-dd HH:mm')}</dd></div>"
 		h << "<div><dt>Pages in scope</dt><dd>${pages.size()}</dd></div>"
 		h << "<div><dt>Compared in this run</dt><dd>${compared}</dd></div>"
 		h << "<div><dt>Pages with findings</dt><dd class=\"${withFindings > 0 ? 'bad' : 'good'}\">${withFindings}</dd></div>"
+		h << "<div><dt>Pass rate</dt><dd class=\"${overall.cls}\">${overall.html}</dd></div>"
 		h << '</dl></header>'
 
 		h << '<section class="overview"><h2 class="minor">Templates</h2>'
 		h << '<div class="scroll"><table class="matrix"><thead><tr><th>Template</th><th>Pages</th><th>Compared</th>'
-		h << '<th>Texts compared</th><th>Texts failed</th><th>Result</th><th></th></tr></thead><tbody>'
+		h << '<th>Texts compared</th><th>Texts failed</th><th>Pass rate</th><th>Result</th><th></th></tr></thead><tbody>'
 		groups.each { String g ->
 			List gp = (List) byGroup[g]
 			if (!gp) return
-			h << '<tr class="grouprow"><th colspan="7" scope="colgroup">'
+			h << '<tr class="grouprow"><th colspan="8" scope="colgroup">'
 			h << esc(GROUP_TITLE[g] ?: (g.capitalize() + ' pages')) + '</th></tr>'
 			templatesOf(gp).each { Map t ->
 				List done = t.pages.findAll { it.result != null }
 				List stats = done.collect { Map p -> statsOf(proj, p) }
-				int failedPages = stats.count { it.verdict == 'FAIL' }
+				List verdicts = done.collect { Map p -> pageVerdict(p) }
+				int failedPages = verdicts.count { it == 'FAIL' }
 				int items = (stats.sum { it.items } ?: 0) as int
 				int failedTexts = (stats.sum { it.failed } ?: 0) as int
 				h << "<tr><th scope=\"row\"><a href=\"${templateHref(g, t, '')}\">${esc(t.title)}</a></th>"
 				h << "<td class=\"num\">${t.pages.size()}</td><td class=\"num\">${done.size()}</td>"
 				h << "<td class=\"num\">${items ?: '&mdash;'}</td>"
 				h << '<td class="num">' + (failedTexts > 0 ? "<b class=\"bad\">${failedTexts}</b>" : '&mdash;') + '</td>'
+				Map r = rateOf(verdicts)
+				h << "<td class=\"num rate ${r.cls}\">${r.html}</td>"
 				h << '<td>' + (done.isEmpty() ? '<span class="chip NA">not compared</span>'
 						: failedPages > 0 ? "<span class=\"chip FAIL\">${failedPages} of ${done.size()} with findings</span>"
 						: "<span class=\"chip PASS\">${done.size()} passed</span>") + '</td>'
@@ -335,7 +427,8 @@ public class ReportBuilder {
 	private static String renderTemplateFile(String proj, String group, Map t, List tplNav, int i) {
 		String gTitle = GROUP_TITLE[group] ?: (group.capitalize() + ' pages')
 		List done = t.pages.findAll { it.result != null }
-		int failedPages = done.count { it.result.verdict == 'FAIL' }
+		List verdicts = done.collect { Map p -> pageVerdict(p) }
+		int failedPages = verdicts.count { it == 'FAIL' }
 		Map prev = i > 0 ? (Map) tplNav[i - 1] : null
 		Map next = i < tplNav.size() - 1 ? (Map) tplNav[i + 1] : null
 
@@ -359,6 +452,8 @@ public class ReportBuilder {
 		h << "<p class=\"page-status\">${t.pages.size()} page(s) report this template &middot; "
 		h << "${done.size()} compared in this run &middot; "
 		h << (failedPages > 0 ? "${failedPages} with findings" : 'none with findings') + '</p>'
+		Map r = rateOf(verdicts)
+		h << "<p class=\"page-rate\">Pass rate for this template: <b class=\"${r.cls}\">${r.html}</b></p>"
 		h << templateBody(proj, t)
 		h << '<p class="sub pagefoot"><a href="../index.html">&lsaquo; Back to all templates</a>'
 		if (next) h << "<a href=\"${escAttr(templateFile((String) next.g, (Map) next.t))}\">Next template &rsaquo;</a>"
@@ -369,9 +464,14 @@ public class ReportBuilder {
 	}
 
 	/**
-	 * The pages of one template, carrying the two numbers the report exists for: how many live
-	 * texts were compared, and how many failed. Pages nobody compared get no file of their own,
-	 * only a folded note — one empty card each would bury the pages that were compared.
+	 * The pages of one template, each with how many of its test cases passed and how many failed.
+	 *
+	 * Deliberately not the text counts any more: a page now runs several test cases, and "127
+	 * texts compared" is a fact about one of them. The per-text numbers live on that test case's
+	 * own file, one click further in, where they belong to something.
+	 *
+	 * Pages nobody compared get no file of their own, only a folded note — one empty card each
+	 * would bury the pages that were compared.
 	 */
 	private static String templateBody(String proj, Map t) {
 		List done = t.pages.findAll { it.result != null }
@@ -379,14 +479,13 @@ public class ReportBuilder {
 		StringBuilder h = new StringBuilder()
 		if (done) {
 			h << '<div class="scroll"><table class="matrix"><thead><tr><th>Page</th><th>Result</th>'
-			h << '<th>Texts compared</th><th>Texts failed</th><th></th></tr></thead><tbody>'
+			h << '<th>Test cases</th><th></th></tr></thead><tbody>'
 			done.each { Map p ->
-				Map s = statsOf(proj, p)
-				String v = (String) s.verdict
+				String v = pageVerdict(p)
+				Map tally = caseTallyOf(casesOf(proj, p))
 				h << "<tr><th scope=\"row\"><a class=\"mono\" href=\"${pageHref(p, '../')}\">${esc(shortPath((String) p.aem))}</a></th>"
 				h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run' : v.toLowerCase()}</span></td>"
-				h << "<td class=\"num\">${s.items ?: '&mdash;'}</td>"
-				h << '<td class="num">' + ((s.failed as int) > 0 ? "<b class=\"bad\">${s.failed}</b>" : '&mdash;') + '</td>'
+				h << '<td class="casetally">' + tallyHtml(tally) + '</td>'
 				h << "<td><a href=\"${pageHref(p, '../')}\">open &rsaquo;</a></td></tr>"
 			}
 			h << '</tbody></table></div>'
@@ -401,19 +500,19 @@ public class ReportBuilder {
 	}
 
 	/**
-	 * One page = one file: the counts, then the failing texts themselves.
+	 * One page = one file: which test cases were run against this URL, and how each one came out.
 	 *
-	 * What it deliberately does not print: the description of the check (the same paragraph on
-	 * every page of the report), the raw summary line, and the score. A reviewer opens this file
-	 * to see which text is missing, not to re-read what the check does.
+	 * The findings themselves are one click further in, on the test case that produced them. This
+	 * file is the page's contents list, and it lists every id of CHECK_ORDER — including the ones
+	 * with no result on disk. A test case nobody has written yet is a visible gap here, not an
+	 * absence: that is how a reader sees that this URL has never been checked for GA4.
 	 */
-	private static String renderPageFile(String proj, Map n, List nav, int i) {
+	private static String renderPageFile(String proj, Map n, List nav, int i, List cases) {
 		String group = (String) n.g
 		Map t = (Map) n.t
 		Map p = (Map) n.p
-		Map s = statsOf(proj, p)
-		String verdict = (String) s.verdict
-		int failed = s.failed as int
+		Map tally = caseTallyOf(cases)
+		int failedCases = tally.fail as int
 		Map next = i < nav.size() - 1 ? (Map) nav[i + 1] : null
 		String gTitle = GROUP_TITLE[group] ?: (group.capitalize() + ' pages')
 
@@ -425,16 +524,90 @@ public class ReportBuilder {
 		h << renderPageNav(nav, i)
 		h << '</div>'
 
-		h << "<article class=\"page ${failed > 0 ? 'has-findings' : ''}\">"
+		h << "<article class=\"page ${failedCases > 0 ? 'has-findings' : ''}\">"
 		h << "<div class=\"page-head\"><h1 class=\"mono pagetitle\">${esc(shortPath((String) p.aem))}</h1>"
+		h << "<p class=\"links\"><a href=\"${esc(p.sc)}\">live page</a><a href=\"${esc(p.aem)}\">new page</a></p></div>"
+
+		h << '<p class="page-status">Test cases run against this URL: ' + tallyHtml(tally) + '</p>'
+
+		h << '<div class="scroll"><table class="matrix"><thead><tr><th>Test case</th><th>Result</th>'
+		h << '<th>Findings</th><th></th></tr></thead><tbody>'
+		cases.each { Map c ->
+			String id = (String) c.check
+			String v = (String) c.verdict
+			int failed = c.failed as int
+			String title = CHECK_TITLE[id] ?: humanize(id)
+			boolean hasFile = v != 'NA'
+			h << '<tr><th scope="row">'
+			h << (hasFile ? "<a href=\"${escAttr(checkFile(p, id))}\">${esc(title)}</a>" : esc(title))
+			h << "<span class=\"sub casedesc\">${esc(CHECK_DESC[id] ?: '')}</span></th>"
+			h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run yet' : v == 'NOT_RUN' ? 'not run' : v.toLowerCase()}</span></td>"
+			h << '<td class="num">' + (failed > 0 ? "<b class=\"bad\">${failed}</b>" : '&mdash;') + '</td>'
+			h << '<td>' + (hasFile ? "<a href=\"${escAttr(checkFile(p, id))}\">open &rsaquo;</a>" : '') + '</td></tr>'
+		}
+		h << '</tbody></table></div>'
+
+		h << '<p class="sub pagefoot"><a href="../index.html">&lsaquo; Back to all templates</a>'
+		h << "<a href=\"${templateHref(group, t, '../')}\">&lsaquo; ${esc(t.title)}</a>"
+		if (next) h << "<a href=\"${escAttr(next.p.slug)}.html\">Next page &rsaquo;</a>"
+		h << '</p></article>'
+		h << footer()
+		h << '</main></body></html>'
+		return h.toString()
+	}
+
+	/**
+	 * One test case on one URL = one file: the counts, then the texts that failed it.
+	 *
+	 * This is where the per-text numbers live now. Previous/next moves between the test cases of
+	 * *this* URL, not between URLs — a reader who opens this file is working on one page.
+	 *
+	 * `cases` is that page's full CHECK_ORDER list and `j` the index of the one being rendered,
+	 * so the nav can be built without re-reading anything.
+	 */
+	private static String renderCheckFile(Map n, List cases, int j) {
+		String group = (String) n.g
+		Map t = (Map) n.t
+		Map p = (Map) n.p
+		Map s = (Map) cases[j]
+		String id = (String) s.check
+		String title = CHECK_TITLE[id] ?: humanize(id)
+		String verdict = (String) s.verdict
+		int failed = s.failed as int
+		String gTitle = GROUP_TITLE[group] ?: (group.capitalize() + ' pages')
+		String pageName = shortPath((String) p.aem)
+
+		// Only the test cases that have a file of their own are reachable from the nav.
+		List sib = cases.findAll { it.verdict != 'NA' }
+		int k = sib.findIndexOf { it.check == id }
+		Map prev = k > 0 ? (Map) sib[k - 1] : null
+		Map next = k >= 0 && k < sib.size() - 1 ? (Map) sib[k + 1] : null
+
+		StringBuilder h = new StringBuilder()
+		h << head(title + ' — ' + pageName, '../')
+		h << '<div class="topbar">'
+		h << '<nav class="crumbs"><a href="../index.html">Migration parity report</a>'
+		h << "<span>${esc(gTitle)}</span><a href=\"${templateHref(group, t, '../')}\">${esc(t.title)}</a>"
+		h << "<a class=\"mono\" href=\"${escAttr(p.slug)}.html\">${esc(pageName)}</a></nav>"
+		h << '<div class="pagenav">'
+		h << (prev ? "<a class=\"navbtn\" id=\"nav-prev\" rel=\"prev\" href=\"${escAttr(checkFile(p, (String) prev.check))}\">&lsaquo; ${esc(CHECK_TITLE[prev.check] ?: prev.check)}</a>"
+				: '<span class="navbtn off">&lsaquo; Previous</span>')
+		h << "<span class=\"navcount\">Test case ${k + 1} of ${sib.size()}</span>"
+		h << (next ? "<a class=\"navbtn\" id=\"nav-next\" rel=\"next\" href=\"${escAttr(checkFile(p, (String) next.check))}\">${esc(CHECK_TITLE[next.check] ?: next.check)} &rsaquo;</a>"
+				: '<span class="navbtn off">Next &rsaquo;</span>')
+		h << '</div></div>'
+
+		h << "<article class=\"page ${failed > 0 ? 'has-findings' : ''}\">"
+		h << "<div class=\"page-head\"><h1>${esc(title)}</h1>"
+		h << "<p class=\"sub\">on <a class=\"mono\" href=\"${escAttr(p.slug)}.html\">${esc(pageName)}</a>"
+		h << " &middot; ${esc(CHECK_DESC[id] ?: '')}</p>"
 		h << "<p class=\"links\"><a href=\"${esc(p.sc)}\">live page</a><a href=\"${esc(p.aem)}\">new page</a></p></div>"
 
 		if (verdict == 'NOT_RUN') {
 			h << '<p class="page-status"><span class="badge NOT_RUN">not run</span> '
 			h << 'This URL does not serve a page to compare.</p>'
 		} else {
-			h << "<p class=\"page-status\"><span class=\"badge ${verdict}\">"
-			h << (verdict == 'NA' ? 'not run' : verdict) + '</span> '
+			h << "<p class=\"page-status\"><span class=\"badge ${verdict}\">${verdict}</span> "
 			h << (failed > 0
 					? "<b class=\"bad\">${failed}</b> of ${s.items} live text(s) did not survive the migration."
 					: "All ${s.items} live text(s) were found on the new page.")
@@ -449,15 +622,27 @@ public class ReportBuilder {
 			h << findingBlocks((List) s.rows, ERRORS, true)
 			h << findingBlocks((List) s.rows, WARNINGS, false)
 			h << findingBlocks((List) s.rows, INFOS, false)
-			if (!s.rows) h << '<p class="sub">No findings were written for this page.</p>'
+			if (!s.rows) h << '<p class="sub">No findings were written for this test case.</p>'
 		}
 
-		h << '<p class="sub pagefoot"><a href="../index.html">&lsaquo; Back to all templates</a>'
+		h << "<p class=\"sub pagefoot\"><a href=\"${escAttr(p.slug)}.html\">&lsaquo; All test cases for this page</a>"
 		h << "<a href=\"${templateHref(group, t, '../')}\">&lsaquo; ${esc(t.title)}</a>"
-		if (next) h << "<a href=\"${escAttr(next.p.slug)}.html\">Next page &rsaquo;</a>"
+		h << '<a href="../index.html">&lsaquo; Back to all templates</a>'
 		h << '</p></article>'
 		h << footer()
 		h << '</main></body></html>'
+		return h.toString()
+	}
+
+	/** "1 pass / 2 fail · 1 not run" — the same phrasing wherever test cases are counted. */
+	private static String tallyHtml(Map tally) {
+		int pass = tally.pass as int
+		int fail = tally.fail as int
+		int notRun = tally.notRun as int
+		StringBuilder h = new StringBuilder()
+		h << (pass > 0 ? "<b class=\"good\">${pass}</b>" : '0') + ' pass'
+		h << ' / ' + (fail > 0 ? "<b class=\"bad\">${fail}</b>" : '0') + ' fail'
+		if (notRun > 0) h << " <span class=\"sub\">&middot; ${notRun} not run</span>"
 		return h.toString()
 	}
 
@@ -522,6 +707,14 @@ public class ReportBuilder {
 	/** `prefix` reaches the output root from the linking file: '' on the index, '../' below it */
 	private static String pageHref(Map p, String prefix = '') {
 		return prefix + 'pages/' + p.slug + '.html'
+	}
+
+	/**
+	 * One test case of one page. Flat inside pages/ rather than in a pages/<slug>/ folder, so
+	 * every file below the root sits at the same depth and reaches assets/_site/ with '../'.
+	 */
+	private static String checkFile(Map p, String checkId) {
+		return p.slug + '__' + checkId + '.html'
 	}
 
 	/** The page group is part of the file name: two groups may share one pagetype */
@@ -671,6 +864,9 @@ public class ReportBuilder {
 		h << '.facts dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}'
 		h << '.facts dd{margin:2px 0 0;font-family:var(--serif);font-size:24px;font-variant-numeric:tabular-nums}'
 		h << '.facts dd.bad{color:var(--fail)}.facts dd.good{color:var(--pass)}'
+		// "(18 of 20)" rides along with the percentage everywhere: a rate with no denominator
+		// hides that 100% can mean two pages.
+		h << '.facts dd .of{font-family:var(--sans);font-size:12px;color:var(--muted)}'
 
 		// the template list and the page list are the same table
 		h << '.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}'
@@ -681,6 +877,8 @@ public class ReportBuilder {
 		h << '.matrix .grouprow th{background:var(--accent-soft);font-family:var(--serif);font-size:15px;font-weight:600}'
 		h << '.matrix tbody th[scope=row]{font-weight:500;padding-left:26px}'
 		h << '.num b.bad,td b.bad{color:var(--fail)}'
+		h << 'td.rate{white-space:nowrap}td.rate.bad{color:var(--fail)}td.rate.good{color:var(--pass)}'
+		h << 'td.rate .of{font-size:11px;color:var(--muted)}'
 
 		// verdict chips and badges
 		h << '.chip,.badge{display:inline-block;font-size:11px;font-weight:600;line-height:1.7;'
@@ -690,6 +888,15 @@ public class ReportBuilder {
 		h << '.chip.WARN,.badge.WARN{background:var(--warn-soft);color:var(--warn)}'
 		h << '.chip.PASS,.badge.PASS{background:var(--pass-soft);color:var(--pass)}'
 		h << '.chip.NA,.badge.NA,.chip.NOT_RUN,.badge.NOT_RUN{background:var(--sunk);color:var(--muted)}'
+
+		// the test-case tally, on the template table and at the head of a page
+		h << 'td.casetally{font-variant-numeric:tabular-nums;color:var(--muted)}'
+		h << 'td.casetally b.good,.page-status b.good{color:var(--pass)}'
+		h << 'td.casetally b.bad{color:var(--fail)}'
+		h << 'td.casetally .sub,.page-status .sub{font-size:12px;color:var(--muted)}'
+		// the one-line description under a test case name: it wraps, the cell around it does not
+		h << 'th .casedesc{display:block;white-space:normal;font-weight:400;font-size:11.5px;'
+		h << 'max-width:46ch;margin-top:2px}'
 
 		// the sheet a template or a page is printed on
 		h << 'article.page{border:1px solid var(--line);border-radius:8px;background:var(--surface);'
@@ -705,6 +912,10 @@ public class ReportBuilder {
 		h << '.links a:after{content:" \\2197";font-size:11px}'
 		h << '.page-status{margin:0;font-size:13px;color:var(--muted)}'
 		h << '.page-status b.bad{color:var(--fail)}.page-status .badge{margin-right:6px}'
+		h << '.page-rate{margin:6px 0 0;font-size:13px;color:var(--muted)}'
+		h << '.page-rate b{font-size:16px;font-variant-numeric:tabular-nums}'
+		h << '.page-rate b.bad{color:var(--fail)}.page-rate b.good{color:var(--pass)}'
+		h << '.page-rate .of{font-size:12px;color:var(--muted);font-weight:400}'
 		h << 'details.pending{border:1px dashed var(--line-strong);border-radius:8px;padding:12px 16px;background:var(--surface)}'
 		h << 'ul.plain{list-style:none;margin:10px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}'
 		h << 'summary{cursor:pointer;font-size:12.5px;color:var(--muted);font-weight:500}'

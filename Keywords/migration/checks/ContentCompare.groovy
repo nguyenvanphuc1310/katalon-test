@@ -338,13 +338,12 @@ public class ContentCompare {
 			}
 		}
 
-		// --- dropdown contents, which never render and so were never compared
-		Set scOpts = ((sc.formOptions ?: []) as List).collect { norm(it.toString()) }.findAll { it } as Set
-		Set aemOpts = ((aem.formOptions ?: []) as List).collect { norm(it.toString()) }.findAll { it } as Set
-		(scOpts - aemOpts).each { Object o ->
-			findings << [verdict: 'OPTION_MISSING', path: '', kind: 'option', text: (String) o,
-				note: 'a dropdown choice on the live page that the new page does not offer']
-		}
+		// --- dropdown contents are NOT compared. `<option>` text never renders, so the collector
+		// in ContentScope takes it without asking whether the enclosing <select> is visible — and
+		// that swept up Sitecore's hidden CRM fields. Every lifestage page reported the same three
+		// Cold/Hot/Warm choices of the `.leadData` LeadRating select, which no visitor can see and
+		// AEM has no reason to carry. The finding was noise on every page it fired on, so the
+		// comparison is gone; `formOptions` is still captured in the snapshot, unread.
 
 		// Did the two sides even read comparable content? Every finding above assumes they did.
 		// When one side discards an order of magnitude more hidden elements than the other, that
@@ -388,14 +387,17 @@ public class ContentCompare {
 	 * NUMBER_CHANGED is an error: a different figure is content the live page states and the new
 	 * page does not, and plain rewording (mostly punctuation) stays a warning.
 	 *
-	 * COUNT_MISMATCH is deliberately NOT an error yet. The counting is sound, but the two sides are
-	 * not currently reading comparable content: on all six lifestage pages the live side discards
-	 * 83-160 hidden elements where the new side discards exactly 8 (see SCOPE_ASYMMETRY below).
-	 * Until the scopes are symmetric a count difference cannot be attributed to the page rather
-	 * than to the extraction, and failing a page on it would repeat the alt_lost mistake — one
-	 * reason firing everywhere and burying the real findings.
+	 * COUNT_MISMATCH is an error: a text the live page states twice and the new page states once
+	 * has lost one of its two appearances, and that is content the migration did not carry. The
+	 * scopes the two sides read are still asymmetric (see SCOPE_ASYMMETRY below), so a page can
+	 * fail on a count difference that the extraction, not the migration, produced — read the
+	 * SCOPE_ASYMMETRY block on the page before acting on a COUNT_MISMATCH.
+	 *
+	 * TEXT_CHANGED is an error: the live wording is not what the new page shows, however small the
+	 * edit. Rewording is a content difference, and this check exists to report content differences.
 	 */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED']
+	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED',
+		'COUNT_MISMATCH', 'TEXT_CHANGED']
 
 	/** Write findings.csv and state_pairs.csv */
 	@Keyword

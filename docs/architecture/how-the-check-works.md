@@ -51,7 +51,8 @@ element's whole text; matching uses it, reporting uses the item — because Site
 never agrees.
 
 The snapshot also carries `rootText` (whole-page text), per-state text, `formOptions`
-(dropdown contents, which never render) and the `skipped` counters.
+(dropdown contents, which never render — captured but **no longer compared**, see below) and
+the `skipped` counters.
 
 ## 3. Compare — browser-free
 
@@ -70,8 +71,8 @@ never fire.
 |---|---|
 | In the **paired state**? | ✅ done |
 | Not there, but elsewhere on the page? | 🔴 `WRONG_TAB` (only if that state has a counterpart) |
-| Present, in the only place it can be judged? | count it → 🟡 `COUNT_MISMATCH` if fewer |
-| Absent, but something scores ≥ 0.9 token overlap? | figures differ → 🔴 `NUMBER_CHANGED`, else 🟡 `TEXT_CHANGED` |
+| Present, in the only place it can be judged? | count it → 🔴 `COUNT_MISMATCH` if fewer |
+| Absent, but something scores ≥ 0.9 token overlap? | figures differ → 🔴 `NUMBER_CHANGED`, else 🔴 `TEXT_CHANGED` |
 | Absent entirely | 🔴 `MISSING_ON_AEM` |
 
 Presence is measured on a normalised blob (NFKC so `²` ≡ `2`, lowercased, unified
@@ -80,8 +81,13 @@ characters so a sentence the two CMSes break differently still matches.
 
 **Then the reverse and the structure:** AEM-only items → `ONLY_ON_AEM` (info); unpaired
 states → `STATE_ONLY_ON_LIVE` / `STATE_ONLY_ON_NEW`; CTAs with the same wording but a
-different destination → `LINK_CHANGED`; dropdown choices the new page lacks →
-`OPTION_MISSING`.
+different destination → `LINK_CHANGED`.
+
+**Dropdown contents are not compared.** `<option>` text never renders, so the collector takes
+it without asking whether the enclosing `<select>` is visible — which swept up Sitecore's
+hidden CRM fields, and every lifestage page reported the same three `Cold` / `Hot` / `Warm`
+choices of the invisible `.leadData` LeadRating select. The `OPTION_MISSING` verdict was
+removed on 2026-08-20; `formOptions` is still captured, and nothing reads it.
 
 **Finally the check checks itself.** If one side discarded far more hidden elements than the
 other, `SCOPE_ASYMMETRY` fires and says so: every finding above assumes the two sides read
@@ -95,7 +101,7 @@ than the page.
 
 | File | Contents |
 |---|---|
-| `Reports/parity-results/<slug>/content.txt` | verdict on line 1, summary from line 2 |
+| `Reports/parity-results/<slug>/content.txt` | verdict on line 1, summary from line 2 — named after the check id, which is also its test case in the report |
 | `Reports/ContentAudit/<slug>/findings.csv` | one row per finding, with its score weight * |
 | `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, confidence * |
 | `Reports/ContentAudit/<slug>/state_pairs.csv` | which tab paired with which, and how |

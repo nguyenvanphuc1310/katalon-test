@@ -74,10 +74,18 @@ Re-run the capture instead.
 
 | Where | What |
 |---|---|
-| `Reports/parity-report/index.html` | the report — run facts and one row per template; open a template to reach its pages |
-| `Reports/parity-report/templates/<group>-<pagetype>.html` | one file per template — its pages, with texts compared and texts failed per page |
-| `Reports/parity-report/pages/<slug>.html` | one file per compared page — the counts, then every failing text |
+| `Reports/parity-report/index.html` | the report — run facts including the project pass rate, then one row per template with that template's pass rate; open a template to reach its pages |
+| `Reports/parity-report/templates/<group>-<pagetype>.html` | one file per template — that template's own pass rate, then its pages with how many test cases each one passed and failed |
+| `Reports/parity-report/pages/<slug>.html` | one file per compared page — the test cases run against that URL |
+| `Reports/parity-report/pages/<slug>__<check>.html` | one file per test case of a page — the counts, then every failing text |
 | `Reports/ContentAudit/<slug>/findings.csv` | every finding, with its score weight |
+
+The pass rate is a **page** rate: how many pages carry a PASS verdict, out of the pages that
+were actually judged. Pages with no result on disk and pages recorded `NOT_RUN` are in neither
+half of that fraction, so the denominator is normally smaller than "Compared in this run" — the
+fraction is printed next to the percentage (`50% (4 of 8)`) for exactly that reason. It never
+counts texts: a page that lost one text out of 127 is one failed page here, the same as a page
+that lost all 127.
 
 ## Traps
 

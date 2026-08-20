@@ -4,7 +4,7 @@ Two results per page. They answer different questions and are deliberately not m
 
 > **The score is deferred.** `ReportBuilder` renders the **verdict only** — see
 > [report-contract.md](report-contract.md). The verdict table below is
-> live and is the source of the 11 finding values; [the score section](#score--the-ranking) is
+> live and is the source of the 10 finding values; [the score section](#score--the-ranking) is
 > kept as the specification to restore, not as something the report reads. The two must still
 > never be derived from one another when the score returns.
 
@@ -19,9 +19,8 @@ Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`.
 | `LINK_CHANGED` | Same button wording, different destination | 🔴 fails the page |
 | `WRONG_TAB` | The text exists but under a different tab | 🔴 fails the page |
 | `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page's findings rest on a weaker measurement | 🟡 warning |
-| `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🟡 warning |
-| `OPTION_MISSING` | A dropdown choice the live page offers and the new page does not | 🟡 warning |
-| `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🟡 warning |
+| `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🔴 fails the page |
+| `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🔴 fails the page |
 | `STATE_ONLY_ON_LIVE` | A tab/section of the live page with no counterpart | 🟡 warning |
 | `STATE_ONLY_ON_NEW` | A tab/section only on the new page | 🟡 warning |
 | `ONLY_ON_AEM` | Extra text on the new page — subset rule | ⚪ info |
@@ -37,8 +36,8 @@ spelled-out label:
 
 | Level | Label printed | Colour | Verdicts |
 |---|---|---|---|
-| error | `FAILS THE PAGE` | red `--fail` `#B3261E` on `--fail-soft` | the four in `ContentCompare.ERRORS` |
-| warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the six warnings above |
+| error | `FAILS THE PAGE` | red `--fail` `#B3261E` on `--fail-soft` | the six in `ContentCompare.ERRORS` |
+| warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the four warnings above |
 | info | `FOR INFORMATION` | neutral `--muted` on `--sunk` | `ONLY_ON_AEM` |
 
 The label is not decoration: this report is printed, forwarded and read on strange screens, and
@@ -49,9 +48,11 @@ signal; the label is the statement. Adding a verdict means adding it to `ERRORS`
 ### Why figures are compared separately
 
 Token overlap cannot see them. A paragraph in which `S$100,000` becomes `S$200,000` scores
-~0.98 overlap, which lands it in `TEXT_CHANGED` — a warning that never failed a page. On
-insurance content that is the most expensive thing the check can get wrong, so figures are
-extracted and compared on their own and outrank the overlap score.
+~0.98 overlap, so before figures were extracted separately it read as ordinary rewording. Both
+now fail the page, but they must stay apart: `NUMBER_CHANGED` names a wrong sum, `TEXT_CHANGED`
+names wording that drifted, and on insurance content the first is the most expensive thing the
+check can get wrong. Figures are extracted and compared on their own and outrank the overlap
+score.
 
 A digit glued to the end of a word or a bracket is a **footnote marker**, not a figure, and
 is ignored: Sitecore writes the marker as a plain digit in a child `<sup>` while AEM writes
@@ -67,15 +68,21 @@ text with something glued to one end (AEM appends accessibility copy with no sep
 the live page's `English` is `Englishopens in a new tab` there), or an item short enough
 that the label is still its subject.
 
-### Why `COUNT_MISMATCH` only warns
+### `COUNT_MISMATCH` fails the page — read `SCOPE_ASYMMETRY` first
 
-The counting is sound, but the two sides are not yet reading comparable content: on the
-lifestage pages the live side discards 83–160 hidden elements where the new side discards
-exactly 8. Until the scopes are symmetric, a count difference cannot be attributed to the
-page rather than to the extraction — which is what `SCOPE_ASYMMETRY` says out loud. Only
-text of at least 40 characters is counted at all: counting substrings, `Protection` occurred
-24 times on the live page and 23 on the new one — true, unactionable, and it would have
-failed the page.
+A text the live page states twice and the new page states once has lost an appearance, and
+that is content the migration did not carry, so it fails (changed 2026-08-20; it warned
+before).
+
+The caveat that made it a warning has not gone away: the two sides do not yet read comparable
+content — on the lifestage pages the live side discards 83–160 hidden elements where the new
+side discards exactly 8, which is what `SCOPE_ASYMMETRY` says out loud. A page can therefore
+fail on a count difference the extraction produced rather than the migration. When a page
+carries both verdicts, read the `SCOPE_ASYMMETRY` block before acting on its counts.
+
+Only text of at least 40 characters is counted at all: counting substrings, `Protection`
+occurred 24 times on the live page and 23 on the new one — true, unactionable, and it would
+have failed the page.
 
 ## Score — the ranking
 
@@ -103,7 +110,6 @@ pages comparable — and it is also what makes the score unable to replace the v
 | `WRONG_TAB` | 0.5 | reachable, just not where the visitor looked |
 | `STATE_ONLY_ON_LIVE` | 0.5 | its contents are already counted item by item; 1.0 would charge the same loss twice |
 | `COUNT_MISMATCH` | 0.3 | the measurement is weaker than the count suggests |
-| `OPTION_MISSING` | 0.3 | |
 | `TEXT_CHANGED` | 0.1 | mostly punctuation; a genuine reword is a copy decision |
 | `ONLY_ON_AEM`, `STATE_ONLY_ON_NEW`, `SCOPE_ASYMMETRY` | 0.0 | subset rule / says something about the measurement, not the page |
 

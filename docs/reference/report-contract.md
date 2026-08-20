@@ -1,15 +1,26 @@
 # The report contract
 
-> **This is the live contract.** `ReportBuilder` is the only renderer, and the `content.txt` +
+> **This is the live contract.** `ReportBuilder` is the only renderer, and the `<check>.txt` +
 > CSV scraping described here is how it gets its data. The JSON replacement once planned in
 > [content-result-contract.md](content-result-contract.md) was deleted on 2026-08-20 along with
 > its renderer; that page is now a design record, not a description of the code.
 >
-> `AuditUtils.recordResult` writes `content.txt`, so it is both the Katalon pass/fail marker and
+> `AuditUtils.recordResult` writes that file, so it is both the Katalon pass/fail marker and
 > half of this contract.
 
 `ReportBuilder` is built entirely from **files on disk**. It never reads the Katalon log.
 Anything a check wants rendered, it must write. Read this before adding or changing a check.
+
+## One check id = one test case
+
+Since 2026-08-20 the report's third and fourth levels are per test case: a **check id** is a
+test case, and it gets a row on every page it applies to plus a file of its own per URL
+(`pages/<slug>__<check>.html`). See [project-layout.md](../architecture/project-layout.md) for
+the four output levels.
+
+Only `content` has a producer today. GA4, images and metadata are planned test cases: each will
+appear in the report as soon as it writes the two files below, with no change to the renderer
+beyond its four registry entries.
 
 ## The one mandatory call
 
@@ -21,16 +32,27 @@ AuditUtils.recordResult(pageurl, 'content', 'FAIL', summary)
 ```
 
 Call it with the **AEM** URL: the slug comes from column 2 of `aem-url-mapping.csv`, and a
-page absent from that CSV is never rendered at all.
+page absent from that CSV is never rendered at all. The file is named after the check id, so
+a `ga4` check writes `Reports/parity-results/<slug>/ga4.txt`.
 
 ## Closed lists
 
-- **Check ids.** `CHECK_ORDER` and `ALL_CHECKS` are `['content']`. A file written under any
-  other id is written and then ignored — silently.
+- **Check ids.** `CHECK_ORDER` in `ReportBuilder` is `['content']`. A file written under any
+  other id is written and then ignored — silently. An id listed there needs an entry in all
+  three of `CHECK_TITLE`, `CHECK_DESC` and `CHECK_EVIDENCE`.
 - **Verdicts.** `PASS`, `WARN`, `FAIL`, `NOT_RUN`. The verdict string becomes a **CSS class**,
   so an invented or misspelled verdict renders unstyled and drops out of every failure count.
 - `NOT_RUN` means "does not apply". A **missing file** means "not checked yet". They render
-  differently and must not be confused.
+  differently and must not be confused: `NOT_RUN` gets a test-case file saying the URL serves
+  no page to compare, a missing file gets an unlinked "not run yet" row. Neither counts as a
+  pass or a fail in any tally.
+
+## The page verdict
+
+A page's verdict is the **worst** verdict any of its test cases reached (`pageVerdict`): one
+failed test case fails the page, however many others passed. It is what the index, the template
+tables and every pass rate count. That rate stays a **page** rate and never becomes a test-case
+rate — see [verdicts-and-score.md](verdicts-and-score.md).
 
 ## Parsed by regex
 
@@ -49,6 +71,9 @@ The clause must still lead the line: new counters go **after** the existing ones
 front of it.
 
 ## Evidence files
+
+Each check id names its own evidence folder through `CHECK_EVIDENCE` in `ReportBuilder`
+(`content` → `ContentAudit`), so the paths below are `Reports/<that folder>/<slug>/`.
 
 | File | Format | Notes |
 |---|---|---|
@@ -69,13 +94,17 @@ check a rendered page actually lists its findings. An empty page and a correct o
 identical from the outside, and nothing asserts this any more — the harness that did was
 removed with `tools/` on 2026-08-20.
 
-## Checklist for a new check
+## Checklist for a new check (= a new test case)
 
-1. Pick an id and add it to `CHECK_ORDER` / `ALL_CHECKS`, plus `CHECK_TITLE` and `CHECK_DESC`.
+1. Pick an id and add it to `CHECK_ORDER`, plus an entry in each of `CHECK_TITLE`,
+   `CHECK_DESC` and `CHECK_EVIDENCE`. That is the whole of the renderer's side.
 2. Call `AuditUtils.recordResult(aemUrl, id, verdict, summary)` — one of the four verdicts.
-3. Put the headline on the **first** detail line; add a `summaryOf()` branch if it needs
-   turning into plain English.
-4. Write evidence under `Reports/<Kind>/<slug>/` and render it from `renderCheckCard`.
-5. Re-render the report and open a page that should show the new evidence. Every parser here
-   is strict and silent, so "it compiled" is not the test — "the page shows the row" is.
+   It writes `Reports/parity-results/<slug>/<id>.txt`.
+3. Put the headline on the **first** detail line, opening with the `<N> live items compared`
+   clause if the test case counts items — that clause is all `itemsCompared()` parses.
+4. Write evidence to `Reports/<CHECK_EVIDENCE[id]>/<slug>/findings.csv` in the format above.
+   Rows whose verdict is in `ERRORS` fail the test case, and therefore the page.
+5. Re-render the report and open the test case's own file on a URL that should show the new
+   evidence. Every parser here is strict and silent, so "it compiled" is not the test — "the
+   file lists the rows" is.
 6. Update this page and `docs/overview/project-tracking.md` in the same session.
