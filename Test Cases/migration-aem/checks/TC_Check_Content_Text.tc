@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <TestCaseEntity>
-   <description>Compare the CONTENT of the AEM page against the Sitecore page. mode: baseline (capture live) | capture (capture new) | compare (capture new + diff) | recompare (diff the snapshots on disk, no browser).</description>
+   <description>Compare the CONTENT of the AEM page against the Sitecore page (ContentTextCheck). On mode=compare also runs the structure/images check (UniversalTagComparer). mode: baseline | capture | compare | recompare.</description>
    <name>TC_Check_Content_Text</name>
    <tag>check,content</tag>
    <comment></comment>

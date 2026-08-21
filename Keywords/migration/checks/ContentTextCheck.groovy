@@ -5,6 +5,7 @@ import com.kms.katalon.core.configuration.RunConfiguration
 import com.kms.katalon.core.util.KeywordUtil
 
 import migration.AuditUtils
+import migration.ContentEvidence
 import migration.ContentSnapshot
 
 /**
@@ -30,25 +31,31 @@ public class ContentTextCheck {
 	@Keyword
 	static void run(String sitecoreurl, String pageurl, String mode) {
 		if (mode == 'baseline') {
-			if (ContentSnapshot.capture(sitecoreurl, pageurl, 'sitecore') == null) notAPage(pageurl)
+			if (ContentSnapshot.capture(sitecoreurl, pageurl, 'sitecore') == null) notAPage(pageurl, 'sitecore')
 			return
 		}
 		if (mode == 'capture') {
-			if (ContentSnapshot.capture(pageurl, pageurl, 'aem') == null) notAPage(pageurl)
+			if (ContentSnapshot.capture(pageurl, pageurl, 'aem') == null) notAPage(pageurl, 'aem')
 			return
 		}
 
 		if (mode != 'recompare') {
-			if (ContentSnapshot.capture(pageurl, pageurl, 'aem') == null) { notAPage(pageurl); return }
+			Map scEarly = ContentSnapshot.load(pageurl, 'sitecore')
+			if (scEarly == null) {
+				if (recordedVerdict(pageurl) == 'NOT_RUN' || ContentSnapshot.isPdfDocument(pageurl)) {
+					notAPage(pageurl, 'aem')
+					return
+				}
+				KeywordUtil.markFailedAndStop('Sitecore snapshot missing: ' +
+					ContentSnapshot.pathFor(pageurl, 'sitecore', '.json') +
+					' — run mode=baseline first. AEM was not opened.')
+			}
+			if (ContentSnapshot.capture(pageurl, pageurl, 'aem') == null) { notAPage(pageurl, 'aem'); return }
 		}
 
 		Map sc = ContentSnapshot.load(pageurl, 'sitecore')
 		if (sc == null) {
-			// A URL that serves a document has no snapshot and never will: the baseline run
-			// already established that and recorded NOT_RUN. Demanding a baseline here fails a
-			// page the report correctly calls "does not apply", and sends whoever reads the
-			// message off to re-run a capture that will reach the same conclusion again.
-			if (recordedVerdict(pageurl) == 'NOT_RUN') { notAPage(pageurl); return }
+			if (recordedVerdict(pageurl) == 'NOT_RUN') { notAPage(pageurl, 'aem'); return }
 			KeywordUtil.markFailedAndStop('Sitecore snapshot missing: ' +
 				ContentSnapshot.pathFor(pageurl, 'sitecore', '.json') + ' — run mode=baseline first')
 		}
@@ -61,6 +68,14 @@ public class ContentTextCheck {
 		Map result = ContentCompare.diff(sc, aem)
 		String outDir = AuditUtils.reportDir('ContentAudit', pageurl)
 		ContentCompare.write(result, outDir)
+
+		if (mode != 'recompare' && ((List) result.findings)) {
+			try {
+				ContentEvidence.capture(sitecoreurl, pageurl, (List) result.findings)
+			} catch (Exception e) {
+				KeywordUtil.markWarning('Evidence screenshots skipped: ' + (e.getMessage() ?: 'unknown error'))
+			}
+		}
 
 		List errors = ((List) result.findings).findAll { ContentCompare.ERRORS.contains(it.verdict) }
 		String summary = ContentCompare.summary(result)
@@ -84,9 +99,14 @@ public class ContentTextCheck {
 	}
 
 	/** A mapped URL that serves a document (PDF) rather than a page: not a failure, not a pass */
-	private static void notAPage(String pageurl) {
-		AuditUtils.recordResult(pageurl, 'content', 'NOT_RUN',
-			'Not an HTML page — the URL serves a document, so the content check does not apply')
-		KeywordUtil.logInfo('Content check skipped: ' + pageurl + ' is not an HTML page')
+	private static void notAPage(String pageurl, String side) {
+		Map doc = ContentSnapshot.loadDocumentMeta(pageurl, side)
+		boolean pdf = (doc?.kind == 'pdf') || AuditUtils.isPdfUrl(pageurl) ||
+			((doc?.contentType ?: '').toString().toLowerCase().contains('pdf'))
+		String detail = pdf
+			? 'This URL is not a page — it is a PDF. The content text check does not apply.'
+			: 'Not an HTML page — the URL serves a document, so the content check does not apply'
+		AuditUtils.recordResult(pageurl, 'content', 'NOT_RUN', detail)
+		KeywordUtil.logInfo('Content check skipped: ' + pageurl + ' — ' + detail)
 	}
 }

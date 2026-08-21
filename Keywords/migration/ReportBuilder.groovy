@@ -3,6 +3,7 @@ package migration
 import com.kms.katalon.core.annotation.Keyword
 import com.kms.katalon.core.configuration.RunConfiguration
 import com.kms.katalon.core.util.KeywordUtil
+import groovy.json.JsonSlurper
 
 /**
  * Builds the client-facing HTML content-parity report from the latest compare run.
@@ -34,15 +35,16 @@ public class ReportBuilder {
 	 * it — so adding a second check later is a matter of writing it, not of unpicking a
 	 * hard-coded single check out of the renderer.
 	 */
-	static final List CHECK_ORDER = ['content']
-	static final List ALL_CHECKS = ['content']
+	static final List CHECK_ORDER = ['content', 'structure']
+	static final List ALL_CHECKS = ['content', 'structure']
 
 	static final List GROUP_ORDER = ['custom', 'normal']
 	static final Map GROUP_TITLE = [custom: 'Custom pages', normal: 'Normal pages']
 
-	static final Map CHECK_TITLE = [content: 'Content']
+	static final Map CHECK_TITLE = [content: 'Content', structure: 'Structure & images']
 	static final Map CHECK_DESC = [
-		content: 'Every text of the main content area of the live page \u2014 including what sits inside a collapsed tab or accordion \u2014 must be found on the new page, under the same tab, as often, with the same figures and the same link destinations. Extra text on the new page is reported but never fails: the live page is a subset baseline.',
+		content: 'Sitecore is the live website. AEM is the new site. Each row is a mismatch, with a picture from each side.',
+		structure: 'Counts headings, lists, links and pictures on Sitecore (the live website) versus AEM (the new site). Then each Sitecore picture is compared to the AEM picture in the same place. Same photo in a different size or zoom is a match. Wording is not judged here \u2014 that is the Content check.',
 	]
 
 	// ---------------------------------------------------------------- entry points
@@ -117,9 +119,7 @@ public class ReportBuilder {
 		writeStaticAssets(root)
 		File pagesDir = new File(root, 'pages')
 		pagesDir.mkdirs()
-		// Nothing binary is referenced, so there is no assets/ to fill and no prefix to reach it.
-		// `publish` survives only to name the output folder — kept as a flag because the two are
-		// read by different people and are expected to diverge again.
+		copyEvidencePics(proj, root, pages)
 		Map ctx = [proj: proj, publish: publish]
 
 		Map byGroup = [:]
@@ -173,7 +173,7 @@ public class ReportBuilder {
 		h << '<header class="cover">'
 		h << '<p class="eyebrow">Website migration &middot; quality assurance</p>'
 		h << '<h1>Migration parity report</h1>'
-		h << '<p class="lede">Every page of the new site is compared against the live site, which is the reference. Findings are organised by page group, then by template, then by page &mdash; and each page carries the four checks that ran on it.</p>'
+		h << '<p class="lede">Each page on <strong>AEM</strong> (the new website) is compared with the same page on <strong>Sitecore</strong> (today&rsquo;s live website). Sitecore is the reference: whatever it says, AEM must also say. Extra text only on AEM is listed but never fails.</p>'
 		h << '<dl class="facts">'
 		h << "<div><dt>Generated</dt><dd>${new Date().format('yyyy-MM-dd HH:mm')}</dd></div>"
 		h << "<div><dt>Pages in scope</dt><dd>${pages.size()}</dd></div>"
@@ -371,9 +371,14 @@ public class ReportBuilder {
 		h << '</div>'
 		h << "<article class=\"page ${failing ? 'has-findings' : ''}\">"
 		h << "<div class=\"page-head\"><h1 class=\"mono pagetitle\">${esc(shortPath(p.aem))}</h1>"
-		h << "<p class=\"links\"><a href=\"${esc(p.sc)}\">live page</a><a href=\"${esc(p.aem)}\">new page</a></p>"
+		h << "<p class=\"links\"><a href=\"${esc(p.sc)}\">Sitecore (live website)</a><a href=\"${esc(p.aem)}\">AEM</a></p>"
 		h << '</div>'
-		h << "<p class=\"page-status\">${failing ? failing.size() + ' of ' + CHECK_ORDER.size() + ' checks found problems on this page' : 'All checks passed on this page'}</p>"
+		if (failing) {
+			h << "<p class=\"page-status fail\">This page failed: ${failing.collect { CHECK_TITLE[it] }.join(' and ')}. "
+			h << 'Open the card below — it lists what Sitecore has and what AEM is missing.</p>'
+		} else {
+			h << '<p class="page-status">All checks passed on this page.</p>'
+		}
 		h << renderCheckSwitch(p)
 		CHECK_ORDER.each { chk -> h << renderCheckCard(ctx, chk, p) }
 		h << '</article>'
@@ -439,18 +444,30 @@ public class ReportBuilder {
 			return h.toString()
 		}
 		String detail = sanitize(ctx.proj, res.detail)
+		if (chk == 'content') {
+			h << renderContentWhy(ctx, (String) p.slug, verdict, detail)
+		} else if (chk == 'structure') {
+			h << renderStructureWhy(ctx, (String) p.slug, verdict, detail)
+		} else {
 		h << "<p class=\"found\">${esc(summaryOf(chk, detail))}</p>"
+		}
 		// The findings are nested inside the card and folded away until asked for. They open by
 		// default when the check failed and stay closed when it passed, so a page opens on what
 		// needs attention without hiding what was checked.
-		String ev = (chk == 'content') ? contentFindings(ctx, (String) p.slug) : ''
+		String ev = (chk == 'content') ? contentFindings(ctx, (String) p.slug)
+			: (chk == 'structure') ? structureEvidence(ctx, (String) p.slug, verdict) : ''
 		if (ev) {
+			if (chk == 'content') {
+				h << ev
+			} else {
 			String open = (verdict == 'PASS') ? '' : ' open'
-			String label = (verdict == 'PASS') ? 'What was compared (no failures)' : 'Every finding on this page'
+				String label = (verdict == 'PASS') ? 'What was compared (nothing to fix on AEM)' : 'Side by side: Sitecore vs AEM'
 			h << "<details class=\"evidence\"${open}><summary>${label}</summary><div class=\"evidence-body\">${ev}</div></details>"
 		}
-		// raw check output kept one click away: useful for the test team, noise for the client
-		if (detail) h << "<details><summary>Technical detail</summary><pre>${esc(detail)}</pre></details>"
+		}
+		if (detail && chk != 'structure' && chk != 'content') {
+			h << "<details><summary>Technical detail</summary><pre>${esc(detail)}</pre></details>"
+		}
 		h << '</section>'
 		return h.toString()
 	}
@@ -459,57 +476,526 @@ public class ReportBuilder {
 
 	/** Plain-language name + explanation per content verdict, most severe first */
 	private static final List FINDING_ORDER = ['MISSING_ON_AEM', 'NUMBER_CHANGED', 'LINK_CHANGED',
-		'WRONG_TAB', 'SCOPE_ASYMMETRY', 'COUNT_MISMATCH', 'OPTION_MISSING', 'TEXT_CHANGED',
+		'WRONG_TAB', 'SCOPE_ASYMMETRY', 'COUNT_MISMATCH', 'OPTION_MISSING', 'UI_DISPLAY', 'TEXT_CHANGED',
 		'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW', 'ONLY_ON_AEM']
 	private static final Map FINDING_TITLE = [
-		MISSING_ON_AEM: 'Missing on the new page',
-		NUMBER_CHANGED: 'Figures changed',
-		COUNT_MISMATCH: 'Appears fewer times than on the live page',
-		SCOPE_ASYMMETRY: 'The two pages were not read comparably',
+		MISSING_ON_AEM: 'Sitecore has this — AEM does not',
+		NUMBER_CHANGED: 'Same sentence, different number',
+		COUNT_MISMATCH: 'AEM shows this fewer times than Sitecore',
+		SCOPE_ASYMMETRY: 'The two pages were not read the same way',
 		LINK_CHANGED: 'Same button, different destination',
-		OPTION_MISSING: 'Dropdown choice not offered on the new page',
-		WRONG_TAB: 'Present, but under a different tab',
-		TEXT_CHANGED: 'Wording changed',
-		STATE_ONLY_ON_LIVE: 'Tab/section with no counterpart on the new page',
-		STATE_ONLY_ON_NEW: 'Tab/section only on the new page',
-		ONLY_ON_AEM: 'Only on the new page']
-	private static final Map FINDING_DESC = [
-		MISSING_ON_AEM: 'Text of the live page that could not be found anywhere on the new page — these fail the check.',
-		NUMBER_CHANGED: 'The same sentence, but the numbers in it are not the same — a sum, a premium, an age, a percentage or a policy term. These fail the check: word-level similarity cannot tell a rephrasing apart from a changed figure, so figures are compared on their own.',
-		COUNT_MISMATCH: 'The text is on the new page, but fewer times than on the live page — typically a repeated card or list entry that was dropped. Presence alone cannot see this, so it is counted. Reported as a warning rather than a failure while the two sides still read different amounts of hidden content — see "The two pages were not read comparably" below when it appears.',
-		LINK_CHANGED: 'A link with the same wording on both pages points somewhere else on the new one. The domain is ignored and the AEM /en prefix is stripped, so only a real change of destination is reported — and only where the wording identifies exactly one link on each page. These fail the check: a visitor following the same button arrives somewhere else.',
-		OPTION_MISSING: 'A choice in a dropdown on the live page that the new page does not offer. Dropdown contents never render, so nothing compared them before.',
-		SCOPE_ASYMMETRY: 'One of the two pages hid far more content from the comparison than the other, so the two were not read on equal terms. This does not say the page is wrong; it says the findings on this page rest on a weaker measurement than usual, and the extraction rules should be checked before acting on them.',
-		WRONG_TAB: 'The text exists on the new page but sits under another tab, so a visitor following the live page will not find it where they expect.',
-		TEXT_CHANGED: 'Same place, reworded. Reported once instead of as a removal plus an addition.',
-		STATE_ONLY_ON_LIVE: 'A tab or collapsible section of the live page that could not be matched to one on the new page, by name or by the content inside it. Its text was still compared against the whole page, so nothing is skipped — but it could not be shown as a pair.',
-		STATE_ONLY_ON_NEW: 'A tab or collapsible section that exists only on the new page. The live page is a subset baseline, so this never fails the check.',
-		ONLY_ON_AEM: 'Extra text on the new page. The live page is a subset baseline, so this never fails the check.']
+		OPTION_MISSING: 'Sitecore dropdown has a choice AEM does not',
+		UI_DISPLAY: 'Same words, different display (tab or style)',
+		WRONG_TAB: 'On AEM, but under a different tab',
+		TEXT_CHANGED: 'Same place, different wording',
+		STATE_ONLY_ON_LIVE: 'Sitecore tab/section with no AEM match',
+		STATE_ONLY_ON_NEW: 'AEM tab/section that Sitecore does not have',
+		ONLY_ON_AEM: 'AEM has this — Sitecore does not']
+	/** Same fail set as ContentCompare.ERRORS — these are why the Content card is red. */
+	private static final List FINDING_FAILS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED']
+	private static final Map FINDING_SEVERITY = [
+		MISSING_ON_AEM: 'FAIL', NUMBER_CHANGED: 'FAIL', LINK_CHANGED: 'FAIL', WRONG_TAB: 'FAIL',
+		COUNT_MISMATCH: 'WARN', OPTION_MISSING: 'WARN', SCOPE_ASYMMETRY: 'WARN',
+		UI_DISPLAY: 'WARN', TEXT_CHANGED: 'WARN', STATE_ONLY_ON_LIVE: 'WARN',
+		STATE_ONLY_ON_NEW: 'INFO', ONLY_ON_AEM: 'INFO']
+	private static final Map FINDING_SEV_LABEL = [
+		FAIL: 'Author must fix on AEM',
+		WARN: 'Please review \u2014 does not fail',
+		INFO: 'Extra on AEM \u2014 no action']
 
-	/** findings.csv rendered as one table per verdict, worst first */
-	private static String contentFindings(Map ctx, String slug) {
+	private static final Map FINDING_DESC = [
+		MISSING_ON_AEM: 'Sitecore (live website) has this text. AEM does not. An author needs to add it on AEM.',
+		NUMBER_CHANGED: 'Both sites have the sentence, but a number is different (a premium, age, percentage or policy term). An author needs to correct the figure on AEM.',
+		COUNT_MISMATCH: 'AEM has the text, but fewer times than Sitecore (for example five cards became one). Listed for review; it does not fail the page.',
+		LINK_CHANGED: 'The button says the same thing on both sites, but it opens a different page on AEM. An author needs to fix the link on AEM.',
+		OPTION_MISSING: 'A dropdown on Sitecore (live website) offers this choice. The AEM dropdown does not. Review whether an author should add it on AEM.',
+		UI_DISPLAY: 'The words are on both sites. AEM often shows them as a tab (the URL gets #name when you click) or a different layout. Sitecore shows them as ordinary page content. This is a style or UI difference — please review, it does not fail the page.',
+		SCOPE_ASYMMETRY: 'One site hid much more content from the comparison than the other, so the numbers on this page are weaker than usual. This is about how the pages were read, not a sentence to author.',
+		WRONG_TAB: 'AEM has the text, but under a different tab than Sitecore. A visitor following the live website will not find it where they expect. An author needs to move it on AEM.',
+		TEXT_CHANGED: 'Same spot, different wording. Listed so you can see the rewrite; it does not fail the page.',
+		STATE_ONLY_ON_LIVE: 'Sitecore has a tab or accordion section that could not be paired with one on AEM. Its text was still checked against the whole AEM page.',
+		STATE_ONLY_ON_NEW: 'AEM has a tab or accordion that Sitecore does not. Extra on AEM \u2014 no action.',
+		ONLY_ON_AEM: 'AEM has this text and Sitecore (live website) does not. That is allowed. Sitecore is the reference, so extra words on AEM never fail the page. No author action.']
+
+	/**
+	 * Content card headline: lead with why it failed, then compared / found % /
+	 * fail counts vs notes that never fail. The old one-line dump mixed those.
+	 */
+	private static String renderContentWhy(Map ctx, String slug, String verdict, String detail) {
+		List rows = uniqueFindingRows(parseFindings(ctx, slug))
+		Map c = parseContentCounts(detail)
+		int missing = rows ? (rows.count { it.verdict == 'MISSING_ON_AEM' } as int) : (c.missing as int)
+		int wrongTab = rows ? (rows.count { it.verdict == 'WRONG_TAB' } as int) : (c.wrongTab as int)
+		int figures = rows ? (rows.count { it.verdict == 'NUMBER_CHANGED' } as int) : (c.figures as int)
+		int links = rows ? (rows.count { it.verdict == 'LINK_CHANGED' } as int) : 0
+		int fails = rows ? (rows.count { FINDING_FAILS.contains(it.verdict) } as int)
+			: ((c.missing as int) + (c.wrongTab as int) + (c.figures as int))
+
+		String headline
+		if (verdict == 'NOT_RUN') {
+			headline = detail.readLines() ? detail.readLines()[0].trim() : 'This check was not run.'
+		} else if (verdict == 'FAIL' && fails > 0) {
+			List bits = []
+			if (missing) bits << (missing + ' text' + (missing == 1 ? '' : 's') + ' missing on AEM')
+			if (wrongTab) bits << (wrongTab + ' under the wrong tab')
+			if (figures) bits << (figures + ' with a different number')
+			if (links) bits << (links + ' button' + (links == 1 ? '' : 's') + ' going to a different page')
+			headline = 'Failed: ' + (bits ? bits.join(', ') : fails + ' mismatch' + (fails == 1 ? '' : 'es')) + '.'
+		} else if (verdict == 'FAIL') {
+			headline = 'Content check failed. See the mismatches below.'
+		} else {
+			headline = 'Sitecore and AEM text match.'
+		}
+		return "<p class=\"found\">${esc(headline)}</p>"
+	}
+
+	/** One finding as four client-facing cells: words / Sitecore / AEM / action */
+	private static Map findingSides(String verdict, Map r) {
+		String text = (r.text ?: '').toString()
+		String where = (r.path ?: '').toString().trim()
+		if (!where) {
+			where = (r.kind == 'option') ? 'in a dropdown'
+				: 'near the top of the content'
+		} else {
+			where = 'under “' + where + '”'
+		}
+		String note = (r.note ?: '').toString().trim()
+		switch (verdict) {
+			case 'MISSING_ON_AEM':
+				String place = note ?: where
+				return [text: text, sitecore: 'Has this (' + place + ')',
+					aem: 'Does not have this',
+					action: note ? ('Add this text/button on AEM ' + note) : 'Add this text on AEM']
+			case 'ONLY_ON_AEM':
+				return [text: text, sitecore: 'Does not have this',
+					aem: 'Has this (' + where + ')', action: 'No action — extra on AEM is allowed']
+			case 'OPTION_MISSING':
+				return [text: text, sitecore: 'Offers this in a dropdown',
+					aem: 'Does not offer this choice',
+					action: 'Review — add the choice on AEM if it should be there']
+			case 'UI_DISPLAY':
+				return [text: text, sitecore: 'Has these words',
+					aem: 'Has these words — shown as a tab or different layout (URL may get #…)',
+					action: 'Review only — text matches. # in the AEM URL is not a content error']
+			case 'WRONG_TAB':
+				return [text: text, sitecore: 'Has this (' + where + ')',
+					aem: (note ?: 'Has this, under a different tab'),
+					action: 'Move this text to the matching tab on AEM']
+			case 'NUMBER_CHANGED':
+				return [text: text, sitecore: 'Has this number (' + where + ')',
+					aem: (note ?: 'Has a different number'),
+					action: 'Correct the figure on AEM']
+			case 'LINK_CHANGED':
+				return [text: text, sitecore: 'This button (' + where + ')',
+					aem: (note ?: 'Opens a different page'),
+					action: 'Fix the link destination on AEM']
+			case 'TEXT_CHANGED':
+				return [text: text, sitecore: 'Says this (' + where + ')',
+					aem: (note ?: 'Different wording'),
+					action: 'No action unless the rewrite is wrong']
+			case 'COUNT_MISMATCH':
+				return [text: text, sitecore: (note ?: 'Has this more times'),
+					aem: 'Has this fewer times',
+					action: 'Review — does not fail the page']
+			case 'STATE_ONLY_ON_LIVE':
+				return [text: text, sitecore: 'Has this tab/section',
+					aem: 'No matching tab/section',
+					action: 'Review pairing — text inside was still checked']
+			case 'STATE_ONLY_ON_NEW':
+				return [text: text, sitecore: 'Does not have this tab/section',
+					aem: 'Has this tab/section',
+					action: 'No action — extra on AEM is allowed']
+			default:
+				return [text: text, sitecore: where, aem: (note ?: '—'), action: '—']
+		}
+	}
+
+	private static String evidenceImg(Map ctx, String slug, int idx, String side) {
+		String name = String.format('%03d-%s.png', idx, side)
+		File src = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/evidence/' + name)
+		if (!src.exists()) {
+			return '<span class="no-pic">No screenshot &mdash; words were in a closed tab or a hidden dropdown</span>'
+		}
+		String href = '../assets/ContentAudit/' + slug + '/evidence/' + name
+		String label = (side == 'sitecore') ? 'Sitecore' : 'AEM'
+		return '<a href="' + escAttr(href) + '" target="_blank" rel="noopener">' +
+			'<img class="evimg" src="' + escAttr(href) + '" alt="' + escAttr(label + ' evidence') + '"></a>'
+	}
+
+	private static void copyEvidencePics(String proj, File root, List pages) {
+		pages.each { p ->
+			File src = new File(proj + '/Reports/ContentAudit/' + p.slug + '/evidence')
+			if (!src.directory) return
+			File dest = new File(root, 'assets/ContentAudit/' + p.slug + '/evidence')
+			dest.mkdirs()
+			src.listFiles()?.each { File f ->
+				if (f.name.toLowerCase().endsWith('.png')) {
+					java.nio.file.Files.copy(f.toPath(), new File(dest, f.name).toPath(),
+						java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+				}
+			}
+		}
+	}
+
+	private static String statCell(String label, String value, String cls) {
+		return '<div class="stat' + (cls ? ' ' + cls : '') + '"><span class="k">' + esc(label) +
+			'</span><span class="v">' + esc(value) + '</span></div>'
+	}
+
+	private static List parseFindings(Map ctx, String slug) {
 		File f = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/findings.csv')
-		if (!f.exists()) return ''
+		if (!f.exists()) return []
 		List rows = []
+		int idx = 0
 		f.readLines('UTF-8').drop(1).each { line ->
 			def m = (line =~ /^(\w+),(\w*),"((?:[^"]|"")*)","((?:[^"]|"")*)","((?:[^"]|"")*)"$/)
-			if (m.find()) rows << [verdict: m.group(1), kind: m.group(2),
+			if (m.find()) {
+				rows << [idx: idx, verdict: m.group(1), kind: m.group(2),
 				path: m.group(3).replace('""', '"'), text: m.group(4).replace('""', '"'),
 				note: m.group(5).replace('""', '"')]
+				idx++
+			}
 		}
-		if (!rows) return ''
+		return rows
+	}
+
+	private static Map parseContentCounts(String detail) {
+		Map out = [compared: 0, missing: 0, wrongTab: 0, reworded: 0, onlyNew: 0, figures: 0, fewer: 0]
+		String first = detail?.readLines() ? detail.readLines()[0].trim() : ''
+		def n = (first =~ /(\d+) live items compared: (\d+) missing, (\d+) in the wrong tab, (\d+) reworded, (\d+) only on the new page/)
+		if (!n.find()) return out
+		out.compared = n.group(1) as int
+		out.missing = n.group(2) as int
+		out.wrongTab = n.group(3) as int
+		out.reworded = n.group(4) as int
+		out.onlyNew = n.group(5) as int
+		def x = (first =~ /(\d+) with changed figures, (\d+) appearing fewer times/)
+		if (x.find()) {
+			out.figures = x.group(1) as int
+			out.fewer = x.group(2) as int
+		}
+		return out
+	}
+
+	/**
+	 * Structure card headline + four stats, same pattern as Content.
+	 */
+	private static String renderStructureWhy(Map ctx, String slug, String verdict, String detail) {
+		List tags = loadStructureTags(ctx, slug)
+		Map images = loadStructureImages(ctx, slug)
+		int liveTags = (tags.sum { it.sitecore } ?: 0) as int
+		int aemTags = (tags.sum { it.aem } ?: 0) as int
+		int missingTags = tags.count { it.sitecore > it.aem } as int
+		int extraTags = tags.count { it.aem > it.sitecore } as int
+		int checked = (images.checked ?: 0) as int
+		int failedPics = (images.failed ?: 0) as int
+		int matchedPics = Math.max(0, checked - failedPics)
+		int scPics = (images.sitecoreCount ?: 0) as int
+		int aemPics = (images.aemCount ?: 0) as int
+
+		String headline
+		if (verdict == 'NOT_RUN') {
+			headline = detail?.readLines() ? detail.readLines()[0].trim() : 'This check was not run.'
+		} else if (verdict == 'FAIL' && failedPics > 0 && missingTags > 0) {
+			headline = 'Failed because ' + failedPics + ' of ' + checked +
+				' pictures do not look the same on AEM, and AEM is also missing some Sitecore headings or pictures.'
+		} else if (verdict == 'FAIL' && failedPics > 0) {
+			headline = 'Failed because ' + failedPics + ' of ' + checked +
+				' pictures do not look the same on AEM. Matching pictures are not listed below.'
+		} else if (verdict == 'FAIL' && missingTags > 0) {
+			headline = 'Failed because AEM has fewer headings or pictures than Sitecore. Extra tags on AEM are not lost Sitecore content.'
+		} else if (verdict == 'FAIL') {
+			headline = 'Failed because Sitecore and AEM use different markup counts. Extra tags on AEM do not mean text was lost \u2014 check Content for wording.'
+		} else if (checked > 0) {
+			headline = matchedPics + ' of ' + checked + ' pictures look the same. Tag counts are close enough.'
+		} else {
+			headline = summaryOf('structure', detail) ?: 'Sitecore and AEM structure match.'
+		}
+
 		StringBuilder h = new StringBuilder()
-		FINDING_ORDER.each { String v ->
-			List got = rows.findAll { it.verdict == v }
-			if (!got) return
-			h << "<div class=\"pairblock\"><h6>${esc(FINDING_TITLE[v])} — ${got.size()}</h6>"
-			h << "<p class=\"desc\">${esc(FINDING_DESC[v])}</p>"
-			h << '<table class="difftable"><tr><th>Where on the live page</th><th>Text</th><th>Note</th></tr>'
-			got.each { r ->
-				h << "<tr><td>${esc(r.path ?: '—')}</td><td>${esc(r.text)}</td><td>${esc(r.note)}</td></tr>"
+		h << "<p class=\"found\">${esc(headline)}</p>"
+		if (verdict != 'NOT_RUN' && (!tags.isEmpty() || checked > 0)) {
+			h << '<div class="statrow">'
+			h << statCell('Sitecore (live website)',
+				liveTags ? (liveTags + ' heading/link/picture tags') : '—', '')
+			h << statCell('AEM',
+				aemTags ? (aemTags + ' heading/link/picture tags') : '—',
+				(missingTags > 0 ? 'bad' : ''))
+			h << statCell('Pictures that look the same',
+				checked ? (matchedPics + ' of ' + checked) : (scPics || aemPics ? (scPics + ' vs ' + aemPics) : 'None on either page'),
+				(failedPics > 0 ? 'bad' : (checked > 0 ? 'good' : '')))
+			int mustFix = missingTags + failedPics
+			h << statCell('Author should check',
+				mustFix ? (mustFix + ' item' + (mustFix == 1 ? '' : 's')) : 'Nothing',
+				mustFix ? 'bad' : 'good')
+			h << '</div>'
+			if (extraTags && verdict == 'FAIL' && failedPics == 0 && missingTags == 0) {
+				h << '<p class="sub">AEM has extra headings, links or paragraphs. That is usually AEM markup, not missing Sitecore content.</p>'
+			}
+		}
+		return h.toString()
+	}
+
+	/**
+	 * Side by side: tag table, then only the pictures that failed.
+	 * The raw universal-log.txt is not shown.
+	 */
+	private static String structureEvidence(Map ctx, String slug, String verdict) {
+		List tags = loadStructureTags(ctx, slug)
+		Map images = loadStructureImages(ctx, slug)
+		List reasons = structureClientReasons(ctx, slug)
+		List pairsEarly = (images.pairs instanceof List) ? (List) images.pairs : []
+		if (tags.isEmpty() && pairsEarly.isEmpty() && reasons.isEmpty()) return ''
+
+		StringBuilder h = new StringBuilder()
+		if (!tags.isEmpty()) {
+			h << '<div class="pairblock"><h6>Headings, links and pictures</h6>'
+			h << '<p class="desc">Sitecore is the live website. AEM is the new site. Same count means the same number of that tag. Extra on AEM is usually different markup, not lost content. Missing on AEM is what an author should check.</p>'
+			h << '<table class="difftable"><tr><th>Tag</th><th>Sitecore (live website)</th><th>AEM</th><th>What this means</th></tr>'
+			tags.each { row ->
+				String cls = (row.sitecore > row.aem) ? ' class="miss"' : ((row.aem > row.sitecore) ? ' class="extra"' : '')
+				h << "<tr${cls}><td>${esc(tagLabel(row.tag as String))}</td>"
+				h << "<td>${row.sitecore}</td><td>${row.aem}</td>"
+				h << "<td>${esc(tagMeaning(row.tag as String, row.sitecore as int, row.aem as int))}</td></tr>"
 			}
 			h << '</table></div>'
 		}
+
+		int checked = (images.checked ?: 0) as int
+		int failedPics = (images.failed ?: 0) as int
+		int matchedPics = Math.max(0, checked - failedPics)
+		int scPics = (images.sitecoreCount ?: 0) as int
+		int aemPics = (images.aemCount ?: 0) as int
+		List pairs = (images.pairs instanceof List) ? (List) images.pairs : []
+		List fails = pairs.findAll { !(it.matched as boolean) }
+
+		if (checked > 0 || scPics || aemPics || fails) {
+			String sev = failedPics > 0 ? 'FAIL' : 'INFO'
+			h << "<div class=\"pairblock ${sev}\"><h6><span class=\"chip ${failedPics > 0 ? 'FAIL' : 'PASS'}\">"
+			h << (failedPics > 0 ? 'Author must check' : 'Pictures match')
+			h << "</span>Pictures \u2014 ${matchedPics} of ${checked} look the same</h6>"
+			if (scPics && aemPics && scPics != aemPics) {
+				h << "<p class=\"desc\">Sitecore has ${scPics} pictures, AEM has ${aemPics}. "
+				h << "Paired by file name. Sitecore pictures with no AEM name match are listed below.</p>"
+			} else if (failedPics > 0) {
+				h << '<p class="desc">Matching pictures are hidden. Each row is one Sitecore picture that does not look like the AEM picture in the same place.</p>'
+			} else if (checked > 0) {
+				h << '<p class="desc">Every compared picture looks the same, even if the file size or zoom is different.</p>'
+			}
+			fails.each { Map pair -> h << renderImageFail(pair, checked) }
+			if (failedPics > 0 && !fails) {
+				h << '<p class="sub">This run recorded that pictures failed, but not the step-by-step checks. Re-run the compare suite (not only rebuild the report) to see why each picture failed.</p>'
+			}
+			h << '</div>'
+		}
+
+		if (tags.isEmpty() && !reasons.isEmpty() && verdict != 'PASS') {
+			h << '<div class="pairblock"><h6>What was found</h6><ul class="plain">'
+			reasons.each { r -> h << "<li>${esc(r)}</li>" }
+			h << '</ul></div>'
+		}
+		return h.toString()
+	}
+
+	private static String renderImageFail(Map pair, int total) {
+		int n = (pair.pair ?: 0) as int
+		String how = (pair.how ?: pair.error ?: 'Images do not match visually (failed fuzzy pixel comparison).').toString()
+		if (how.toLowerCase().contains('downloading') || how.contains('MD5') ||
+			how.startsWith('Error comparing') || how.contains('drawImage') ||
+			how.contains('BigDecimal') || how.contains('No signature') || how.length() > 160) {
+			how = 'Images do not match visually (failed fuzzy pixel comparison).'
+		}
+		StringBuilder h = new StringBuilder()
+		h << '<div class="imgfail">'
+		h << "<h6>Picture ${n}" + (total ? " of ${total}" : '') + "</h6>"
+		h << "<p>${esc(how)}</p>"
+		if ((pair.liveW ?: 0) || (pair.aemW ?: 0)) {
+			h << "<p class=\"sub\">Sitecore ${pair.liveW}\u00d7${pair.liveH}"
+			h << " \u00b7 AEM ${pair.aemW}\u00d7${pair.aemH}</p>"
+		}
+		if (pair.liveUrl) {
+			h << "<p class=\"fileurl\"><span>Sitecore file</span> <a href=\"${escAttr(pair.liveUrl)}\" target=\"_blank\" rel=\"noopener\">${esc(pair.liveUrl)}</a></p>"
+		}
+		if (pair.aemUrl) {
+			h << "<p class=\"fileurl\"><span>AEM file</span> <a href=\"${escAttr(pair.aemUrl)}\" target=\"_blank\" rel=\"noopener\">${esc(pair.aemUrl)}</a></p>"
+		}
+		h << '</div>'
+		return h.toString()
+	}
+
+	private static List loadStructureTags(Map ctx, String slug) {
+		File f = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/tags.csv')
+		if (f.exists()) {
+			List rows = []
+			f.readLines('UTF-8').drop(1).each { line ->
+				if (!line?.trim()) return
+				def p = line.split(',', 3)
+				if (p.length < 3) return
+				try {
+					rows << [tag: p[0].trim(), sitecore: p[1].trim() as int, aem: p[2].trim() as int]
+				} catch (Exception ignore) { }
+			}
+			if (rows) return rows
+		}
+		return parseTagsFromLog(ctx, slug)
+	}
+
+	private static Map loadStructureImages(Map ctx, String slug) {
+		File f = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/images.json')
+		if (f.exists()) {
+			try {
+				return (Map) new JsonSlurper().parseText(f.getText('UTF-8'))
+			} catch (Exception ignore) { }
+		}
+		return parseImagesFromLog(ctx, slug)
+	}
+
+	/** Older runs only have universal-log.txt — recover tag counts from those lines. */
+	private static List parseTagsFromLog(Map ctx, String slug) {
+		File logFile = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/universal-log.txt')
+		if (!logFile.exists()) return []
+		List rows = []
+		logFile.eachLine('UTF-8') { String line ->
+			def perfect = (line =~ /<(\w+)>:\s*Perfect Match \((\d+)\)/)
+			if (perfect.find()) {
+				int n = perfect.group(2) as int
+				rows << [tag: perfect.group(1).toLowerCase(), sitecore: n, aem: n]
+				return
+			}
+			def miss = (line =~ /<(\w+)>:\s*MISSING IN AEM \(Live has (\d+), AEM only has (\d+)\)/)
+			if (miss.find()) {
+				rows << [tag: miss.group(1).toLowerCase(), sitecore: miss.group(2) as int, aem: miss.group(3) as int]
+				return
+			}
+			def extra = (line =~ /<(\w+)>:\s*EXTRA IN AEM \(Live has (\d+), AEM has (\d+)\)/)
+			if (extra.find()) {
+				rows << [tag: extra.group(1).toLowerCase(), sitecore: extra.group(2) as int, aem: extra.group(3) as int]
+			}
+		}
+		return rows
+	}
+
+	/** Older runs: pair index + fail, without FileImageComparer steps. */
+	private static Map parseImagesFromLog(Map ctx, String slug) {
+		File logFile = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/universal-log.txt')
+		Map out = [checked: 0, failed: 0, sitecoreCount: 0, aemCount: 0, pairs: []]
+		if (!logFile.exists()) return out
+		int checked = 0
+		List pairs = []
+		logFile.eachLine('UTF-8') { String line ->
+			def pair = (line =~ /Checking Image Pair (\d+) of (\d+)/)
+			if (pair.find()) {
+				checked = pair.group(2) as int
+				return
+			}
+			def fail = (line =~ /IMAGE FAIL: Image (\d+)/)
+			if (fail.find()) {
+				pairs << [pair: fail.group(1) as int, matched: false, how: 'do not look the same',
+					logLines: [], error: '', liveUrl: '', aemUrl: '']
+			}
+		}
+		out.checked = checked
+		out.failed = pairs.size()
+		out.pairs = pairs
+		return out
+	}
+
+	private static List structureClientReasons(Map ctx, String slug) {
+		File reasonsFile = new File(ctx.proj + '/Reports/ContentAudit/' + slug + '/universal.txt')
+		if (!reasonsFile.exists()) return []
+		return reasonsFile.readLines('UTF-8').collect { it.trim() }.findAll { String r ->
+			r && !(r ==~ /(?i).*(text similarity|image mismatch on visual check).*/)
+		}
+	}
+
+	private static String tagLabel(String tag) {
+		switch ((tag ?: '').toLowerCase()) {
+			case 'h1': return 'H1 title'
+			case 'h2': return 'H2 heading'
+			case 'h3': return 'H3 heading'
+			case 'h4': return 'H4 heading'
+			case 'h5': return 'H5 heading'
+			case 'h6': return 'H6 heading'
+			case 'p' : return 'Paragraph'
+			case 'li': return 'List item'
+			case 'a' : return 'Link'
+			case 'img': return 'Picture'
+			default: return (tag ?: '').toUpperCase()
+		}
+	}
+
+	private static String tagMeaning(String tag, int sitecore, int aem) {
+		String name = tagLabel(tag).toLowerCase()
+		if (sitecore == aem) return 'Same count on both sites'
+		if (sitecore > aem) {
+			int n = sitecore - aem
+			String noun = n == 1 ? name : (name + 's')
+			if (['img', 'h1', 'h2', 'p'].contains((tag ?: '').toLowerCase())) {
+				return 'Sitecore has ' + n + ' more ' + noun + '. Check that AEM did not drop them.'
+			}
+			return 'Sitecore has ' + n + ' more ' + noun + '.'
+		}
+		int n = aem - sitecore
+		String noun = n == 1 ? name : (name + 's')
+		if ((tag ?: '').equalsIgnoreCase('h1')) {
+			return 'AEM has ' + n + ' extra ' + noun + '. More than one H1 is unusual.'
+		}
+		return 'AEM has ' + n + ' extra ' + noun + '. Extra markup on AEM is not lost Sitecore content.'
+	}
+
+	/** Fail rows first (with pictures), then Please review. Extra/count noise stays folded away. */
+	private static final List CONTENT_MAIN = ['MISSING_ON_AEM', 'NUMBER_CHANGED', 'LINK_CHANGED',
+		'WRONG_TAB', 'OPTION_MISSING', 'UI_DISPLAY']
+
+	/** findings.csv rendered as one table per verdict, worst first */
+	private static String contentFindings(Map ctx, String slug) {
+		List rows = uniqueFindingRows(parseFindings(ctx, slug))
+		if (!rows) return ''
+		StringBuilder h = new StringBuilder()
+		CONTENT_MAIN.each { String v -> h << contentTable(ctx, slug, v, rows) }
+		List extra = FINDING_ORDER.findAll { !CONTENT_MAIN.contains(it) }
+			.findAll { String v -> rows.any { it.verdict == v } }
+		if (extra) {
+			h << '<details><summary>Other notes (does not fail the page)</summary>'
+			extra.each { String v -> h << contentTable(ctx, slug, v, rows) }
+			h << '</details>'
+		}
+		return h.toString()
+	}
+
+	/** Collapse identical wording+place rows (e.g. Contact us on three tabs). */
+	private static List uniqueFindingRows(List rows) {
+		Set seen = [] as Set
+		List out = []
+		(rows ?: []).each { Map r ->
+			String k = [r.verdict, (r.text ?: '').toString().toLowerCase(),
+				(r.note ?: '').toString().toLowerCase()].join('|')
+			if (seen.contains(k)) return
+			seen << k
+			out << r
+		}
+		return out
+	}
+
+	private static String contentTable(Map ctx, String slug, String v, List rows) {
+			List got = rows.findAll { it.verdict == v }
+		if (!got) return ''
+		String sev = FINDING_SEVERITY[v] ?: 'INFO'
+		String sevLabel = FINDING_SEV_LABEL[sev] ?: sev
+		StringBuilder h = new StringBuilder()
+		h << "<div class=\"pairblock ${sev}\"><h6><span class=\"chip ${sev}\">${esc(sevLabel)}</span>"
+		h << "${esc(FINDING_TITLE[v])} — ${got.size()}</h6>"
+			h << "<p class=\"desc\">${esc(FINDING_DESC[v])}</p>"
+		h << '<table class="difftable"><tr><th>The words</th><th>Sitecore (live website)</th><th>AEM</th>'
+		h << '<th>What an author should do</th><th>Picture on Sitecore</th><th>Picture on AEM</th></tr>'
+			got.each { r ->
+			Map cells = findingSides(v, r)
+			h << "<tr><td>${esc(cells.text)}</td><td>${esc(cells.sitecore)}</td>"
+			h << "<td>${esc(cells.aem)}</td><td>${esc(cells.action)}</td>"
+			h << "<td class=\"evcell\">${evidenceImg(ctx, slug, r.idx as int, 'sitecore')}</td>"
+			h << "<td class=\"evcell\">${evidenceImg(ctx, slug, r.idx as int, 'aem')}</td></tr>"
+			}
+			h << '</table></div>'
 		return h.toString()
 	}
 
@@ -594,6 +1080,9 @@ public class ReportBuilder {
 	private static String summaryOf(String chk, String detail) {
 		if (!detail) return ''
 		String first = detail.readLines() ? detail.readLines()[0].trim() : ''
+		if (chk == 'structure') {
+			return first
+		}
 		if (chk == 'content') {
 			def n = (first =~ /(\d+) live items compared: (\d+) missing, (\d+) in the wrong tab, (\d+) reworded, (\d+) only on the new page/)
 			if (n.find()) {
@@ -604,18 +1093,18 @@ public class ReportBuilder {
 				int figures = 0, fewer = 0
 				if (x.find()) { figures = x.group(1) as int; fewer = x.group(2) as int }
 				String verdict = (missing + wrongTab + figures + fewer == 0)
-					? "All ${n.group(1)} pieces of live-page content were found on the new page"
-					: ([missing ? "${missing} piece(s) of live-page content are missing" : null,
-						wrongTab ? "${wrongTab} sit under a different tab" : null,
-						figures ? "${figures} state different figures" : null,
-						fewer ? "${fewer} appear fewer times than on the live page" : null]
-						.findAll { it }.join(', ') + ", out of ${n.group(1)} compared")
-				return verdict + " — ${n.group(4)} reworded, ${n.group(5)} only on the new page"
+					? "Every Sitecore text was found on AEM (${n.group(1)} compared)"
+					: ([missing ? "${missing} on Sitecore missing from AEM" : null,
+						wrongTab ? "${wrongTab} under the wrong tab on AEM" : null,
+						figures ? "${figures} with a different number on AEM" : null,
+						fewer ? "${fewer} appear fewer times on AEM" : null]
+						.findAll { it }.join(', ') + " (of ${n.group(1)} Sitecore texts)")
+				return verdict
 			}
 			// legacy line-based summary, kept so older runs still render
 			def m = (first =~ /(\d+) Sitecore lines, (\d+) missing on AEM, (\d+) extra/)
 			if (m.find()) {
-				return "${m.group(2)} of ${m.group(1)} lines of the live page are missing on the new page (${m.group(3)} extra line(s) on the new page)"
+				return "${m.group(2)} of ${m.group(1)} Sitecore texts are missing from AEM (${m.group(3)} extra on AEM)"
 			}
 		}
 		// drop the trailing evidence path, keep the readable part
@@ -894,6 +1383,17 @@ public class ReportBuilder {
 		h << '.links a{font-size:13px;text-decoration:none}.links a:hover{text-decoration:underline}'
 		h << '.links a:after{content:" \\2197";font-size:11px}'
 		h << '.page-status{margin:0;font-size:13px;color:var(--muted)}'
+		h << '.page-status.fail{color:var(--fail);font-weight:600;font-size:15px}'
+		h << '.statrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:4px 0 2px}'
+		h << '.stat{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--sunk);display:flex;flex-direction:column;gap:2px}'
+		h << '.stat.bad{background:var(--fail-soft);border-color:#e8c4c0}'
+		h << '.stat.good{background:var(--pass-soft);border-color:#c5ddcf}'
+		h << '.stat .k{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}'
+		h << '.stat .v{font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}'
+		h << '.stat.bad .v{color:var(--fail)}.stat.good .v{color:var(--pass)}'
+		h << '.pairblock.FAIL{border-left:3px solid var(--fail)}'
+		h << '.pairblock.WARN{border-left:3px solid var(--warn)}'
+		h << '.pairblock.INFO{border-left:3px solid var(--line-strong)}'
 		h << 'nav.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--muted)}'
 		h << 'nav.crumbs a{color:var(--accent);text-decoration:none}nav.crumbs a:hover{text-decoration:underline}'
 		h << 'nav.crumbs>*+*:before{content:"\\203A";margin-right:8px;color:var(--line-strong)}'
@@ -930,6 +1430,20 @@ public class ReportBuilder {
 		h << '.difftable th,.difftable td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}'
 		h << '.difftable th{background:var(--sunk);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}'
 		h << '.difftable td:first-child{font-variant-numeric:tabular-nums;color:var(--muted)}'
+		h << '.evcell{width:200px}'
+		h << '.evimg{display:block;max-width:200px;max-height:140px;object-fit:contain;'
+		h << 'border:1px solid var(--line-strong);border-radius:4px;background:var(--sunk)}'
+		h << '.no-pic{color:var(--muted);font-size:12px}'
+		h << '.difftable tr.miss td{background:var(--fail-soft)}'
+		h << '.difftable tr.extra td{background:var(--accent-soft)}'
+		h << '.imgfail{border-top:1px solid var(--line);padding:12px 0 4px}'
+		h << '.imgfail:first-of-type{border-top:0;padding-top:4px}'
+		h << '.imgfail h6{margin:0 0 6px}'
+		h << 'ol.imgsteps{margin:8px 0;padding-left:22px;font-size:12.5px;font-family:var(--mono);line-height:1.45}'
+		h << 'ol.imgsteps li{margin:3px 0;word-break:break-word}'
+		h << '.fileurl{margin:4px 0 0;font-size:12px;word-break:break-all}'
+		h << '.fileurl span{display:inline-block;min-width:7.5em;color:var(--muted);font-weight:600;'
+		h << 'letter-spacing:.06em;text-transform:uppercase;font-size:11px}'
 
 		// controls, navigation and the picture viewer (behaviour lives in report.js)
 		h << '[hidden]{display:none!important}'

@@ -1,0 +1,33 @@
+[
+    {
+        "tag": "h1",
+        "content": "PRUIndex Income Boost"
+    },
+    {
+        "tag": "p",
+        "content": "PRUIndex Income Boost"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/grey-image-rec.png"
+    },
+    {
+        "tag": "h3",
+        "content": "Product Deck"
+    },
+    {
+        "tag": "a",
+        "content": "Englishopens in a new tab",
+        "url": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-OA.pdf"
+    },
+    {
+        "tag": "a",
+        "content": "Englishopens in a new tab",
+        "url": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-SCB.pdf"
+    },
+    {
+        "tag": "a",
+        "content": "Englishopens in a new tab",
+        "url": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-UOB.pdf"
+    }
+]

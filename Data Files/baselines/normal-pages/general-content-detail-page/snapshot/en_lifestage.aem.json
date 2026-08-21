@@ -1,19 +1,19 @@
 {
     "url": "https://aem-uat.prudential.com.sg/en/lifestage",
     "side": "aem",
-    "capturedAt": "2026-08-19T17:49:31",
+    "capturedAt": "2026-08-21T09:06:28",
     "profile": "prudential-aem@5",
     "contentRoot": "main.main__container",
     "tabGroups": [
         
     ],
     "skipped": {
+        "noise": 18,
         "formLabel": 0,
-        "hidden": 0,
-        "noText": 16,
-        "noise": 0,
-        "scanned": 17,
-        "tooShort": 0
+        "hidden": 6,
+        "tooShort": 0,
+        "noText": 7,
+        "scanned": 78
     },
     "rootText": "Home Lifestage Insurance For Life\u2019s Journeys From health insurance and wealth accumulation for young adults to protection and financial plans for retirees, we\u2019re here to provide tailored solutions to protect you and your loved ones at every phase of life. Where are you in life? New to workforce You could be around 19 - 29 years old Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future. opens in a new tab Settling down You could be around 24 - 35 years old Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building. Young family You could be around 24 - 35 years old You have young children to care for and want peace of mind to ensure your family\u2019s well-being. Caring for elderly parents or children You could be around 35 - 59 years old Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both. opens in a new tab Retirement You could be any age! Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met. opens in a new tab Useful tools and guides Check out these handy guides and tools. Needs Analysis Calculator opens in a new tab FAQs We\u2019re here to help Start your financial planning journey with us today. Our Financial Representative will be in touch to assist you. * All fields are mandatory Are you a PRU Policy Owner? Yes No First Name * Last Name * Mobile Number * Email Address * NRIC Date of Birth Financial Representative's Mobile Are you a EU resident individual? * Yes No I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR. Declaration By submitting this form, I confirm that I have read, understood and given my consent Consent For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice. I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data. For existing customers: I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data For individuals who are new to Prudential: I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data. Or give us a call: 1800 333 0333 First Name Last Name Mobile Number Financial Representative's Mobile Email Address Are you a EU resident individual? Yes No I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR. Declaration By submitting this form, I confirm that I have read, understood and given my consent Consent For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice. I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data. For existing customers: I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data For individuals who are new to Prudential: I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data. Or give us a call: 1800 333 0333",
     "states": [
@@ -24,14 +24,474 @@
     ],
     "items": [
         {
+            "text": "Home",
             "full": "Home",
-            "href": "/en",
+            "kind": "bullet",
+            "path": "",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Home",
+            "full": "Home",
             "kind": "cta",
             "path": "",
-            "reach": "visible",
-            "stateId": "",
             "tab": "",
-            "text": "Home"
+            "stateId": "",
+            "href": "/en",
+            "reach": "visible"
+        },
+        {
+            "text": "Lifestage",
+            "full": "Lifestage",
+            "kind": "bullet",
+            "path": "",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Insurance For Life\u2019s Journeys",
+            "full": "Insurance For Life\u2019s Journeys",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Insurance For Life\u2019s Journeys",
+            "full": "Insurance For Life\u2019s Journeys",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "From health insurance and wealth accumulation for young adults to protection and financial plans for retirees, we\u2019re here to provide tailored solutions to protect you and your loved ones at every phase of life.",
+            "full": "From health insurance and wealth accumulation for young adults to protection and financial plans for retirees, we\u2019re here to provide tailored solutions to protect you and your loved ones at every phase of life.",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "in life?",
+            "full": "Where are you in life?",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "New to workforce You could be around 19 - 29 years old Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future. opens in a new tab",
+            "full": "New to workforce You could be around 19 - 29 years old Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future. opens in a new tab",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/new-to-workforce",
+            "reach": "visible"
+        },
+        {
+            "text": "New to workforce",
+            "full": "New to workforce",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > New to workforce",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "New to workforce",
+            "full": "New to workforce",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > New to workforce",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/new-to-workforce",
+            "reach": "visible"
+        },
+        {
+            "text": "You could be around 19 - 29 years old",
+            "full": "You could be around 19 - 29 years old",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > New to workforce",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future.",
+            "full": "Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > New to workforce",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/new-to-workforce",
+            "reach": "visible"
+        },
+        {
+            "text": "Settling down You could be around 24 - 35 years old Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building.",
+            "full": "Settling down You could be around 24 - 35 years old Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > New to workforce",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/settling-down",
+            "reach": "visible"
+        },
+        {
+            "text": "Settling down",
+            "full": "Settling down",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Settling down",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Settling down",
+            "full": "Settling down",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Settling down",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/settling-down",
+            "reach": "visible"
+        },
+        {
+            "text": "You could be around 24 - 35 years old",
+            "full": "You could be around 24 - 35 years old",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Settling down",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building.",
+            "full": "Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Settling down",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/settling-down",
+            "reach": "visible"
+        },
+        {
+            "text": "Young family You could be around 24 - 35 years old You have young children to care for and want peace of mind to ensure your family\u2019s well-being.",
+            "full": "Young family You could be around 24 - 35 years old You have young children to care for and want peace of mind to ensure your family\u2019s well-being.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Settling down",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/young-family",
+            "reach": "visible"
+        },
+        {
+            "text": "Young family",
+            "full": "Young family",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Young family",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Young family",
+            "full": "Young family",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Young family",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/young-family",
+            "reach": "visible"
+        },
+        {
+            "text": "You could be around 24 - 35 years old",
+            "full": "You could be around 24 - 35 years old",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Young family",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "You have young children to care for and want peace of mind to ensure your family\u2019s well-being.",
+            "full": "You have young children to care for and want peace of mind to ensure your family\u2019s well-being.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Young family",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/young-family",
+            "reach": "visible"
+        },
+        {
+            "text": "Caring for elderly parents or children You could be around 35 - 59 years old Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both. opens in a new tab",
+            "full": "Caring for elderly parents or children You could be around 35 - 59 years old Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both. opens in a new tab",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Young family",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/caring-for-elderly-parents-or-children",
+            "reach": "visible"
+        },
+        {
+            "text": "Caring for elderly parents or children",
+            "full": "Caring for elderly parents or children",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Caring for elderly parents or children",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Caring for elderly parents or children",
+            "full": "Caring for elderly parents or children",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Caring for elderly parents or children",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/caring-for-elderly-parents-or-children",
+            "reach": "visible"
+        },
+        {
+            "text": "You could be around 35 - 59 years old",
+            "full": "You could be around 35 - 59 years old",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Caring for elderly parents or children",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both.",
+            "full": "Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Caring for elderly parents or children",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/caring-for-elderly-parents-or-children",
+            "reach": "visible"
+        },
+        {
+            "text": "Retirement You could be any age! Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met. opens in a new tab",
+            "full": "Retirement You could be any age! Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met. opens in a new tab",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Caring for elderly parents or children",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/retirement",
+            "reach": "visible"
+        },
+        {
+            "text": "Retirement",
+            "full": "Retirement",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Retirement",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Retirement",
+            "full": "Retirement",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Retirement",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/retirement",
+            "reach": "visible"
+        },
+        {
+            "text": "You could be any age!",
+            "full": "You could be any age!",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Retirement",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met.",
+            "full": "Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met.",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Retirement",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage/retirement",
+            "reach": "visible"
+        },
+        {
+            "text": "and guides",
+            "full": "Useful tools and guides",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Check out these handy guides and tools.",
+            "full": "Check out these handy guides and tools.",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Needs Analysis Calculator opens in a new tab",
+            "full": "Needs Analysis Calculator opens in a new tab",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "/Services/PruDiscovery/About",
+            "reach": "visible"
+        },
+        {
+            "text": "Needs Analysis Calculator",
+            "full": "Needs Analysis Calculator",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "/Services/PruDiscovery/About",
+            "reach": "visible"
+        },
+        {
+            "text": "FAQs",
+            "full": "FAQs",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/claims-and-services/support/faqs",
+            "reach": "visible"
+        },
+        {
+            "text": "FAQs",
+            "full": "FAQs",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > Useful tools and guides",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/claims-and-services/support/faqs",
+            "reach": "visible"
+        },
+        {
+            "text": "We\u2019re here to help",
+            "full": "We\u2019re here to help",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Start your financial planning journey with us today. Our Financial Representative will be in touch to assist you.",
+            "full": "Start your financial planning journey with us today. Our Financial Representative will be in touch to assist you.",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "* All fields are mandatory",
+            "full": "* All fields are mandatory",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at ) for more information on the rights available to me under the GDPR.",
+            "full": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR.",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "https://www.prudential.com.sg/privacy-notice",
+            "full": "https://www.prudential.com.sg/privacy-notice",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "/Privacy-Notice",
+            "reach": "visible"
+        },
+        {
+            "text": "Declaration",
+            "full": "Declaration",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "By submitting this form, I confirm that I have read, understood and given my",
+            "full": "By submitting this form, I confirm that I have read, understood and given my consent",
+            "kind": "para",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "consent",
+            "full": "consent",
+            "kind": "cta",
+            "path": "Insurance For Life\u2019s Journeys > We\u2019re here to help",
+            "tab": "",
+            "stateId": "",
+            "href": "/en/lifestage",
+            "reach": "visible"
+        },
+        {
+            "text": "Or give us a call: 1800 333 0333",
+            "full": "Or give us a call: 1800 333 0333",
+            "kind": "heading",
+            "path": "Insurance For Life\u2019s Journeys > Or give us a call: 1800 333 0333",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
         }
     ]
 }

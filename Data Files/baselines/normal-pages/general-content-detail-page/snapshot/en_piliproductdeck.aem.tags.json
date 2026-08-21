@@ -1,0 +1,28 @@
+[
+    {
+        "tag": "h1",
+        "content": "PRUIndex Lifetime Income"
+    },
+    {
+        "tag": "p",
+        "content": "PRUIndex Lifetime Income"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/grey-image-rec.png"
+    },
+    {
+        "tag": "h3",
+        "content": "Product Deck"
+    },
+    {
+        "tag": "a",
+        "content": "Englishopens in a new tab",
+        "url": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piliproductdeck/PRUIndex-Lifetime-Income-OA.pdf"
+    },
+    {
+        "tag": "a",
+        "content": "Englishopens in a new tab",
+        "url": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piliproductdeck/PRUIndex-Lifetime-Income-UOB.pdf"
+    }
+]

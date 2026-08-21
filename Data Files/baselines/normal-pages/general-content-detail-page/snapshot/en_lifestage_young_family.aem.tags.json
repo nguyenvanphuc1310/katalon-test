@@ -1,0 +1,1402 @@
+[
+    {
+        "tag": "li",
+        "content": "Home"
+    },
+    {
+        "tag": "a",
+        "content": "Home",
+        "url": "/en/"
+    },
+    {
+        "tag": "li",
+        "content": "Lifestage"
+    },
+    {
+        "tag": "a",
+        "content": "Lifestage",
+        "url": "/en/lifestage/"
+    },
+    {
+        "tag": "li",
+        "content": "Young Family"
+    },
+    {
+        "tag": "h1",
+        "content": "Young Family"
+    },
+    {
+        "tag": "p",
+        "content": "Young Family"
+    },
+    {
+        "tag": "p",
+        "content": "Stability is especially key when you have young children to care for. Building a good foundation for protection and wealth will help give you peace of mind when it comes to your future and theirs."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/masthead-v1?dpr=on&ts=1770948749561&$HeroBanner$"
+    },
+    {
+        "tag": "h2",
+        "content": "Prime a better future for your growing family"
+    },
+    {
+        "tag": "p",
+        "content": "Prioritise securing a safer and better tomorrow for you and your loved ones."
+    },
+    {
+        "tag": "a",
+        "content": "High priority",
+        "url": "#protection"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/lifestage/protection-icon.jpg"
+    },
+    {
+        "tag": "h3",
+        "content": "Protection"
+    },
+    {
+        "tag": "p",
+        "content": "In the event of unexpected circumstances such as critical illnesses, accidents or death, at least one or more dependants may be impacted."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for protection:"
+    },
+    {
+        "tag": "li",
+        "content": "Health insurance for hospitalisation."
+    },
+    {
+        "tag": "li",
+        "content": "Protection against accidents and major illnesses so that your needs during recovery continue to be met."
+    },
+    {
+        "tag": "li",
+        "content": "Financial payout for death, terminal illness, and total and permanent disability."
+    },
+    {
+        "tag": "li",
+        "content": "Maternity insurance if you\u2019re growing your family."
+    },
+    {
+        "tag": "a",
+        "content": "Plan your protection",
+        "url": "#protection"
+    },
+    {
+        "tag": "a",
+        "content": "High priority",
+        "url": "#wealth"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/home/lifestage/wealth-icon.png"
+    },
+    {
+        "tag": "h3",
+        "content": "Wealth"
+    },
+    {
+        "tag": "p",
+        "content": "You are likely to have taken on more financial demands such as a home mortgage, your children\u2019s education, and retirement."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for wealth:"
+    },
+    {
+        "tag": "li",
+        "content": "Savings for immediate and future expenses."
+    },
+    {
+        "tag": "li",
+        "content": "Retirement planning."
+    },
+    {
+        "tag": "a",
+        "content": "Build your wealth",
+        "url": "#wealth"
+    },
+    {
+        "tag": "a",
+        "content": "Medium priority",
+        "url": "#for-your-dependants"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/lifestage/dependant-icon.jpg"
+    },
+    {
+        "tag": "h3",
+        "content": "For Your Dependants"
+    },
+    {
+        "tag": "p",
+        "content": "Protecting your loved ones from the unexpected can allow you to focus on your responsibilities without constant worry."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for your dependants:"
+    },
+    {
+        "tag": "li",
+        "content": "Health insurance for hospitalisation."
+    },
+    {
+        "tag": "li",
+        "content": "Protection against accidents, death, terminal illness, and total and permanent disability."
+    },
+    {
+        "tag": "li",
+        "content": "Care plan for your parents."
+    },
+    {
+        "tag": "a",
+        "content": "Protect your dependants",
+        "url": "#for-your-dependants"
+    },
+    {
+        "tag": "h2",
+        "content": "Learn more about your needs"
+    },
+    {
+        "tag": "li",
+        "content": "Protection"
+    },
+    {
+        "tag": "li",
+        "content": "Wealth"
+    },
+    {
+        "tag": "li",
+        "content": "For your dependants"
+    },
+    {
+        "tag": "h2",
+        "content": "Protection"
+    },
+    {
+        "tag": "p",
+        "content": "Safeguarding your health grows in importance as you embark on a new phase of life. Saving for your upcoming milestones will be easier when you don\u2019t have to worry about medical expenses."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_you_already_have-4?qlt=85&wid=320&ts=1772445889956&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "What you already have\u00b9"
+    },
+    {
+        "tag": "p",
+        "content": "If you are a Singaporean or PR, you\u2019re automatically covered by three national schemes:"
+    },
+    {
+        "tag": "li",
+        "content": "MediSave A national savings scheme which helps CPF members save for future medical expenses, especially during retirement."
+    },
+    {
+        "tag": "li",
+        "content": "MediShield Life A health insurance for large hospital bills and selected outpatient treatment costs."
+    },
+    {
+        "tag": "li",
+        "content": "CareShield Life Long-term care insurance scheme for financial support and monthly cash payouts in event of severe disability"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_you_already_have-2?qlt=85&wid=320&ts=1772445886117&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "What you may consider\u00b2"
+    },
+    {
+        "tag": "p",
+        "content": "With big-ticket items lined up in your future, being sufficiently protected is critical in ensuring that your savings can be used as intended \u2013 for the new life you\u2019re building."
+    },
+    {
+        "tag": "p",
+        "content": "National schemes do not fully cover:"
+    },
+    {
+        "tag": "li",
+        "content": "Hospitalisation An Integrated Shield Plan (IP) provides additional coverage for private hospitals or higher ward classes in public hospitals."
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness You\u2019ll need coverage of 4x annual income. (Recommended)\u00b3"
+    },
+    {
+        "tag": "li",
+        "content": "Death & Total and Permanent Disability You\u2019ll need coverage of 9 \u2013 10x annual income. (Recommended)\u00b3"
+    },
+    {
+        "tag": "li",
+        "content": "Savings\u00b2 To stay covered and accumulate savings over the years."
+    },
+    {
+        "tag": "li",
+        "content": "Maternity Coverage for baby and mum."
+    },
+    {
+        "tag": "p",
+        "content": "It\u2019s recommended to spend at most 15% of take-home pay on insurance protection."
+    },
+    {
+        "tag": "h2",
+        "content": "Why act now"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_1?qlt=85&wid=320&ts=1784624362789&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Health crises can cause income loss and depletion of family funds\u00b2."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_2-1?qlt=85&wid=320&ts=1784624372301&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Ensure either partner can sustain the family if the other faces an unfortunate event."
+    },
+    {
+        "tag": "a",
+        "content": "Connect with a Financial Representative for personalised coverage.",
+        "url": "#contact"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/users/light/user-3-line.svg"
+    },
+    {
+        "tag": "p",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "p",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "p",
+        "content": "Check out some common misunderstandings about financial planning and their truths."
+    },
+    {
+        "tag": "a",
+        "content": "My life insurance coverage only needs to be twice my annual salary. Learn more",
+        "url": "#insurance-coverage"
+    },
+    {
+        "tag": "h2",
+        "content": "My life insurance coverage only needs to be twice my annual salary."
+    },
+    {
+        "tag": "a",
+        "content": "I am young and healthy, I don\u2019t need insurance. Learn more",
+        "url": "#young"
+    },
+    {
+        "tag": "h2",
+        "content": "I am young and healthy, I don\u2019t need insurance."
+    },
+    {
+        "tag": "a",
+        "content": "Health insurance is only for old people. Learn more",
+        "url": "#for-old-people"
+    },
+    {
+        "tag": "h2",
+        "content": "Health insurance is only for old people."
+    },
+    {
+        "tag": "h2",
+        "content": "Find the right plan"
+    },
+    {
+        "tag": "li",
+        "content": "Medical & accident"
+    },
+    {
+        "tag": "li",
+        "content": "Critical illness"
+    },
+    {
+        "tag": "li",
+        "content": "Whole, term life & maternity"
+    },
+    {
+        "tag": "p",
+        "content": "Be protected against unforeseen medical expenses, rising healthcare costs or unexpected injuries with our suite of tailored products and supplementary plans."
+    },
+    {
+        "tag": "a",
+        "content": "PRUShield and PRUExtra Comprehensive health insurance coverage to suit your budget and needs. Learn more opens in a new tab",
+        "url": "/en/products/health/medical/prushield/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/360x202-1?qlt=85&wid=320&ts=1777265081851&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUShield and PRUExtra"
+    },
+    {
+        "tag": "p",
+        "content": "Comprehensive health insurance coverage to suit your budget and needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPersonal Accident Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas. Learn more opens in a new tab",
+        "url": "/en/products/health/accident/prupersonal-accident/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PRUpersonalAccident-MB?qlt=85&wid=320&ts=1777275021459&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUPersonal Accident"
+    },
+    {
+        "tag": "p",
+        "content": "Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas."
+    },
+    {
+        "tag": "a",
+        "content": "All Medical & Accident Plans opens in a new tab",
+        "url": "/en/products/health/medical-and-accident/"
+    },
+    {
+        "tag": "p",
+        "content": "Prepare for your health gap years\u2014the period when a critical illness diagnosis may require time away from work to focus on recovery for yourself or your loved ones. Be protected from the financial impact of serious conditions such as cancer, stroke, and heart attack, so you can recover with peace of mind and continue supporting your family in the event of a critical illness."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Protect A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more. Learn more opens in a new tab",
+        "url": "/en/products/health/critical-illness/pruactive-protect/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PAPT-MB?qlt=85&wid=320&ts=1777265157257&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Protect"
+    },
+    {
+        "tag": "p",
+        "content": "A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Crisis Guard Be covered against health crises that require serious treatments. Learn more opens in a new tab",
+        "url": "/en/products/health/critical-illness/pruactive-crisis-guard/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-26?qlt=85&wid=320&ts=1777265161773&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Crisis Guard"
+    },
+    {
+        "tag": "p",
+        "content": "Be covered against health crises that require serious treatments."
+    },
+    {
+        "tag": "a",
+        "content": "PRUCancer 360 An affordable cancer insurance plan that provides multi-stage coverage against all cancers. Learn more opens in a new tab",
+        "url": "/en/products/health/critical-illness/prucancer-360/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PruCancer360-MB?qlt=85&wid=320&ts=1777276709798&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUCancer 360"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable cancer insurance plan that provides multi-stage coverage against all cancers."
+    },
+    {
+        "tag": "a",
+        "content": "All Critical Illness Plans opens in a new tab",
+        "url": "/en/products/health/critical-illness/"
+    },
+    {
+        "tag": "p",
+        "content": "Get comprehensive essential coverage no matter the life stage you\u2019re at."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events. Learn more opens in a new tab",
+        "url": "/en/products/life/whole-life/pruactive-linkguard/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PALG-MB?qlt=85&wid=320&ts=1780378395810&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Term A unique and customisable term insurance plan designed to keep up with your changing needs. Learn more opens in a new tab",
+        "url": "/en/products/life/term-life/pruactive-term/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PAT-MB?qlt=85&wid=320&ts=1777265137925&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Term"
+    },
+    {
+        "tag": "p",
+        "content": "A unique and customisable term insurance plan designed to keep up with your changing needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUMum A standalone maternity insurance plan that protects you from as early as week 13 of pregnancy through to the start of motherhood. Learn more opens in a new tab",
+        "url": "/en/products/life/maternity/prumum/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PruMum-MB?qlt=85&wid=320&ts=1777274726469&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUMum"
+    },
+    {
+        "tag": "p",
+        "content": "A standalone maternity insurance plan that protects you from as early as week 13 of pregnancy through to the start of motherhood."
+    },
+    {
+        "tag": "a",
+        "content": "All Whole & Term Life Plans opens in a new tab",
+        "url": "/en/products/life/whole-and-term-insurance/"
+    },
+    {
+        "tag": "a",
+        "content": "All Maternity Plans opens in a new tab",
+        "url": "/en/products/life/maternity/"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore topics"
+    },
+    {
+        "tag": "a",
+        "content": "Story Here are 4 important insurance plans to consider for your family Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/here-are-4-important-insurance-plans-to-consider-for-your-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/here-are-4-important-insurance-plans-to-consider?qlt=85&wid=320&ts=1784789469346&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Here are 4 important insurance plans to consider for your family"
+    },
+    {
+        "tag": "a",
+        "content": "Story 4 major financial decisions to make for a growing family Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/4-major-financial-decisions-to-make-for-a-growing-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/4-major-financial-decisions-to-make-for-a-growing-family-2?qlt=85&wid=320&ts=1784789478761&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "4 major financial decisions to make for a growing family"
+    },
+    {
+        "tag": "a",
+        "content": "Story Protecting your baby bump now and beyond Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/protecting-your-baby-bump-now-and-beyond/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/image-1-4?qlt=85&wid=320&ts=1784789486231&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Protecting your baby bump now and beyond"
+    },
+    {
+        "tag": "h2",
+        "content": "Wealth"
+    },
+    {
+        "tag": "p",
+        "content": "Making plans to settle down requires stability. Having a plan to grow your money steadily will help achieve your goals including future expenses and retiring comfortably with your partner."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_you_should_have-2?qlt=85&wid=320&ts=1772445898949&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "Basics \u2013 what you should have\u00b3"
+    },
+    {
+        "tag": "li",
+        "content": "Emergency Funds At least 3 \u2013 6 months\u2019 worth of expenses (including dependants) for rainy days."
+    },
+    {
+        "tag": "li",
+        "content": "Legacy Planning A plan for a will, family trusts, life insurance, powers of attorney, and CPF nominations."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_you_may_consider-1?qlt=85&wid=320&ts=1772445885622&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "What you may consider\u00b2"
+    },
+    {
+        "tag": "p",
+        "content": "Creating new memories during your new phase of life will need savings. Giving your money time to grow can mean that your future milestones can be met comfortably."
+    },
+    {
+        "tag": "li",
+        "content": "Investment It is recommended to allocate at least 10%3 of your take-home pay for key milestones."
+    },
+    {
+        "tag": "li",
+        "content": "A Retirement Plan\u00b3 It is never too early to start building your nest egg for the retirement lifestyle you want, including monthly payouts."
+    },
+    {
+        "tag": "h2",
+        "content": "Why act now"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_1-6?qlt=85&wid=320&ts=1784624503977&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Supporting dependants and your lifestyle requires building a well-diversified portfolio\u00b2."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_1-5?qlt=85&wid=320&ts=1784624512418&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "As lifespans are increasing\u2074, you\u2019ll need a plan for your financial needs in the future."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_2-11?qlt=85&wid=320&ts=1784624521203&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Give more time for compound interests to accumulate over the years\u2076."
+    },
+    {
+        "tag": "a",
+        "content": "Connect with a Financial Representative for personalised coverage.",
+        "url": "#contact"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/users/light/user-3-line.svg"
+    },
+    {
+        "tag": "p",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "p",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "p",
+        "content": "Check out some common misunderstandings about financial planning and their truths."
+    },
+    {
+        "tag": "a",
+        "content": "Investing is risky. Learn more",
+        "url": "#investing-is-risky"
+    },
+    {
+        "tag": "h2",
+        "content": "Investing is risky."
+    },
+    {
+        "tag": "a",
+        "content": "You need to be knowledgeable about the market to invest. Learn more",
+        "url": "#knowlegeable"
+    },
+    {
+        "tag": "h2",
+        "content": "You need to be knowledgeable about the market to invest."
+    },
+    {
+        "tag": "a",
+        "content": "I should always buy term life insurance and invest the difference. Learn more",
+        "url": "#term-life"
+    },
+    {
+        "tag": "h2",
+        "content": "I should always buy term life insurance and invest the difference."
+    },
+    {
+        "tag": "h2",
+        "content": "Find the right plan"
+    },
+    {
+        "tag": "li",
+        "content": "Savings"
+    },
+    {
+        "tag": "li",
+        "content": "Investments"
+    },
+    {
+        "tag": "p",
+        "content": "Achieve your life goals at any life stage and gain financial security and the freedom to live out your best years."
+    },
+    {
+        "tag": "a",
+        "content": "PRUWealth Income Live your aspirations without compromise. Enjoy a lifetime of monthly income from second year onwards. Read more opens in a new tab",
+        "url": "/en/products/wealth/savings/pruwealth-income/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/H261109_20PRULifetime_20Income_Product_20Summary_Web_W360H202?qlt=85&wid=320&ts=1780378671668&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUWealth Income"
+    },
+    {
+        "tag": "p",
+        "content": "Live your aspirations without compromise. Enjoy a lifetime of monthly income from second year onwards."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Cash Say Yes to an insurance savings plan with yearly cash benefit, that gives you the flexibility and structure to meet today\u2019s needs, with tomorrow\u2019s dreams in mind. Learn more opens in a new tab",
+        "url": "/en/products/wealth/savings/pruactive-cash/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PRUActive-Cash-DB?qlt=85&wid=320&ts=1780378781599&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Cash"
+    },
+    {
+        "tag": "p",
+        "content": "Say Yes to an insurance savings plan with yearly cash benefit, that gives you the flexibility and structure to meet today\u2019s needs, with tomorrow\u2019s dreams in mind."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Saver III A customisable insurance savings plan that helps you save for any key milestones in life. Read more opens in a new tab",
+        "url": "/en/products/wealth/savings/pruactive-saver-iii/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PRUActiveSaverIII-MB?qlt=85&wid=320&ts=1780379281131&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Saver III"
+    },
+    {
+        "tag": "p",
+        "content": "PRUActive Saver III"
+    },
+    {
+        "tag": "p",
+        "content": "A customisable insurance savings plan that helps you save for any key milestones in life."
+    },
+    {
+        "tag": "a",
+        "content": "All Savings Plans opens in a new tab",
+        "url": "/en/products/wealth/savings/"
+    },
+    {
+        "tag": "p",
+        "content": "Offering you life coverage with flexible investment."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events. Learn more opens in a new tab",
+        "url": "/en/products/life/whole-life/pruactive-linkguard/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PALG-MB-1?qlt=85&wid=320&ts=1777283388960&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUVantage Assure Series A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times. Learn more opens in a new tab",
+        "url": "/en/products/wealth/investments/pruvantage-assure-series/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PVA-MB?qlt=85&wid=320&ts=1777283403508&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUVantage Assure Series"
+    },
+    {
+        "tag": "p",
+        "content": "A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times."
+    },
+    {
+        "tag": "a",
+        "content": "PRULink InvestGrowth An investment-linked plan that provides all-round flexibility and lets you build wealth your way. Learn more opens in a new tab",
+        "url": "/en/products/wealth/investments/prulink-investgrowth/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/MB_PruLinkIG-360x202?qlt=85&wid=320&ts=1777283414610&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRULink InvestGrowth"
+    },
+    {
+        "tag": "p",
+        "content": "An investment-linked plan that provides all-round flexibility and lets you build wealth your way."
+    },
+    {
+        "tag": "a",
+        "content": "All Investment Plans opens in a new tab",
+        "url": "/en/products/wealth/investments/"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore topics"
+    },
+    {
+        "tag": "a",
+        "content": "Story 4 major financial decisions to make for a growing family Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/4-major-financial-decisions-to-make-for-a-growing-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/4-major-financial-decisions-to-make-for-a-growing-family-1?qlt=85&wid=320&ts=1784790610284&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "4 major financial decisions to make for a growing family"
+    },
+    {
+        "tag": "a",
+        "content": "Story Embracing a Multi-stage Life Learn more opens in a new tab",
+        "url": "/en/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/David_website_less%20bleed?qlt=85&wid=320&ts=1784790616900&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Embracing a Multi-stage Life"
+    },
+    {
+        "tag": "a",
+        "content": "Story 6 tax savings tips for working adults in Singapore Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/growing-wealth/6-tax-savings-tips-for-working-adults-in-singapore/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/6-tax-savings-tips-for-working-adults-in-Singapore-desktop?qlt=85&wid=320&ts=1784790623770&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "6 tax savings tips for working adults in Singapore"
+    },
+    {
+        "tag": "h2",
+        "content": "For your dependants"
+    },
+    {
+        "tag": "p",
+        "content": "One of the best gifts you can present to your children is securing their road ahead."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_they_already_have?qlt=85&wid=320&ts=1772445881617&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "Basics \u2013 what you should have\u00b9"
+    },
+    {
+        "tag": "p",
+        "content": "If they are Singaporean or PR, they\u2019re automatically covered by three national schemes:"
+    },
+    {
+        "tag": "li",
+        "content": "MediSave A national savings scheme which helps CPF members save for future medical expenses, especially during retirement. You can also use your MediSave to pay for medical bills incurred by your immediate family members."
+    },
+    {
+        "tag": "li",
+        "content": "MediShield Life A health insurance for large hospital bills and selected outpatient treatment costs."
+    },
+    {
+        "tag": "li",
+        "content": "Dependants\u2019 Protection Scheme\u2077 Term life insurance scheme that provides basic financial protection for you and your family in the event of death, terminal illness or total permanent disability."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/what_they_may_need?qlt=85&wid=320&ts=1772445972287&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h3",
+        "content": "What they may need"
+    },
+    {
+        "tag": "p",
+        "content": "As children may be more prone to injuries and falling sick, it\u2019s important to plan for comprehensive coverage for them:"
+    },
+    {
+        "tag": "li",
+        "content": "Integrated Shield Plan Additional coverage for private hospitals or higher ward classes in public hospitals."
+    },
+    {
+        "tag": "li",
+        "content": "Life Insurance Coverage for death, terminal illness and total permanent disability."
+    },
+    {
+        "tag": "li",
+        "content": "Personal Accident Coverage for injuries and accidents, including food poisoning and HFMD."
+    },
+    {
+        "tag": "h2",
+        "content": "Why act now"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_1-8?qlt=85&wid=320&ts=1784624580007&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "A whole life policy builds over years, leaving a sizeable cash value\u2078."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_2-8?qlt=85&wid=320&ts=1784624590159&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Premiums increase with age for selected policies, your child can reap the benefits of lower premiums in the long run."
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/why_act_now_1-7?qlt=85&wid=320&ts=1784624598124&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "p",
+        "content": "Lower likelihood of pre-existing conditions excluded from your child's coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Connect with a Financial Representative for personalised coverage.",
+        "url": "#contact"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/users/light/user-3-line.svg"
+    },
+    {
+        "tag": "p",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "p",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "p",
+        "content": "Check out some common misunderstandings about financial planning and their truths."
+    },
+    {
+        "tag": "a",
+        "content": "Maternity insurance is only for high-risk pregnancies. Learn more",
+        "url": "#maternity-insurance"
+    },
+    {
+        "tag": "h2",
+        "content": "Maternity insurance is only for high-risk pregnancies."
+    },
+    {
+        "tag": "a",
+        "content": "Only breadwinners need life insurance coverage. Learn more",
+        "url": "#breadwinners"
+    },
+    {
+        "tag": "h2",
+        "content": "Only breadwinners need life insurance coverage."
+    },
+    {
+        "tag": "a",
+        "content": "I am young and healthy, I don\u2019t need insurance. Learn more",
+        "url": "#young-and-healthy"
+    },
+    {
+        "tag": "h2",
+        "content": "I am young and healthy, I don\u2019t need insurance."
+    },
+    {
+        "tag": "h2",
+        "content": "Find the right plan"
+    },
+    {
+        "tag": "li",
+        "content": "Medical & accident"
+    },
+    {
+        "tag": "li",
+        "content": "Whole & term life"
+    },
+    {
+        "tag": "p",
+        "content": "Be protected against unforeseen medical expenses, rising healthcare costs or unexpected injuries with our suite of tailored products and supplementary plans."
+    },
+    {
+        "tag": "a",
+        "content": "PRUShield and PRUExtra Comprehensive health insurance coverage to suit your budget and needs. Learn more opens in a new tab",
+        "url": "/en/products/health/medical/prushield/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/360x202-1?qlt=85&wid=320&ts=1777265081851&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUShield and PRUExtra"
+    },
+    {
+        "tag": "p",
+        "content": "Comprehensive health insurance coverage to suit your budget and needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPersonal Accident Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas. Learn more opens in a new tab",
+        "url": "/en/products/health/accident/prupersonal-accident/"
+    },
+    {
+        "tag": "img",
+        "content": "/adobe/dynamicmedia/deliver/dm-aid--f4c4d835-8ddb-4450-b43a-6ffc071eb465/prupersonalaccident-mb.jpg?quality=85&preferwebp=true"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUPersonal Accident"
+    },
+    {
+        "tag": "p",
+        "content": "Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas."
+    },
+    {
+        "tag": "a",
+        "content": "All Medical & Accident Plans opens in a new tab",
+        "url": "/en/products/health/medical-and-accident/"
+    },
+    {
+        "tag": "p",
+        "content": "Get comprehensive essential coverage no matter the life stage you\u2019re at."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events. Learn more opens in a new tab",
+        "url": "/en/products/life/whole-life/pruactive-linkguard/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PALG-MB?qlt=85&wid=320&ts=1777265126541&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Life V A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection Learn more opens in a new tab",
+        "url": "/en/products/life/whole-life/pruactive-life-v/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/pruactive-life-v?qlt=85&wid=320&ts=1777265133171&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Life V"
+    },
+    {
+        "tag": "p",
+        "content": "A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Term A unique and customisable term insurance plan designed to keep up with your changing needs. Learn more opens in a new tab",
+        "url": "/en/products/life/term-life/pruactive-term/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/PAT-MB?qlt=85&wid=320&ts=1777265137925&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "PRUActive Term"
+    },
+    {
+        "tag": "p",
+        "content": "A unique and customisable term insurance plan designed to keep up with your changing needs."
+    },
+    {
+        "tag": "a",
+        "content": "All Whole & Term Life Plans opens in a new tab",
+        "url": "/en/products/life/whole-and-term-insurance/"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore topics"
+    },
+    {
+        "tag": "a",
+        "content": "Story Here are 4 important insurance plans to consider for your family Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/here-are-4-important-insurance-plans-to-consider-for-your-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/here-are-4-important-insurance-plans-to-consider-1?qlt=85&wid=320&ts=1784790570112&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Here are 4 important insurance plans to consider for your family"
+    },
+    {
+        "tag": "a",
+        "content": "Story 4 major financial decisions to make for a growing family Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/family/4-major-financial-decisions-to-make-for-a-growing-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/4-major-financial-decisions-to-make-for-a-growing-family-2?qlt=85&wid=320&ts=1784790579673&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "4 major financial decisions to make for a growing family"
+    },
+    {
+        "tag": "a",
+        "content": "Story Protect your children with health insurance today Learn more opens in a new tab",
+        "url": "/en/knowledge-corner/protecting-health/protect-your-children-with-health-insurance-today/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/article-card?qlt=85&wid=320&ts=1784790587554&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Protect your children with health insurance today"
+    },
+    {
+        "tag": "h2",
+        "content": "Value-added services under PRUPanel Connect"
+    },
+    {
+        "tag": "p",
+        "content": "Get a better healthcare experience with PRUPanel Connect, including fully subsidised home-based vaccinations for young children under 18 months."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPanel Connect",
+        "url": "/en/prupanel-connect/"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/system/light/arrow-right-line.svg"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "/en/prupanel-connect/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/prupanelconnect-banner-1?qlt=85&wid=320&ts=1780380416230&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Important information"
+    },
+    {
+        "tag": "h3",
+        "content": "Footnotes"
+    },
+    {
+        "tag": "p",
+        "content": "Please note that some products have non-guaranteed premiums which are subject to change. In the event of a change in premiums, advanced written notice will be provided."
+    },
+    {
+        "tag": "p",
+        "content": "\u00b9 Get Peace of Mind for Your Healthcare Needs, Central Provident Fund Board"
+    },
+    {
+        "tag": "a",
+        "content": "Get Peace of Mind for Your Healthcare Needs",
+        "url": "https://www.cpf.gov.sg/member/healthcare-financing"
+    },
+    {
+        "tag": "p",
+        "content": "\u00b2 Protection Needs for Different Life Stages: Newly Married Couples or Couples With Young Children, Life Insurance Association Singapore, 7 June 2019"
+    },
+    {
+        "tag": "a",
+        "content": "Protection Needs for Different Life Stages: Newly Married Couples or Couples With Young Children",
+        "url": "https://www.lia.org.sg/media/2194/newly-married-couples.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "\u00b3 Life Insurance Simplified Calculator, Life Insurance Association Singapore"
+    },
+    {
+        "tag": "a",
+        "content": "Life Insurance Simplified Calculator",
+        "url": "https://www.lia.org.sg/Assets/pdfs/assumptions-caveats-for-lia-life-insurance-simplified-calculator-2024.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "\u2074 Basic Financial Planning Guide for Working Adult (Starting a Family), Moneysense"
+    },
+    {
+        "tag": "a",
+        "content": "Basic Financial Planning Guide for Working Adult (Starting a Family)",
+        "url": "https://www.moneysense.gov.sg/files/Basic%20Financial%20Planning%20Guide/english__working_adult__starting_a_family_.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "\u2075 Complete Life Tables for Singapore Resident Population 2022 \u2013 2023, Department of Statistics Singapore, 6 June 2024"
+    },
+    {
+        "tag": "a",
+        "content": "Complete Life Tables for Singapore Resident Population 2022 \u2013 2023",
+        "url": "https://www.singstat.gov.sg/-/media/files/publications/population/lifetable22-23.ashx"
+    },
+    {
+        "tag": "p",
+        "content": "\u2076 The Power of Compound Interest: Calculations and Examples, Investopedia, 28 February 2024"
+    },
+    {
+        "tag": "a",
+        "content": "The Power of Compound Interest: Calculations and Examples",
+        "url": "https://www.investopedia.com/terms/c/compoundinterest.asp#toc-compound-interest-start-saving-early"
+    },
+    {
+        "tag": "p",
+        "content": "\u2077 Protect Your Loved Ones with the Dependants\u2019 Protection Scheme, Central Provident Fund Board"
+    },
+    {
+        "tag": "a",
+        "content": "Protect Your Loved Ones with the Dependants\u2019 Protection Scheme",
+        "url": "https://www.cpf.gov.sg/member/account-services/providing-for-your-loved-ones/insuring-to-protect-your-dependants"
+    },
+    {
+        "tag": "p",
+        "content": "\u2078 Child Insurance in Singapore \u2013 Which Policy Should You Buy & How Much Does It Cost?, yahoo!finance, 15 March 2022"
+    },
+    {
+        "tag": "a",
+        "content": "Child Insurance in Singapore \u2013 Which Policy Should You Buy & How Much Does It Cost?",
+        "url": "https://sg.finance.yahoo.com/news/child-insurance-singapore-policy-buy-020150468.html"
+    },
+    {
+        "tag": "h2",
+        "content": "We\u2019re here to help"
+    },
+    {
+        "tag": "p",
+        "content": "Start your financial planning journey with us today. Our Financial Representative will be in touch to assist you."
+    },
+    {
+        "tag": "p",
+        "content": "* All fields are mandatory"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "https://www.prudential.com.sg/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Declaration"
+    },
+    {
+        "tag": "p",
+        "content": "By submitting this form, I confirm that I have read, understood and given my consent"
+    },
+    {
+        "tag": "a",
+        "content": "consent",
+        "url": "#"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/en/Privacy-Notice",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    },
+    {
+        "tag": "h2",
+        "content": "Or give us a call: 1800 333 0333"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "https://www.prudential.com.sg/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Declaration"
+    },
+    {
+        "tag": "p",
+        "content": "By submitting this form, I confirm that I have read, understood and given my consent"
+    },
+    {
+        "tag": "a",
+        "content": "consent",
+        "url": "#"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/en/Privacy-Notice",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    },
+    {
+        "tag": "h2",
+        "content": "Or give us a call: 1800 333 0333"
+    },
+    {
+        "tag": "a",
+        "content": "Get in touch",
+        "url": "#contact"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/business/light/send-plane-line.svg"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-common/icons/business/light/send-plane-line.svg"
+    }
+]

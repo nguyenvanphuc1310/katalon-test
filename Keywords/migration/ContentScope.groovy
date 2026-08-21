@@ -7,7 +7,14 @@ import com.kms.katalon.core.webui.driver.DriverFactory
 
 import groovy.json.JsonSlurper
 
+import java.time.Duration
+
+import org.openqa.selenium.By
 import org.openqa.selenium.JavascriptExecutor
+import org.openqa.selenium.TimeoutException
+import org.openqa.selenium.WebDriver
+import org.openqa.selenium.support.ui.ExpectedConditions
+import org.openqa.selenium.support.ui.WebDriverWait
 
 /**
  * Resolves WHAT counts as page content on a given site, and reads it out of the
@@ -62,8 +69,160 @@ public class ContentScope {
 	 */
 	@Keyword
 	static Map readPage(String url) {
-		JavascriptExecutor js = (JavascriptExecutor) DriverFactory.getWebDriver()
-		return (Map) js.executeScript(COLLECT_JS, profileFor(url))
+		WebDriver driver = DriverFactory.getWebDriver()
+		waitForContentRoot(driver, url)
+		WebActions.waitUntilTabPanelsReady(8)
+		WebActions.openMissingTabPanels()
+		WebActions.stopBackgroundLoad()
+		return collectViaSelenium(driver, url)
+	}
+
+	private static Map collectViaSelenium(WebDriver driver, String url) {
+		JavascriptExecutor js = (JavascriptExecutor) driver
+		def timeouts = driver.manage().timeouts()
+		Duration previous = null
+		try {
+			try { previous = timeouts.getScriptTimeout() } catch (Exception ignore) { }
+			// Each call must stay short. The old 30s one-shot cloned main for every
+			// heading/link; a full AEM DOM (all tab panels) blew that budget and
+			// looked like "a lot of errors".
+			timeouts.scriptTimeout(Duration.ofSeconds(12))
+			KeywordUtil.logInfo('Reading page text from main after tab panels are present')
+			Map scope = runCollectSetup(js, url)
+			if (scope == null || scope.error || scope.notHtml) return scope
+			return scanItemsAndPull(js, scope)
+		} catch (TimeoutException first) {
+			KeywordUtil.logInfo('Content extract timed out on ' + url + ' — stop leftover loads and retry once')
+			WebActions.stopBackgroundLoad()
+			try {
+				Map scope = runCollectSetup(js, url)
+				if (scope == null || scope.error || scope.notHtml) return scope
+				return scanItemsAndPull(js, scope)
+			} catch (TimeoutException second) {
+				KeywordUtil.markWarning('Content extract still timing out on ' + url + ' — keeping rootText only')
+				return fallbackCollect(js, url)
+			}
+		} finally {
+			if (previous != null) {
+				try { timeouts.scriptTimeout(previous) } catch (Exception ignore) { }
+			}
+		}
+	}
+
+	private static Map scanItemsAndPull(JavascriptExecutor js, Map scope) {
+		int allCount = (scope.allCount ?: 0) as int
+		int from = 0
+		while (from < allCount) {
+			int to = Math.min(from + ITEM_SCAN_CHUNK, allCount)
+			js.executeScript(COLLECT_ITEMS_JS, from, to)
+			from = to
+		}
+		Object n = js.executeScript('return (window.__kmItems||[]).length')
+		scope.itemCount = (n instanceof Number) ? ((Number) n).intValue() : 0
+		try {
+			Object sk = js.executeScript('return JSON.stringify(window.__kmSkipped||{})')
+			if (sk instanceof String) scope.skipped = (Map) new JsonSlurper().parseText((String) sk)
+		} catch (Exception ignore) { }
+		scope.remove('allCount')
+		return pullItems(js, scope)
+	}
+
+	private static Map runCollectSetup(JavascriptExecutor js, String url) {
+		Object raw = js.executeScript(COLLECT_SETUP_JS, profileFor(url))
+		return (raw instanceof String)
+			? (Map) new JsonSlurper().parseText((String) raw)
+			: (Map) raw
+	}
+
+	private static Map fallbackCollect(JavascriptExecutor js, String url) {
+		try {
+			Object raw = js.executeScript('''
+				var sels = arguments[0] || [];
+				var root = null, rootSel = null;
+				for (var i = 0; i < sels.length && !root; i++) {
+					var e = document.querySelector(sels[i]);
+					if (e) { root = e; rootSel = sels[i]; }
+				}
+				if (!root) return JSON.stringify({ error: 'no content root' });
+				var t = (root.textContent || '').replace(/\\s+/g, ' ').trim();
+				return JSON.stringify({
+					root: rootSel, tabGroups: [], items: [], itemCount: 0,
+					skipped: { noise: 0, formLabel: 0, hidden: 0, tooShort: 0, noText: 0, scanned: 0 },
+					rootText: t, states: [], formOptions: []
+				});
+			''', profileFor(url).contentRoot)
+			return (raw instanceof String)
+				? (Map) new JsonSlurper().parseText((String) raw)
+				: (Map) raw
+		} catch (Exception e) {
+			return [error: 'collect timed out: ' + (e.message ?: e)]
+		}
+	}
+
+	/**
+	 * Items are pulled in slices. Returning 200 item maps in one executeScript
+	 * is what left AEM snapshots with scanned=2 and two "Home" rows — Chrome
+	 * keeps the long rootText string and drops the array.
+	 */
+	private static final int ITEM_CHUNK = 30
+	/** How many DOM nodes one executeScript may scan. Keep this small on AEM. */
+	private static final int ITEM_SCAN_CHUNK = 40
+
+	private static Map pullItems(JavascriptExecutor js, Map scope) {
+		if (scope == null) return scope
+		int n = (scope.itemCount ?: 0) as int
+		List have = (scope.items instanceof List) ? new ArrayList((List) scope.items) : []
+		if (n <= 0) {
+			scope.items = have
+			return scope
+		}
+		int from = have.size()
+		while (from < n) {
+			int to = Math.min(from + ITEM_CHUNK, n)
+			Object chunk = js.executeScript(
+				'var a=window.__kmItems||[]; return JSON.stringify(a.slice(arguments[0], arguments[1]));',
+				from, to)
+			List part = (chunk instanceof String)
+				? (List) new JsonSlurper().parseText((String) chunk)
+				: ((chunk instanceof List) ? (List) chunk : [])
+			have.addAll(part ?: [])
+			from = to
+		}
+		try {
+			js.executeScript('''
+				window.__kmItems=null; window.__kmItemCount=0; window.__kmAll=null;
+				var m=document.querySelectorAll("[data-km-sid]");
+				for (var i=0;i<m.length;i++) m[i].removeAttribute("data-km-sid");
+			''')
+		} catch (Exception ignore) { }
+		scope.items = have
+		scope.remove('itemCount')
+		KeywordUtil.logInfo('Collected ' + have.size() + ' content item(s) in slices (itemCount=' + n + ')')
+		return scope
+	}
+
+	private static void waitForContentRoot(WebDriver driver, String url) {
+		Map p = profileFor(url)
+		List sels = (p.contentRoot instanceof List) ? (List) p.contentRoot : []
+		String joined = sels.collect { it?.toString()?.trim() }.findAll { it }.join(', ')
+		if (!joined) return
+		try {
+			new WebDriverWait(driver, Duration.ofSeconds(8))
+				.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(joined)))
+			// Product Deck has far fewer than 12 tags — waiting for 12 just burned 10s
+			// on a page that was already complete. Lifestage tab panels are waited
+			// separately in waitUntilTabPanelsReady.
+			JavascriptExecutor js = (JavascriptExecutor) driver
+			new WebDriverWait(driver, Duration.ofSeconds(5)).until {
+				Object n = js.executeScript(
+					'var r=document.querySelector(arguments[0]);' +
+					'return r ? r.querySelectorAll("h1,h2,h3,h4,p,li,a").length : 0',
+					joined)
+				return (n instanceof Number) && ((Number) n).intValue() >= 1
+			}
+		} catch (Exception e) {
+			KeywordUtil.logInfo('Content root not present yet on ' + url + ': ' + (e.message ?: e))
+		}
 	}
 
 	/** Same as readPage() but raises the failure instead of returning it */
@@ -78,236 +237,131 @@ public class ContentScope {
 		return r
 	}
 
-	static final String COLLECT_JS = '''
+	/**
+	 * Discover root / tabs / accordions and stash the node list. Does not scan
+	 * every heading. cloneNode(true) of AEM main per item is what hit the 30s
+	 * script timeout once the full tab-panel DOM was allowed to finish.
+	 */
+	static final String COLLECT_SETUP_JS = '''
 		var P = arguments[0];
-
-		// Not every mapped URL is a page: one entry of the master mapping serves the same
-		// PDF on both sides. Say so plainly instead of failing on a missing content root.
 		var ct = document.contentType || '';
-		if (ct.indexOf('html') < 0) return { notHtml: ct || 'unknown' };
+		if (ct.indexOf('html') < 0) return JSON.stringify({ notHtml: ct || 'unknown' });
 
-		// ---- content root: positive scoping, no <body> fallback
 		var root = null, rootSel = null;
 		for (var i = 0; i < P.contentRoot.length && !root; i++) {
 			var e = document.querySelector(P.contentRoot[i]);
 			if (e) { root = e; rootSel = P.contentRoot[i]; }
 		}
-		if (!root) return { error: 'none of ' + P.contentRoot.join(', ') + ' matched' };
+		if (!root) return JSON.stringify({ error: 'none of ' + P.contentRoot.join(', ') + ' matched' });
 
-		var noiseSel = P.noise.join(',');
-
-		// ---- tab groups: panel -> tab label, without clicking anything.
-		// Both CMSes keep every panel in the DOM, so the panels can simply be read.
-		//
-		// Each panel is also recorded as a STATE: one option of one interactive region, the
-		// unit the two sites are paired on. The two CMSes organise these widgets differently
-		// (Sitecore splits by product family, AEM by need), so a state cannot be identified by
-		// its label alone — it carries its group anchor and its text so StateMatch can pair it.
-		var panelLabel = [];   // [element, label, stateId]
-		var tabGroups = [];
-		var states = [];       // { id, kind, group, label, el }
-		function tabEntryOf(el) {
-			for (var i = 0; i < panelLabel.length; i++) {
-				if (panelLabel[i][0] === el || panelLabel[i][0].contains(el)) return panelLabel[i];
+		var noiseSel = (P.noise || []).join(',');
+		function walkText(el) {
+			if (!el) return '';
+			var out = [];
+			function rec(n) {
+				if (n.nodeType === 3) { out.push(n.nodeValue); return; }
+				if (n.nodeType !== 1) return;
+				if (n.getAttribute && n.getAttribute('data-km-drop')) return;
+				if (noiseSel) { try { if (n.matches(noiseSel)) return; } catch (e) {} }
+				for (var c = n.firstChild; c; c = c.nextSibling) rec(c);
 			}
-			return null;
+			rec(el);
+			return out.join('').replace(/\\s+/g, ' ').trim();
 		}
-		function txt(e) { return (e.textContent || '').replace(/\\s+/g, ' ').trim(); }
+		function txt(e) { return walkText(e); }
 		function panelKeyMatches(v, key) {
 			if (v === key) return true;
 			if (v.length <= key.length || v.slice(-key.length) !== key) return false;
 			var b = v.charAt(v.length - key.length - 1);
 			return b === '-' || b === '_';
 		}
+		function shortLabel(el) {
+			if (!el) return '';
+			var tag = el.tagName;
+			if (tag === 'H1' || tag === 'H2' || tag === 'H3' || tag === 'H4' || tag === 'H5' || tag === 'P' || tag === 'A' || tag === 'SPAN' || tag === 'BUTTON') {
+				return walkText(el).slice(0, 80);
+			}
+			var h = el.querySelector && el.querySelector('h1,h2,h3,h4,h5,p');
+			return h ? walkText(h).slice(0, 80) : '';
+		}
 
-		var T = P.tabs || {};
-		var groups = T.group ? root.querySelectorAll(T.group) : [];
-		for (var g = 0; g < groups.length; g++) {
-			var tabs = groups[g].querySelectorAll(T.tab);
-			var labels = [];
-			var groupAnchor = txt(groups[g].previousElementSibling || groups[g]).slice(0, 80);
-			for (var t = 0; t < tabs.length; t++) {
-				var tab = tabs[t], label = txt(tab), panel = null;
-				if (T.mode === 'aria') {
-					var id = tab.getAttribute('aria-controls');
-					if (id) panel = document.getElementById(id);
-				} else {
-					var key = tab.getAttribute(T.tabAttr);
-					var box = groups[g].closest(T.container) || groups[g].parentElement;
-					if (box && key) {
-						panel = box.querySelector('[' + T.panelAttr + '="' + key + '"]');
-						// Sitecore authors the same component two ways: data-tab="content-tab-1"
-						// pointing at data-content="content-tab-1", and data-tab="tab1" pointing at
-						// data-content="content-tab1". An exact-only lookup found no panel on the
-						// second kind, so every inactive tab's text was dropped as hidden and then
-						// reported as ONLY_ON_AEM. Fall back to a prefixed key, on a separator
-						// boundary so "tab1" cannot claim "content-tab11".
-						if (!panel) {
-							var cands = box.querySelectorAll('[' + T.panelAttr + ']');
-							for (var c = 0; c < cands.length; c++) {
-								if (panelKeyMatches(cands[c].getAttribute(T.panelAttr) || '', key)) { panel = cands[c]; break; }
+		var tabGroups = [];
+		var states = [];
+		var tabSpecs = [];
+		if (P.tabs) {
+			if (P.tabs.length !== undefined && P.tabs[0] && (P.tabs[0].mode || P.tabs[0].group)) {
+				for (var si = 0; si < P.tabs.length; si++) tabSpecs.push(P.tabs[si]);
+			} else {
+				tabSpecs.push(P.tabs);
+			}
+		}
+		var groupOffset = 0;
+		for (var si = 0; si < tabSpecs.length; si++) {
+			var T = tabSpecs[si] || {};
+			var groups = T.group ? root.querySelectorAll(T.group) : [];
+			for (var g = 0; g < groups.length; g++) {
+				var tabs = groups[g].querySelectorAll(T.tab);
+				var labels = [];
+				var groupAnchor = (groups[g].getAttribute('aria-label') || '').trim();
+				if (!groupAnchor) groupAnchor = shortLabel(groups[g].previousElementSibling);
+				for (var t = 0; t < tabs.length; t++) {
+					var tab = tabs[t], label = walkText(tab).slice(0, 80), panel = null;
+					if (T.mode === 'aria') {
+						var id = tab.getAttribute('aria-controls');
+						if (id) panel = document.getElementById(id);
+					} else if (T.mode === 'hash') {
+						var href = (tab.getAttribute('href') || '').replace(/^#/, '');
+						if (href && T.panelAttr) {
+							panel = root.querySelector('[' + T.panelAttr + '="' + href + '"]');
+						}
+					} else {
+						var key = tab.getAttribute(T.tabAttr);
+						var box = groups[g].closest(T.container) || groups[g].parentElement;
+						if (box && key) {
+							panel = box.querySelector('[' + T.panelAttr + '="' + key + '"]');
+							if (!panel) {
+								var cands = box.querySelectorAll('[' + T.panelAttr + ']');
+								for (var c = 0; c < cands.length; c++) {
+									if (panelKeyMatches(cands[c].getAttribute(T.panelAttr) || '', key)) { panel = cands[c]; break; }
+								}
 							}
 						}
 					}
+					if (label) labels.push(label);
+					if (panel && label) {
+						var sid = 'tab:' + (groupOffset + g) + ':' + t;
+						panel.setAttribute('data-km-sid', sid);
+						states.push({ id: sid, kind: 'tab', group: groupAnchor, label: label, el: panel });
+					}
 				}
-				if (label) labels.push(label);
-				if (panel && label) {
-					var sid = 'tab:' + g + ':' + t;
-					panelLabel.push([panel, label, sid]);
-					states.push({ id: sid, kind: 'tab', group: groupAnchor, label: label, el: panel });
-				}
+				if (labels.length) tabGroups.push({ label: groupAnchor, tabs: labels });
 			}
-			if (labels.length) tabGroups.push({ label: groupAnchor, tabs: labels });
+			groupOffset += groups.length;
 		}
 
-		// ---- accordion regions: region -> trigger text, so collapsed content stays comparable
-		var accRegion = [];
 		var trigSel = (P.accordionTrigger || []).join(',');
 		if (trigSel) {
 			var trigs = root.querySelectorAll(trigSel);
-			for (var k = 0; k < trigs.length; k++) {
+			var accN = 0;
+			for (var k = 0; k < trigs.length && accN < 80; k++) {
 				var tr = trigs[k], reg = null;
+				if (tr.closest && tr.closest('header,nav,footer,[role=banner],[role=navigation],[role=contentinfo]')) continue;
 				var aid = tr.getAttribute('aria-controls');
 				var tgt = tr.getAttribute('data-target') || tr.getAttribute('href');
 				if (aid) reg = document.getElementById(aid);
 				if (!reg && tgt && tgt.charAt(0) === '#' && tgt.length > 1) { try { reg = root.querySelector(tgt); } catch (e) { } }
 				if (!reg && tr.tagName === 'SUMMARY') reg = tr.parentElement;
-				// Sitecore's accordion carries no aria-controls, no data-target and no href: the
-				// panel is simply another child of the same wrapper. Profiles name it explicitly
-				// rather than guessing at nextElementSibling, which on AEM would turn ordinary
-				// [aria-expanded] buttons into fake accordion regions.
 				if (!reg && P.accordionPanel && tr.parentElement) reg = tr.parentElement.querySelector(P.accordionPanel);
-				if (reg) {
-					var asid = 'acc:' + accRegion.length;
-					var alabel = txt(tr).slice(0, 60);
-					accRegion.push([reg, alabel, asid]);
-					// An accordion's trigger text IS its label, so unlike a tab it usually pairs by
-					// label; it is still scored on content, because a renamed section is common.
+				if (reg && !reg.getAttribute('data-km-sid')) {
+					var asid = 'acc:' + accN;
+					var alabel = walkText(tr).slice(0, 60);
+					reg.setAttribute('data-km-sid', asid);
 					states.push({ id: asid, kind: 'accordion', group: '', label: alabel, el: reg });
+					accN++;
 				}
 			}
 		}
-		function accEntryOf(el) {
-			for (var i = 0; i < accRegion.length; i++) {
-				if (accRegion[i][0] === el || accRegion[i][0].contains(el)) return accRegion[i];
-			}
-			return null;
-		}
 
-		// ---- items: own text of each element, so parent and child never duplicate
-		// Whole text of an element, noise pruned. Items are split per element so a finding
-		// can name its section, but that split is arbitrary across CMSes: Sitecore keeps
-		// the "PRU" of "PRUShield" and its footnote markers in child elements while AEM
-		// writes them inline. Comparing element text instead of own text removes the
-		// difference entirely.
-		function cleanText(el) {
-			var c = el.cloneNode(true);
-			var kill = c.querySelectorAll((noiseSel ? noiseSel + ',' : '') + '[data-km-drop]');
-			for (var i = 0; i < kill.length; i++) kill[i].remove();
-			return (c.textContent || '').replace(/\\s+/g, ' ').trim();
-		}
-		function ownText(e) {
-			var s = '';
-			for (var n = e.firstChild; n; n = n.nextSibling) if (n.nodeType === 3) s += n.nodeValue;
-			return s.replace(/\\s+/g, ' ').trim();
-		}
-		function hiddenFormLabel(e) {
-			if (e.tagName !== 'LABEL') return false;
-			var f = e.getAttribute('for');
-			var c = f ? document.getElementById(f) : e.querySelector('input,select,textarea');
-			if (!c) return false;
-			return c.type === 'hidden' || c.getClientRects().length === 0;
-		}
-
-		// Every path that discards an element increments a counter, including the one for
-		// "this element has no text of its own". That branch used to be the only silent one,
-		// and silence there is expensive: `skipped` is the ONLY evidence anyone has that the
-		// two sides read comparable content, and a run that collected 3 items out of 386
-		// candidates reported all-zero skips, which reads as a clean page rather than a
-		// broken extraction. `scanned` is kept for the same reason: without it there is no
-		// way to tell "the root was tiny" from "everything in it was dropped".
-		var items = [], skipped = { noise: 0, formLabel: 0, hidden: 0, tooShort: 0, noText: 0, scanned: 0 };
-		var h = ['', '', '', ''];   // running h1..h4 context, document order
-		var all = root.querySelectorAll('*');
-		for (var a = 0; a < all.length; a++) {
-			var el = all[a], tag = el.tagName;
-			if (tag === 'H1' || tag === 'H2' || tag === 'H3' || tag === 'H4') {
-				var lvl = parseInt(tag.charAt(1)) - 1;
-				h[lvl] = txt(el);
-				for (var z = lvl + 1; z < 4; z++) h[z] = '';
-			}
-			skipped.scanned++;
-			var text = ownText(el);
-			if (!text) { skipped.noText++; continue; }
-			if (noiseSel && el.closest(noiseSel)) { skipped.noise++; continue; }
-			if (hiddenFormLabel(el)) { skipped.formLabel++; el.setAttribute('data-km-drop', '1'); continue; }
-			// A 1-char fragment is usually a footnote marker in its own <sup>: Sitecore
-			// splits "What you already have" + "1" where AEM writes it as one string with
-			// a superscript. Dropping it desynchronises the two sides, so only pure
-			// punctuation is discarded here.
-			if (!/[a-z0-9]/i.test(text)) { skipped.tooShort++; continue; }
-
-			var tabEntry = tabEntryOf(el);
-			var tabLabel = tabEntry ? tabEntry[1] : '';
-			var accEntry = tabEntry ? null : accEntryOf(el);
-			var accLabel = accEntry ? accEntry[1] : '';
-			var stateId = tabEntry ? tabEntry[2] : (accEntry ? accEntry[2] : '');
-			var visible = el.getClientRects().length > 0;
-			// aria-hidden is NOT blanket noise: AEM marks every inactive tab panel with it,
-			// while Sitecore marks none, so treating it as noise deleted one CMS's tab
-			// content and kept the other's. Only decorative aria-hidden outside any tab or
-			// accordion is dropped.
-			if (!tabLabel && !accLabel && el.closest('[aria-hidden=true]')) { skipped.noise++; continue; }
-			// Hidden and not reachable by any tab/accordion = not page content
-			// (this is what removes Sitecore's hidden form-builder labels).
-			if (!visible && !tabLabel && !accLabel) { skipped.hidden++; continue; }
-
-			var path = [];
-			for (var p = 0; p < 4; p++) if (h[p]) path.push(h[p]);
-			if (tabLabel) path.push('tab:' + tabLabel);
-			else if (accLabel) path.push('section:' + accLabel);
-
-			var kind = (tag.charAt(0) === 'H' && tag.length === 2) ? 'heading'
-				: el.closest('a,button') ? 'cta'
-				: el.closest('li') ? 'bullet' : 'para';
-
-			// Where a link actually goes. Nothing compared this before, so a CTA that kept its
-			// wording and changed its destination passed every check on the page.
-			var href = '';
-			if (kind === 'cta') {
-				var a = el.closest('a');
-				if (a && a.getAttribute('href')) {
-					try {
-						var u = new URL(a.href, document.baseURI);
-						// path only: the domain legitimately changes between the two systems
-						href = u.pathname.replace(/\\/+$/, '') + (u.hash || '');
-					} catch (e) { href = a.getAttribute('href') || ''; }
-				}
-			}
-
-			items.push({
-				text: text, full: cleanText(el), kind: kind, path: path.join(' > '),
-				tab: tabLabel, stateId: stateId, href: href,
-				reach: visible ? 'visible' : (tabLabel ? 'tab' : 'accordion')
-			});
-		}
-		// <option> texts. They are in the noise list and are never rendered, so the item loop drops
-		// them as hidden — which means the contents of every dropdown (product lists, terms,
-		// branches) were outside the comparison entirely. Collected as a set of their own.
-		var formOptions = [];
-		var opts = root.querySelectorAll('option');
-		for (var o = 0; o < opts.length; o++) {
-			var ot = txt(opts[o]);
-			if (ot && formOptions.indexOf(ot) < 0) formOptions.push(ot);
-		}
-
-		var rootText = cleanText(root);
-		// States carry their own text: this is what a comparison is scoped to once the two
-		// sides have been paired, and what the pairing itself is scored on.
-		// Nesting: a tab panel often contains further tabs or accordions, and a child can only
-		// be opened once its parent is open. Recording the innermost enclosing state lets the
-		// pairing keep children inside paired parents, and lets the capture walk the chain from
-		// the outside in instead of clicking at a control that is still hidden.
 		for (var i = 0; i < states.length; i++) {
 			var best = null;
 			for (var j = 0; j < states.length; j++) {
@@ -317,20 +371,146 @@ public class ContentScope {
 			}
 			states[i].parent = best ? best.id : '';
 		}
+		function ancestorLabels(sid) {
+			var labs = [], seen = {};
+			while (sid && !seen[sid]) {
+				seen[sid] = 1;
+				var st = null;
+				for (var i = 0; i < states.length; i++) if (states[i].id === sid) { st = states[i]; break; }
+				if (!st) break;
+				labs.unshift(st.label);
+				sid = st.parent;
+			}
+			return labs;
+		}
+
+		var stateMeta = {};
+		var chainById = {};
 		var stateOut = [];
 		for (var i = 0; i < states.length; i++) {
-			stateOut.push({ id: states[i].id, kind: states[i].kind, group: states[i].group,
-				label: states[i].label, parent: states[i].parent, text: cleanText(states[i].el) });
-			// Left on the element on purpose (unlike data-km-drop below, which is cleaned up):
-			// the evidence pass re-runs this enumeration on a freshly loaded page and then finds
-			// a panel by [data-km-state="<id>"], so the state ids never have to be re-derived by
-			// a second, drifting copy of this logic.
-			try { states[i].el.setAttribute('data-km-state', states[i].id); } catch (e) { }
+			var st = states[i];
+			chainById[st.id] = ancestorLabels(st.id);
+			stateMeta[st.id] = { kind: st.kind, label: st.label };
+			stateOut.push({ id: st.id, kind: st.kind, group: st.group,
+				label: st.label, parent: st.parent, text: walkText(st.el) });
 		}
-		var marked = root.querySelectorAll('[data-km-drop]');
-		for (var i = 0; i < marked.length; i++) marked[i].removeAttribute('data-km-drop');
 
-		return { root: rootSel, tabGroups: tabGroups, items: items, skipped: skipped,
-			rootText: rootText, states: stateOut, formOptions: formOptions };
+		var formOptions = [];
+		var selects = root.querySelectorAll('select');
+		for (var s = 0; s < selects.length; s++) {
+			var sel = selects[s];
+			if ((sel.offsetWidth || 0) < 16 || (sel.offsetHeight || 0) < 16) continue;
+			var opts = sel.options || [];
+			for (var o = 0; o < opts.length; o++) {
+				var ot = (opts[o].textContent || '').replace(/\\s+/g, ' ').trim();
+				if (ot && formOptions.indexOf(ot) < 0) formOptions.push(ot);
+			}
+		}
+
+		var all = root.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,a,button');
+		window.__kmRoot = root;
+		window.__kmAll = all;
+		window.__kmItems = [];
+		window.__kmHeads = ['', '', '', ''];
+		window.__kmNoise = noiseSel;
+		window.__kmStateMeta = stateMeta;
+		window.__kmChain = chainById;
+		window.__kmSkipped = { noise: 0, formLabel: 0, hidden: 0, tooShort: 0, noText: 0, scanned: 0 };
+
+		return JSON.stringify({
+			root: rootSel, tabGroups: tabGroups, items: [], itemCount: 0,
+			allCount: all.length, skipped: window.__kmSkipped,
+			rootText: walkText(root), states: stateOut, formOptions: formOptions
+		});
+	'''
+
+	static final String COLLECT_ITEMS_JS = '''
+		var from = arguments[0] | 0;
+		var to = arguments[1] | 0;
+		var all = window.__kmAll;
+		if (!all) return 0;
+		var noiseSel = window.__kmNoise || '';
+		var h = window.__kmHeads || ['', '', '', ''];
+		var skipped = window.__kmSkipped || { noise: 0, formLabel: 0, hidden: 0, tooShort: 0, noText: 0, scanned: 0 };
+		var items = window.__kmItems || [];
+		var stateMeta = window.__kmStateMeta || {};
+		var chainById = window.__kmChain || {};
+
+		function walkText(el) {
+			if (!el) return '';
+			var out = [];
+			function rec(n) {
+				if (n.nodeType === 3) { out.push(n.nodeValue); return; }
+				if (n.nodeType !== 1) return;
+				if (n.getAttribute && n.getAttribute('data-km-drop')) return;
+				if (noiseSel) { try { if (n.matches(noiseSel)) return; } catch (e) {} }
+				for (var c = n.firstChild; c; c = c.nextSibling) rec(c);
+			}
+			rec(el);
+			return out.join('').replace(/\\s+/g, ' ').trim();
+		}
+		function ownText(e) {
+			var s = '';
+			for (var n = e.firstChild; n; n = n.nextSibling) if (n.nodeType === 3) s += n.nodeValue;
+			return s.replace(/\\s+/g, ' ').trim();
+		}
+
+		var end = Math.min(to, all.length);
+		for (var a = from; a < end; a++) {
+			var el = all[a], tag = el.tagName;
+			if (tag === 'H1' || tag === 'H2' || tag === 'H3' || tag === 'H4') {
+				var lvl = parseInt(tag.charAt(1)) - 1;
+				h[lvl] = walkText(el);
+				for (var z = lvl + 1; z < 4; z++) h[z] = '';
+			}
+			skipped.scanned++;
+			var full = walkText(el);
+			var text = ownText(el) || full;
+			if (!text) { skipped.noText++; continue; }
+			if (noiseSel && el.closest(noiseSel)) { skipped.noise++; continue; }
+			if (!/[a-z0-9]/i.test(text)) { skipped.tooShort++; continue; }
+
+			var host = el.closest && el.closest('[data-km-sid]');
+			var stateId = host ? (host.getAttribute('data-km-sid') || '') : '';
+			var meta = stateId ? (stateMeta[stateId] || {}) : {};
+			var tabLabel = (meta.kind === 'tab') ? (meta.label || '') : '';
+			var accLabel = (meta.kind === 'accordion') ? (meta.label || '') : '';
+			var visible = !!stateId;
+			if (!stateId) {
+				if (el.closest('[aria-hidden=true]')) { skipped.noise++; continue; }
+				visible = !!(el.offsetParent) || (el.getClientRects && el.getClientRects().length > 0);
+				if (!visible) { skipped.hidden++; continue; }
+			}
+
+			var path = [];
+			for (var p = 0; p < 4; p++) if (h[p]) path.push(h[p]);
+			if (stateId) {
+				var chain = chainById[stateId] || [];
+				if (chain.length) path.push((tabLabel ? 'tab:' : 'section:') + chain.join(' > '));
+			}
+
+			var kind = (tag.charAt(0) === 'H' && tag.length === 2) ? 'heading'
+				: el.closest('a,button') ? 'cta'
+				: el.closest('li') ? 'bullet' : 'para';
+			var href = '';
+			if (kind === 'cta') {
+				var link = el.closest('a');
+				if (link && link.getAttribute('href')) {
+					try {
+						var u = new URL(link.href, document.baseURI);
+						href = u.pathname.replace(/\\/+$/, '');
+					} catch (e) { href = link.getAttribute('href') || ''; }
+				}
+			}
+			items.push({
+				text: text, full: full, kind: kind, path: path.join(' > '),
+				tab: tabLabel, stateId: stateId, href: href,
+				reach: visible ? 'visible' : (tabLabel ? 'tab' : 'accordion')
+			});
+		}
+		window.__kmHeads = h;
+		window.__kmSkipped = skipped;
+		window.__kmItems = items;
+		return items.length;
 	'''
 }

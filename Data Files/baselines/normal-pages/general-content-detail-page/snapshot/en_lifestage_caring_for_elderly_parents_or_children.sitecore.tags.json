@@ -1,0 +1,1463 @@
+[
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/masthead.webp"
+    },
+    {
+        "tag": "h2",
+        "content": "Caring For Elderly Parents Or Children"
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Protecting Your Family\u2019s Tomorrow"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/protection-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Protection"
+    },
+    {
+        "tag": "p",
+        "content": "In the event of unexpected circumstances such as critical illnesses, accidents or death, at least one or more dependants may be impacted."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for protection:"
+    },
+    {
+        "tag": "li",
+        "content": "Health insurance for hospitalisation."
+    },
+    {
+        "tag": "li",
+        "content": "Protection against accidents and major illnesses."
+    },
+    {
+        "tag": "li",
+        "content": "Financial payout for death, terminal illness, and total and permanent disability."
+    },
+    {
+        "tag": "a",
+        "content": "Plan your protection",
+        "url": "#protection"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/wealth-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Wealth"
+    },
+    {
+        "tag": "p",
+        "content": "Growing your wealth gets even more pivotal to upkeep your standard of living and achieve your future goals when you have multiple dependants."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for wealth:"
+    },
+    {
+        "tag": "li",
+        "content": "Savings for immediate and future expenses."
+    },
+    {
+        "tag": "li",
+        "content": "A retirement plan."
+    },
+    {
+        "tag": "li",
+        "content": "Legacy planning."
+    },
+    {
+        "tag": "a",
+        "content": "Build your wealth",
+        "url": "#wealth"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/dependant-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "For Your Dependants"
+    },
+    {
+        "tag": "p",
+        "content": "Protecting your loved ones from the unexpected can allow you to focus on your responsibilities without constant worry."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for your dependants:"
+    },
+    {
+        "tag": "li",
+        "content": "Health insurance for hospitalisation."
+    },
+    {
+        "tag": "li",
+        "content": "Protection against major illnesses, death, total and permanent disability, and accidents."
+    },
+    {
+        "tag": "li",
+        "content": "Care plan for your parents."
+    },
+    {
+        "tag": "a",
+        "content": "Protect your dependants",
+        "url": "#for-your-dependants"
+    },
+    {
+        "tag": "h4",
+        "content": "Learn More About Your Needs"
+    },
+    {
+        "tag": "a",
+        "content": "Protection",
+        "url": "#protection"
+    },
+    {
+        "tag": "a",
+        "content": "Wealth",
+        "url": "#wealth"
+    },
+    {
+        "tag": "a",
+        "content": "For Your Dependants",
+        "url": "#for-your-dependants"
+    },
+    {
+        "tag": "h2",
+        "content": "Protection"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/protection/what_you_already_have.webp"
+    },
+    {
+        "tag": "p",
+        "content": "If you are a Singaporean or PR, you\u2019re automatically covered by three national schemes:"
+    },
+    {
+        "tag": "li",
+        "content": "MediSave\nA national savings scheme which helps CPF members save for future medical expenses, especially during retirement."
+    },
+    {
+        "tag": "li",
+        "content": "MediShield Life\nA health insurance for large hospital bills and selected outpatient treatment costs."
+    },
+    {
+        "tag": "li",
+        "content": "CareShield Life\nLong-term care insurance scheme for financial support and monthly cash payouts in event of severe disability."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/protection/what_they_may_consider.webp"
+    },
+    {
+        "tag": "p",
+        "content": "Are you fully prepared for life's surprises with your current protection policies? It's crucial to ensure you have enough coverage to avoid a protection gap \u2013 when your savings, investments, and insurance fall short of covering unexpected expenses due to health issues."
+    },
+    {
+        "tag": "p",
+        "content": "Here's how to find out your protection gap3:"
+    },
+    {
+        "tag": "li",
+        "content": "Calculate Needs: Multiply your annual income by nine (for death) or four (for critical illness)2. This is what your family will need to manage without your income."
+    },
+    {
+        "tag": "li",
+        "content": "Assess Resources: Add up your savings, assets, and current coverage. These are the funds available to your family."
+    },
+    {
+        "tag": "li",
+        "content": "Find The Gap: Subtract the needs from the resources."
+    },
+    {
+        "tag": "p",
+        "content": "If the result is negative, there's a protection gap. This means your family might struggle financially if something happens to you."
+    },
+    {
+        "tag": "p",
+        "content": "National schemes do not fully cover:"
+    },
+    {
+        "tag": "li",
+        "content": "Hospitalisation\nAn Integrated Shield Plan (IP) provides additional coverage for private hospitals or higher ward classes in public hospitals."
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness\nYou\u2019ll need coverage of 4x annual income. (Recommended)4"
+    },
+    {
+        "tag": "li",
+        "content": "Death & Total and Permanent Disability\nYou\u2019ll need coverage of 9 \u2013 10x annual income. (Recommended)4"
+    },
+    {
+        "tag": "p",
+        "content": "It\u2019s recommended to spend at most 15% of take-home pay on insurance protection."
+    },
+    {
+        "tag": "h2",
+        "content": "Why Act Now"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/protection/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Youth often means better health, allowing higher insurance coverage at lower premiums."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/protection/why_act_now_2.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "A sudden hospital visit can drain your savings, hindering financial progress."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/protection/why_act_now_3.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Life's unpredictability can severely impact loved ones if you pass away prematurely."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/promotion-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "h5",
+        "content": "It\u2019s okay not to disclose your existing medical condition."
+    },
+    {
+        "tag": "h5",
+        "content": "I am not eligible for insurance because I am too old or have a pre-existing condition."
+    },
+    {
+        "tag": "h5",
+        "content": "Having health insurance means all treatments are fully covered."
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: It\u2019s okay not to disclose your existing medical condition."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: I am not eligible for insurance because I am too old or have a pre-existing condition."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Having health insurance means all treatments are fully covered."
+    },
+    {
+        "tag": "a",
+        "content": "Health insurance terms: Know what you\u2019re paying for",
+        "url": "https://www.moneysense.gov.sg/health-insurance-terms-know-what-you-re-paying-for/"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Find The Right Plan"
+    },
+    {
+        "tag": "li",
+        "content": "Medical & Accident"
+    },
+    {
+        "tag": "a",
+        "content": "Medical & Accident",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness"
+    },
+    {
+        "tag": "a",
+        "content": "Critical Illness",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Whole & Term Life"
+    },
+    {
+        "tag": "a",
+        "content": "Whole & Term Life",
+        "url": "#"
+    },
+    {
+        "tag": "a",
+        "content": "PRUShield and PRUExtra\n\nComprehensive health insurance coverage to suit your budget and needs.",
+        "url": "/products/health-insurance/medical/prushield"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/medical/prushield/360x202.webp?h=202&iar=0&w=360&hash=FD39F78E057DF022C06D30B86329AB55"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUShield and PRUExtra"
+    },
+    {
+        "tag": "p",
+        "content": "Comprehensive health insurance coverage to suit your budget and needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPersonal Accident\n\nPersonal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas.",
+        "url": "/products/health-insurance/accident/prupersonal-accident"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/accident/prupersonal-accident/prupersonalaccident-mb.webp?h=202&iar=0&w=360&hash=70DB00992A491DC3C826B86C03957C87"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUPersonal Accident"
+    },
+    {
+        "tag": "p",
+        "content": "Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas."
+    },
+    {
+        "tag": "a",
+        "content": "All Medical & Accident Plans",
+        "url": "/products/health-insurance/medical-and-accident"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Protect\n                                                                A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more.",
+        "url": "/products/health-insurance/critical-illness/pruactive-protect"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/critical-illness/pruactive-protect/papt-mb.webp?h=202&iar=0&w=360&hash=EAC527C7F81303EAED9525CF20263E91"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Protect"
+    },
+    {
+        "tag": "p",
+        "content": "A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Crisis Guard\n                                                                Be covered against health crises that require serious treatments.",
+        "url": "/products/health-insurance/critical-illness/pruactive-crisis-guard"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Crisis Guard"
+    },
+    {
+        "tag": "p",
+        "content": "Be covered against health crises that require serious treatments."
+    },
+    {
+        "tag": "a",
+        "content": "PRUCancer 360\n                                                                An affordable cancer insurance plan that provides multi-stage coverage against all cancers.",
+        "url": "/products/health-insurance/critical-illness/prucancer-360"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/critical-illness/prucancer-360/prucancer360-mb.webp?h=202&iar=0&w=360&hash=7B3E5E9E64311FC510F1FE29F71DEE0B"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUCancer 360"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable cancer insurance plan that provides multi-stage coverage against all cancers."
+    },
+    {
+        "tag": "a",
+        "content": "All Critical Illness Plans",
+        "url": "/products/health-insurance/critical-illness"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Life V\n                                                                A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-life-v"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Life V"
+    },
+    {
+        "tag": "p",
+        "content": "A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard\n                                                                An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-linkguard"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/whole-life-insurance/pruactive-linkguard/palg-mb.webp?h=202&iar=0&w=360&hash=5E81743A01A6E605874C3D1837A1A99C"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Term\n                                                                A unique and customisable term insurance plan designed to keep up with your changing needs.",
+        "url": "/products/life-insurance/term-life-insurance/pruactive-term"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/term-life-insurance/pruactive-term/pat-mb.webp?h=202&iar=0&w=360&hash=554F839E3575B6F5384BCB7F96F32734"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Term"
+    },
+    {
+        "tag": "p",
+        "content": "A unique and customisable term insurance plan designed to keep up with your changing needs."
+    },
+    {
+        "tag": "a",
+        "content": "All Whole & Term Life Plans",
+        "url": "/products/life-insurance/whole-and-term-insurance"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore Topics"
+    },
+    {
+        "tag": "a",
+        "content": "STORY\nHere are 4 important insurance plans to consider for your family",
+        "url": "/wedo/wedohub/do-health/here-are-4-important-insurance-plans-to-consider-for-your-family"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/here-are-4-important-insurance-plans/here-are-4-important-insurance-plans.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Here are 4 important insurance plans to consider for your family"
+    },
+    {
+        "tag": "a",
+        "content": "STORY\n4 considerations when buying a critical illness plan",
+        "url": "/wedo/wedohub/do-health/4-considerations-when-buying-a-critical-illness-plan"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/4-considerations-when-buying-a-critical-illness-plan/image-4.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "4 considerations when buying a critical illness plan"
+    },
+    {
+        "tag": "a",
+        "content": "STORY\nLive Confidently with this Comprehensive Guide on Term Life Insurance",
+        "url": "/wedo/wedohub/do-health/live-confidently-with-this-comprehensive-guide"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/live-confidently-with-this-comprehensive-guide/article-card.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Live Confidently with this Comprehensive Guide on Term Life Insurance"
+    },
+    {
+        "tag": "h2",
+        "content": "Wealth"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/wealth/what_you_should_have.webp"
+    },
+    {
+        "tag": "li",
+        "content": "Emergency Funds  At least 3 \u2013 6 months\u2019 worth of expenses (including dependants) for rainy days."
+    },
+    {
+        "tag": "li",
+        "content": "Legacy Planning  A plan for a will, family trusts, life insurance, powers of attorney, and CPF nominations."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/wealth/what_you_may_consider.webp"
+    },
+    {
+        "tag": "p",
+        "content": "A retirement plan and savings for your upcoming milestones will give you peace of mind."
+    },
+    {
+        "tag": "li",
+        "content": "Investment  It is recommended to allocate at least 10%4 of your take-home pay for key milestones."
+    },
+    {
+        "tag": "li",
+        "content": "A Retirement Plan4  Sustain the lifestyle you desire with regular income to enjoy the best golden years.\nIf you are 55 years old or above, explore options to monetise your property (Silver Housing Bonus, Lease Buyback Scheme, renting out room / flat)."
+    },
+    {
+        "tag": "h2",
+        "content": "Why Act Now"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/wealth/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "As lifespans are increasing5, you\u2019ll need a plan for your financial needs in the future."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/wealth/why_act_now_2.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Give more time for compound interests to accumulate over the years6."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/young-family/wealth/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Supporting your dependants and lifestyle requires investing early in a diverse portfolio to let compound interest grow2,6."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/promotion-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "h5",
+        "content": "ILPs are a risky investment move."
+    },
+    {
+        "tag": "h5",
+        "content": "Investing is for the rich."
+    },
+    {
+        "tag": "h5",
+        "content": "I will get better returns from investments other than life insurance."
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: ILPs are a risky investment move."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Investing is for the rich."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: I will get better returns from investments other than life insurance."
+    },
+    {
+        "tag": "a",
+        "content": "Savings & Investment",
+        "url": "https://www.lia.org.sg/consumers/getting-started/savings-investment/"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Find The Right Plan"
+    },
+    {
+        "tag": "li",
+        "content": "Savings"
+    },
+    {
+        "tag": "a",
+        "content": "Savings",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Investments"
+    },
+    {
+        "tag": "a",
+        "content": "Investments",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Legacy Planning"
+    },
+    {
+        "tag": "a",
+        "content": "Legacy Planning",
+        "url": "#"
+    },
+    {
+        "tag": "a",
+        "content": "PRUWealth Income\n                                                                Live your aspirations without compromise. Enjoy a lifetime of monthly income from second year onwards.",
+        "url": "/products/wealth-accumulation/savings/pruwealth-income"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/pruwealth-income/h261109-prulifetime-income_product-summary_web_w360h202.jpg?h=202&iar=0&w=360&hash=0EB284B9B9088EAD8181669E14040F79"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUWealth Income"
+    },
+    {
+        "tag": "p",
+        "content": "Live your aspirations without compromise. Enjoy a lifetime of monthly income from second year onwards."
+    },
+    {
+        "tag": "a",
+        "content": "PRUWealth Plus (SGD)\n                                                                Grow your savings to meet your family\u2018s needs with a flexible plan that protects you from uncertainties.",
+        "url": "/products/wealth-accumulation/savings/pruwealth-plus-sgd"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/pruwealth-iii-sgd/h228328_pruwealth-iii-collateralupdate-2022_mobile_banner_360x202px6.jpg?h=202&iar=0&w=360&hash=35776A9FFAE1AB64FA4612D2BB53AB56"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUWealth Plus (SGD)"
+    },
+    {
+        "tag": "p",
+        "content": "Grow your savings to meet your family\u2018s needs with a flexible plan that protects you from uncertainties."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Retirement II\n                                                                A first-of-its-kind highly customisable retirement plan designed to weather market volatility, providing you with a steady cumulative retirement income.",
+        "url": "/products/wealth-accumulation/retirement/pruactive-retirement-ii"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/retirement/pruactive-retirement-ii/par-ii-pi.webp?h=202&iar=0&w=360&hash=9AA18B13887EFDFAFDA75AB135E106E9"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Retirement II"
+    },
+    {
+        "tag": "p",
+        "content": "A first-of-its-kind highly customisable retirement plan designed to weather market volatility, providing you with a steady cumulative retirement income."
+    },
+    {
+        "tag": "a",
+        "content": "All Savings Plans",
+        "url": "/products/wealth-accumulation/savings"
+    },
+    {
+        "tag": "a",
+        "content": "PRUVantage Assure Series\n                                                                A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times.",
+        "url": "/products/wealth-accumulation/investments/pruvantage-assure-series"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/investments/pruvantage-assure-series/product-card-img.webp?h=202&iar=0&w=360&hash=00EDB212AEA7BF6A2EE0B05213DB9431"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUVantage Assure Series"
+    },
+    {
+        "tag": "p",
+        "content": "A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times."
+    },
+    {
+        "tag": "a",
+        "content": "PRUVantage Wealth II\n                                                                A resolute investment-linked plan made to grow, gain and give your wealth, for you and your loved ones.",
+        "url": "/products/wealth-accumulation/investments/pruvantage-wealth-ii"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/investments/pruvantage-wealth/product-card-picture.webp?h=202&iar=0&w=366&hash=0B3B053B30DFD088273D5B5D02BEFD2D"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUVantage Wealth II"
+    },
+    {
+        "tag": "p",
+        "content": "A resolute investment-linked plan made to grow, gain and give your wealth, for you and your loved ones."
+    },
+    {
+        "tag": "a",
+        "content": "PRULink InvestGrowth\n\n                                                                An investment-linked plan that provides all-round flexibility and lets you build wealth your way.",
+        "url": "/products/wealth-accumulation/investments/prulink-investgrowth"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/investments/prulink-investgrowth/pi_prulinkig-360x202.webp?h=202&iar=0&w=360&hash=BF9499B23BF2F2AEBA81DF8963114A15"
+    },
+    {
+        "tag": "h4",
+        "content": "PRULink InvestGrowth"
+    },
+    {
+        "tag": "p",
+        "content": "An investment-linked plan that provides all-round flexibility and lets you build wealth your way."
+    },
+    {
+        "tag": "a",
+        "content": "All Investments Plans",
+        "url": "/products/wealth-accumulation/investments"
+    },
+    {
+        "tag": "a",
+        "content": "PRULife Vantage Achiever Prime Series\n                                                                A whole life protection plan with flexible premium term feature that multiplies the sum assured up to age 85 or 100 to provide financial security throughout your lifetime.",
+        "url": "/products/legacy-planning/prulife-vantage-achiever-prime-series"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/legacy-planning/pruvantage-achiever-prime-series/pruvantage-achiever-prime-series-mb.webp?h=202&iar=0&w=360&hash=D5F8A02B108FB478E16669142488F815"
+    },
+    {
+        "tag": "h4",
+        "content": "PRULife Vantage Achiever Prime Series"
+    },
+    {
+        "tag": "p",
+        "content": "A whole life protection plan with flexible premium term feature that multiplies the sum assured up to age 85 or 100 to provide financial security throughout your lifetime."
+    },
+    {
+        "tag": "a",
+        "content": "PRULifetime Income Plus\n                                                                Fuel your passions with a lifetime of income.",
+        "url": "/products/wealth-accumulation/savings/prulifetime-income-plus"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/prulifetime-income-plus/banner-new-mobile-w360px-x-h202px.jpg?h=202&iar=0&w=360&hash=AD82EA7A8495A70BFB67980E5CA6D7C9"
+    },
+    {
+        "tag": "h4",
+        "content": "PRULifetime Income Plus"
+    },
+    {
+        "tag": "p",
+        "content": "Fuel your passions with a lifetime of income."
+    },
+    {
+        "tag": "a",
+        "content": "All Legacy Planning Plans",
+        "url": "/products/legacy-planning/all-legacy-plans"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore Topics"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                Excuse me are you a millennial? Time to get financially sound",
+        "url": "/wedo/wedohub/do-wealth/excuse-me-are-you-a-millennial-time-to-get-financially-sound"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/excuse-me-are-you-a-millennial-time-to-get-financially-sound/excuse-me-are-you-a-millennial.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "Excuse me are you a millennial? Time to get financially sound"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                6 tax savings tips for working adults in Singapore",
+        "url": "/wedo/wedohub/do-wealth/6-tax-savings-tips-for-working-adults-in-singapore"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/6-tax-savings-tips-for-working-adults-in-singapore/6-tax-savings-tips-for-working-adults-in-singapore.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "6 tax savings tips for working adults in Singapore"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                3 ways to kick-start your legacy planning",
+        "url": "/wedo/wedohub/do-wealth/3-ways-to-kick-start-your-legacy-planning"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/3-ways-to-kick-start-your-legacy-planning/3-ways-to-kick-start-your-legacy-planning.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "3 ways to kick-start your legacy planning"
+    },
+    {
+        "tag": "h2",
+        "content": "For Your Dependants"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/for-your-dependants/what_you_already_have.webp"
+    },
+    {
+        "tag": "p",
+        "content": "If they are Singaporean or PR, they\u2019re automatically covered by four national schemes:"
+    },
+    {
+        "tag": "li",
+        "content": "MediSave  A national savings scheme which helps CPF members save for future medical expenses, especially during retirement. You can also use your MediSave to pay for medical bills incurred by your immediate family members."
+    },
+    {
+        "tag": "li",
+        "content": "MediShield Life  A health insurance for large hospital bills and selected outpatient treatment costs."
+    },
+    {
+        "tag": "li",
+        "content": "CareShield Life / ElderShield\u2028  Long-term care insurance scheme for financial support and monthly cash payouts in event of severe disability."
+    },
+    {
+        "tag": "li",
+        "content": "Dependants\u2019 Protection Scheme7  Term life insurance scheme that provides basic financial protection for you and your family in the event of death, terminal illness or total permanent disability."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/for-your-dependants/what_they_may_consider.webp"
+    },
+    {
+        "tag": "p",
+        "content": "It\u2019s important to plan ahead with proper and full coverage for your parents and/or children:"
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness  Lump sum payout if they are diagnosed with a critical illness."
+    },
+    {
+        "tag": "li",
+        "content": "Life Insurance  Coverage for death, terminal illness and total permanent disability."
+    },
+    {
+        "tag": "li",
+        "content": "Personal Accident  Coverage for accidental death and injuries, including food poisoning, children-prone HFMD, and elderly-susceptible fractures."
+    },
+    {
+        "tag": "li",
+        "content": "Integrated Shield Plan  Additional coverage for private hospitals or higher ward classes in public hospitals."
+    },
+    {
+        "tag": "li",
+        "content": "Savings/Investment Plans  For milestones such as education and future home for your children and regular income during retirement for your parents."
+    },
+    {
+        "tag": "li",
+        "content": "Legacy Planning  A plan for a will, family trusts, life insurance, powers of attorney, and CPF nominations for your parents. If they are 55 years old or above, explore options to monetise their property (Silver Housing Bonus, Lease Buyback Scheme, renting out room / flat)."
+    },
+    {
+        "tag": "h2",
+        "content": "Why Act Now"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/for-your-dependants/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Whole life policies can accumulate cash value and provide life-long protection at the same time."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/caring-for-elderly-parents-or-children/for-your-dependants/why_act_now_2.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Premiums increase with entry age for selected policies, your child can reap the benefits of lower premiums in the long run."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/promotion-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "h5",
+        "content": "My life insurance coverage only needs to be twice my annual salary."
+    },
+    {
+        "tag": "h5",
+        "content": "Only breadwinners need life insurance coverage."
+    },
+    {
+        "tag": "h5",
+        "content": "The policy can only be in the name of the person who buys it."
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/dependant.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: My life insurance coverage only needs to be twice my annual salary."
+    },
+    {
+        "tag": "a",
+        "content": "2022 protection gap study \u2013 Singapore",
+        "url": "https://www.lia.org.sg/media/3974/lia-pgs-2022-report_final_8-sep-2023.pdf"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/dependant.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Only breadwinners need life insurance coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/dependant.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: The policy can only be in the name of the person who buys it."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Find The Right Plan"
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness"
+    },
+    {
+        "tag": "a",
+        "content": "Critical Illness",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Whole & Term Life"
+    },
+    {
+        "tag": "a",
+        "content": "Whole & Term Life",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Medical & Accident"
+    },
+    {
+        "tag": "a",
+        "content": "Medical & Accident",
+        "url": "#"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Protect\n                                                                A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more.",
+        "url": "/products/health-insurance/critical-illness/pruactive-protect"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/critical-illness/pruactive-protect/papt-mb.webp?h=202&iar=0&w=360&hash=EAC527C7F81303EAED9525CF20263E91"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Protect"
+    },
+    {
+        "tag": "p",
+        "content": "A customisable critical illness insurance plan that can be built as you grow, providing coverage against recurring early stage critical illnesses and more."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Crisis Guard\n                                                                Be covered against health crises that require serious treatments.",
+        "url": "/products/health-insurance/critical-illness/pruactive-crisis-guard"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Crisis Guard"
+    },
+    {
+        "tag": "p",
+        "content": "Be covered against health crises that require serious treatments."
+    },
+    {
+        "tag": "a",
+        "content": "PRUEarly Stage Crisis Cover\n                                                                A plan that offers financial support right from the early stages of selected critical illnesses.",
+        "url": "/products/health-insurance/critical-illness/pruearly-stage-crisis-cover"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/critical-illness/pruearly-stage-crisis-cover/pru-early-stage-crisis-pi.webp?h=202&iar=0&w=360&hash=9534E1ED275E463C431E8FF60142A3A5"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUEarly Stage Crisis Cover"
+    },
+    {
+        "tag": "p",
+        "content": "A plan that offers financial support right from the early stages of selected critical illnesses."
+    },
+    {
+        "tag": "a",
+        "content": "All Critical Illness Plans",
+        "url": "/products/health-insurance/critical-illness"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard\n                                                                An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-linkguard"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/whole-life-insurance/pruactive-linkguard/palg-mb.webp?h=202&iar=0&w=360&hash=5E81743A01A6E605874C3D1837A1A99C"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Life V\n                                                                A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-life-v"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Life V"
+    },
+    {
+        "tag": "p",
+        "content": "A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Term\n                                                                A unique and customisable term insurance plan designed to keep up with your changing needs.",
+        "url": "/products/life-insurance/term-life-insurance/pruactive-term"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/term-life-insurance/pruactive-term/pat-mb.webp?h=202&iar=0&w=360&hash=554F839E3575B6F5384BCB7F96F32734"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Term"
+    },
+    {
+        "tag": "p",
+        "content": "A unique and customisable term insurance plan designed to keep up with your changing needs."
+    },
+    {
+        "tag": "a",
+        "content": "All Whole & Term Life Plans",
+        "url": "/products/life-insurance/whole-and-term-insurance"
+    },
+    {
+        "tag": "a",
+        "content": "PRUShield and PRUExtra\n                                                                Comprehensive health insurance coverage to suit your budget and needs.",
+        "url": "/products/health-insurance/medical/prushield"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/medical/prushield/360x202.webp?h=202&iar=0&w=360&hash=FD39F78E057DF022C06D30B86329AB55"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUShield and PRUExtra"
+    },
+    {
+        "tag": "p",
+        "content": "Comprehensive health insurance coverage to suit your budget and needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPersonal Accident\n                                                                Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas.",
+        "url": "/products/health-insurance/accident/prupersonal-accident"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/accident/prupersonal-accident/prupersonalaccident-mb.webp?h=202&iar=0&w=360&hash=70DB00992A491DC3C826B86C03957C87"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUPersonal Accident"
+    },
+    {
+        "tag": "p",
+        "content": "Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas."
+    },
+    {
+        "tag": "a",
+        "content": "All Medical & Accident Plans",
+        "url": "/products/health-insurance/medical-and-accident"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore Topics"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                Here are 4 important insurance plans to consider for your family",
+        "url": "/wedo/wedohub/do-health/here-are-4-important-insurance-plans-to-consider-for-your-family"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/here-are-4-important-insurance-plans/here-are-4-important-insurance-plans.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Here are 4 important insurance plans to consider for your family"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                Protect your children with health insurance today",
+        "url": "/wedo/wedohub/do-family/protect-your-children-with-health-insurance-today"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-family/protect-your-children-with-health-insurance-today/article-card.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Protect your children with health insurance today"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                4 health alerts to look out for in your aged parents",
+        "url": "/wedo/wedohub/do-health/4-health-alerts-to-look-out-for-in-your-aged-parents"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/4-health-alerts-to-look-out-for-in-your-aged-parents/4-health-alerts-to-look-out-for-in-your-aged-parents.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "4 health alerts to look out for in your aged parents"
+    },
+    {
+        "tag": "h2",
+        "content": "Important Information"
+    },
+    {
+        "tag": "h5",
+        "content": "Footnotes"
+    },
+    {
+        "tag": "p",
+        "content": "1"
+    },
+    {
+        "tag": "p",
+        "content": "Get Peace of Mind for Your Healthcare Needs, Central Provident Fund Board"
+    },
+    {
+        "tag": "a",
+        "content": "Get Peace of Mind for Your Healthcare Needs",
+        "url": "https://www.cpf.gov.sg/member/healthcare-financing"
+    },
+    {
+        "tag": "p",
+        "content": "2"
+    },
+    {
+        "tag": "p",
+        "content": "Protection Needs for Different Life Stages: Working Individuals Supporting Aged Parents, Life Insurance Association Singapore, 7 June 2019"
+    },
+    {
+        "tag": "a",
+        "content": "Protection Needs for Different Life Stages: Working Individuals Supporting Aged Parents",
+        "url": "https://www.lia.org.sg/media/2195/persons-with-aged-parents-to-support.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "3"
+    },
+    {
+        "tag": "p",
+        "content": "Life Insurance Simplified Calculator, Life Insurance Association Singapore"
+    },
+    {
+        "tag": "a",
+        "content": "Life Insurance Simplified Calculator",
+        "url": "https://www.lia.org.sg/Assets/pdfs/assumptions-caveats-for-lia-life-insurance-simplified-calculator-2024.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "4"
+    },
+    {
+        "tag": "p",
+        "content": "Basic Financial Planning Guide for Working Adult, Moneysense"
+    },
+    {
+        "tag": "a",
+        "content": "Basic Financial Planning Guide for Working Adult",
+        "url": "https://www.moneysense.gov.sg/files/Basic%20Financial%20Planning%20Guide/english____working_adult__children__parents_.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "5"
+    },
+    {
+        "tag": "p",
+        "content": "Complete Life Tables for Singapore Resident Population 2022 \u2013 2023, Department of Statistics Singapore, 6 June 2024"
+    },
+    {
+        "tag": "a",
+        "content": "Complete Life Tables for Singapore Resident Population 2022 \u2013 2023",
+        "url": "https://www.singstat.gov.sg/-/media/files/publications/population/lifetable22-23.ashx"
+    },
+    {
+        "tag": "p",
+        "content": "6"
+    },
+    {
+        "tag": "p",
+        "content": "The Power of Compound Interest: Calculations and Examples, Investopedia, 28 February 2024"
+    },
+    {
+        "tag": "a",
+        "content": "The Power of Compound Interest: Calculations and Examples",
+        "url": "https://www.investopedia.com/terms/c/compoundinterest.asp#toc-compound-interest-start-saving-early"
+    },
+    {
+        "tag": "p",
+        "content": "7"
+    },
+    {
+        "tag": "p",
+        "content": "Protect Your Loved Ones with the Dependants\u2019 Protection Scheme, Central Provident Fund Board"
+    },
+    {
+        "tag": "a",
+        "content": "Protect Your Loved Ones with the Dependants\u2019 Protection Scheme",
+        "url": "https://www.cpf.gov.sg/member/account-services/providing-for-your-loved-ones/insuring-to-protect-your-dependants"
+    },
+    {
+        "tag": "h2",
+        "content": "We\u2019re here to help"
+    },
+    {
+        "tag": "p",
+        "content": "* All fields are mandatory"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d)\u00a0 to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/Privacy-Notice",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "Or give us a call: 1800 333 0333"
+    },
+    {
+        "tag": "a",
+        "content": "Get in Touch",
+        "url": "#contact"
+    }
+]

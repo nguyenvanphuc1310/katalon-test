@@ -18,6 +18,10 @@ import org.openqa.selenium.JavascriptExecutor
  * re-run every time a rule changes. After a capture, ContentCompare works purely
  * from these files — no browser, and no VPN.
  *
+ * The same open page also writes <slug>.<side>.tags.json (semantic tags for
+ * UniversalTagComparer). StructureCheck reads those files so it does not
+ * reopen Live/AEM. ContentCompare stays text-only and is not merged with Universal.
+ *
  * The HTML must come from the live browser: aem-uat answers 403 to
  * HttpURLConnection, and part of the content on both sites is injected
  * client-side, so a server-side fetch would not see it anyway.
@@ -36,15 +40,42 @@ public class ContentSnapshot {
 	 */
 	@Keyword
 	static Map capture(String targetUrl, String pageurl, String side) {
-		// Force the reload rather than reusing whatever is open. The image check runs first in every
-		// template test case and now expands every tab and accordion to reach the images inside
-		// them, so the page it leaves behind is not the page a visitor sees — snapshotting it would
-		// quietly compare an expanded DOM on one side against a default one on the other.
+		Map probe = AuditUtils.probeDocument(targetUrl)
+		if (probe.kind == 'pdf') {
+			saveDocumentMeta(pageurl, side, probe)
+			KeywordUtil.logInfo("${targetUrl} is a PDF, not a web page — detected by ${probe.detectedBy}" +
+				(probe.finalUrl && probe.finalUrl != targetUrl ? ", landed ${probe.finalUrl}" : '') +
+				(probe.contentType ? " (${probe.contentType})" : '') +
+				' — skipping HTML snapshot')
+			return null
+		}
+
+		// Reload only when we are on another URL or a earlier check expanded the DOM.
+		// forceReload=true used to navigate every time and opened AEM twice in one iteration.
 		WebActions.ensureOnPage(targetUrl, true)
-		WebActions.scrollFullPage()
+		String landed = ''
+		try { landed = DriverFactory.getWebDriver().getCurrentUrl() } catch (Exception ignore) { }
+		if (AuditUtils.isPdfUrl(landed)) {
+			saveDocumentMeta(pageurl, side, [
+				kind: 'pdf', url: targetUrl, finalUrl: landed,
+				contentType: 'application/pdf', detectedBy: 'browser-redirect'
+			])
+			KeywordUtil.logInfo("${targetUrl} redirected in the browser to PDF ${landed} — skipping HTML snapshot")
+			return null
+		}
+
+		KeywordUtil.logInfo("Capturing [${side}] — not clicking tabs or accordions. Reading the open DOM.")
+		// Content text is already in main. Full-page scroll is for lazy images (structure)
+		// and on Product Deck it restarts Evergage/GTM so Chrome freezes again.
+		KeywordUtil.logInfo("Reading page text on ${targetUrl}")
 		Map scope = ContentScope.readPageOrFail(targetUrl)
 		if (scope.notHtml) {
-			KeywordUtil.logInfo("${targetUrl} is not a web page (${scope.notHtml}) — nothing to snapshot")
+			String ct = (scope.notHtml ?: '').toString()
+			String kind = AuditUtils.isPdfContentType(ct) || ct.toLowerCase().contains('pdf') ? 'pdf' : 'document'
+			saveDocumentMeta(pageurl, side, [
+				kind: kind, url: targetUrl, finalUrl: landed, contentType: ct, detectedBy: 'contentType'
+			])
+			KeywordUtil.logInfo("${targetUrl} is not a web page (${ct}) — nothing to snapshot")
 			return null
 		}
 
@@ -79,6 +110,16 @@ public class ContentSnapshot {
 			KeywordUtil.markWarning('Could not store the rendered HTML: ' + e.getMessage())
 		}
 
+		// Same open page: tag list for UniversalTagComparer so compare does not navigate again.
+		try {
+			List tags = new UniversalTagComparer().extractOnCurrentPage()
+			saveTags(pageurl, side, tags)
+			KeywordUtil.logInfo("Snapshot [${side}] ${tags ? tags.size() : 0} semantic tag(s) -> " +
+				pathFor(pageurl, side, '.tags.json'))
+		} catch (Exception e) {
+			KeywordUtil.markWarning('Could not store semantic tags: ' + e.getMessage())
+		}
+
 		int tabs = (snap.tabGroups as List).sum { ((Map) it).tabs.size() } ?: 0
 		KeywordUtil.logInfo("Snapshot [${side}] ${scope.items.size()} items, ${snap.tabGroups.size()} tab group(s)/${tabs} tab(s), " +
 			"root=${scope.root}, dropped ${scope.skipped} -> ${jsonPath}")
@@ -96,5 +137,41 @@ public class ContentSnapshot {
 	static Map load(String pageurl, String side) {
 		File f = new File(pathFor(pageurl, side, '.json'))
 		return f.exists() ? (Map) new JsonSlurper().parseText(f.getText('UTF-8')) : null
+	}
+
+	/** Semantic tags written beside the snapshot; null when this capture predates tag extract */
+	@Keyword
+	static List loadTags(String pageurl, String side) {
+		File f = new File(pathFor(pageurl, side, '.tags.json'))
+		if (!f.exists()) return null
+		return (List) new JsonSlurper().parseText(f.getText('UTF-8'))
+	}
+
+	@Keyword
+	static void saveTags(String pageurl, String side, List tags) {
+		new File(pathFor(pageurl, side, '.tags.json')).setText(
+			JsonOutput.prettyPrint(JsonOutput.toJson(tags ?: [])), 'UTF-8')
+	}
+
+	/** Written when the mapped URL is a PDF or other non-HTML document */
+	@Keyword
+	static Map loadDocumentMeta(String pageurl, String side) {
+		File f = new File(pathFor(pageurl, side, '.doc.json'))
+		if (!f.exists()) return null
+		return (Map) new JsonSlurper().parseText(f.getText('UTF-8'))
+	}
+
+	@Keyword
+	static void saveDocumentMeta(String pageurl, String side, Map meta) {
+		new File(pathFor(pageurl, side, '.doc.json')).setText(
+			JsonOutput.prettyPrint(JsonOutput.toJson(meta ?: [:])), 'UTF-8')
+	}
+
+	@Keyword
+	static boolean isPdfDocument(String pageurl) {
+		if (AuditUtils.isPdfUrl(pageurl)) return true
+		Map aem = loadDocumentMeta(pageurl, 'aem')
+		Map live = loadDocumentMeta(pageurl, 'sitecore')
+		return aem?.kind == 'pdf' || live?.kind == 'pdf'
 	}
 }

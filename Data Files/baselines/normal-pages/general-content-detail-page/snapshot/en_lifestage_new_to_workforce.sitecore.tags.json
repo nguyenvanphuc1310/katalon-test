@@ -1,0 +1,914 @@
+[
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/masthead.webp"
+    },
+    {
+        "tag": "h2",
+        "content": "New To Workforce"
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Lay The Groundwork For Your Best Years"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/protection-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Protection"
+    },
+    {
+        "tag": "p",
+        "content": "In the event of unexpected circumstances such as critical illnesses, accidents or disability, your needs and livelihood might be affected."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for protection:"
+    },
+    {
+        "tag": "li",
+        "content": "Health insurance for hospitalisation."
+    },
+    {
+        "tag": "li",
+        "content": "Protection against accidents and major illnesses so that your needs during recovery continue to be met."
+    },
+    {
+        "tag": "li",
+        "content": "Financial payout for death, terminal illness, and total and permanent disability."
+    },
+    {
+        "tag": "a",
+        "content": "Plan your protection",
+        "url": "#protection"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/wealth-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Wealth"
+    },
+    {
+        "tag": "p",
+        "content": "Saving for and investing in your upcoming milestones are easier the earlier you start."
+    },
+    {
+        "tag": "p",
+        "content": "Your priority for wealth:"
+    },
+    {
+        "tag": "li",
+        "content": "Savings for future expenses such as home purchase and marriage."
+    },
+    {
+        "tag": "li",
+        "content": "Retirement planning."
+    },
+    {
+        "tag": "a",
+        "content": "Build your wealth",
+        "url": "#wealth"
+    },
+    {
+        "tag": "h4",
+        "content": "Learn More About Your Needs"
+    },
+    {
+        "tag": "a",
+        "content": "Protection",
+        "url": "#protection"
+    },
+    {
+        "tag": "a",
+        "content": "Wealth",
+        "url": "#wealth"
+    },
+    {
+        "tag": "h2",
+        "content": "Protection"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/protection/what_you_already_have.webp"
+    },
+    {
+        "tag": "p",
+        "content": "If you are a Singaporean or PR, you\u2019re automatically covered by three national schemes:"
+    },
+    {
+        "tag": "li",
+        "content": "MediSave\nA national savings scheme which helps CPF members save for future medical expenses, especially during retirement."
+    },
+    {
+        "tag": "li",
+        "content": "MediShield Life\nA health insurance for large hospital bills and selected outpatient treatment costs."
+    },
+    {
+        "tag": "li",
+        "content": "CareShield Life\nLong-term care insurance scheme for financial support and monthly cash payouts in event of severe disability."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/protection/what_you_may_consider.webp"
+    },
+    {
+        "tag": "p",
+        "content": "Beyond the basic coverage from national schemes, you\u2019ll still need to ensure that you are sufficiently covered to avoid dipping into any hard-earned savings."
+    },
+    {
+        "tag": "p",
+        "content": "National schemes do not fully cover:"
+    },
+    {
+        "tag": "li",
+        "content": "Hospitalisation\nAn Integrated Shield Plan (IP) provides additional coverage for private hospitals or higher ward classes in public hospitals."
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness\nYou\u2019ll need coverage of 4x annual income. (Recommended)3"
+    },
+    {
+        "tag": "li",
+        "content": "Death & Total and Permanent Disability\nYou\u2019ll need coverage of 9 \u2013 10x annual income. (Recommended)3"
+    },
+    {
+        "tag": "p",
+        "content": "Make sure your insurance premiums fit comfortably within your budget. It\u2019s recommended to spend at most 15% of take-home pay on insurance protection."
+    },
+    {
+        "tag": "h2",
+        "content": "Why Act Now"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/protection/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Premiums increase as you get older2."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/protection/why_act_now_2.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Less likely of pre-existing conditions that could exclude you from coverage2."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/promotion-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "h5",
+        "content": "Having health insurance means all treatments are fully covered."
+    },
+    {
+        "tag": "h5",
+        "content": "Health insurance is only for old people."
+    },
+    {
+        "tag": "h5",
+        "content": "I am young and healthy, I don\u2019t need insurance."
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Having health insurance means all treatments are fully covered."
+    },
+    {
+        "tag": "a",
+        "content": "Health insurance terms: Know what you\u2019re paying for",
+        "url": "https://www.moneysense.gov.sg/health-insurance-terms-know-what-you-re-paying-for/"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Health insurance is only for old people."
+    },
+    {
+        "tag": "a",
+        "content": "Understanding Health Insurance",
+        "url": "https://www.moneysense.gov.sg/health-insurance/"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/protection.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: I am young and healthy, I don\u2019t need insurance."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Find The Right Plan"
+    },
+    {
+        "tag": "li",
+        "content": "Medical & Accident"
+    },
+    {
+        "tag": "a",
+        "content": "Medical & Accident",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Critical Illness"
+    },
+    {
+        "tag": "a",
+        "content": "Critical Illness",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Whole & Term Life"
+    },
+    {
+        "tag": "a",
+        "content": "Whole & Term Life",
+        "url": "#"
+    },
+    {
+        "tag": "a",
+        "content": "PRUShield and PRUExtra\n\nComprehensive health insurance coverage to suit your budget and needs.",
+        "url": "/products/health-insurance/medical/prushield"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/medical/prushield/360x202.webp?h=202&iar=0&w=360&hash=FD39F78E057DF022C06D30B86329AB55"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUShield and PRUExtra"
+    },
+    {
+        "tag": "p",
+        "content": "Comprehensive health insurance coverage to suit your budget and needs."
+    },
+    {
+        "tag": "a",
+        "content": "PRUPersonal Accident\n\nPersonal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas.",
+        "url": "/products/health-insurance/accident/prupersonal-accident"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/accident/prupersonal-accident/prupersonalaccident-mb.webp?h=202&iar=0&w=360&hash=70DB00992A491DC3C826B86C03957C87"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUPersonal Accident"
+    },
+    {
+        "tag": "p",
+        "content": "Personal accident insurance to cover minor mishaps or unexpected injuries even when you\u2019re overseas."
+    },
+    {
+        "tag": "a",
+        "content": "All Medical & Accident Plans",
+        "url": "/products/health-insurance/medical-and-accident"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Crisis Guard\n                                                                Be covered against health crises that require serious treatments.",
+        "url": "/products/health-insurance/critical-illness/pruactive-crisis-guard"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Crisis Guard"
+    },
+    {
+        "tag": "p",
+        "content": "Be covered against health crises that require serious treatments."
+    },
+    {
+        "tag": "a",
+        "content": "PRUCancer 360\n                                                                An affordable cancer insurance plan that provides multi-stage coverage against all cancers.",
+        "url": "/products/health-insurance/critical-illness/prucancer-360"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/health-protection/critical-illness/prucancer-360/prucancer360-mb.webp?h=202&iar=0&w=360&hash=7B3E5E9E64311FC510F1FE29F71DEE0B"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUCancer 360"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable cancer insurance plan that provides multi-stage coverage against all cancers."
+    },
+    {
+        "tag": "a",
+        "content": "All Critical Illness Plans",
+        "url": "/products/health-insurance/critical-illness"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Life V\n                                                                A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-life-v"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Life V"
+    },
+    {
+        "tag": "p",
+        "content": "A lifelong promise of protection \u2013 strengthened by multiplied coverage and comprehensive critical illness protection."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard\n                                                                An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-linkguard"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/whole-life-insurance/pruactive-linkguard/palg-mb.webp?h=202&iar=0&w=360&hash=5E81743A01A6E605874C3D1837A1A99C"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Term\n                                                                A unique and customisable term insurance plan designed to keep up with your changing needs.",
+        "url": "/products/life-insurance/term-life-insurance/pruactive-term"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/term-life-insurance/pruactive-term/pat-mb.webp?h=202&iar=0&w=360&hash=554F839E3575B6F5384BCB7F96F32734"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Term"
+    },
+    {
+        "tag": "p",
+        "content": "A unique and customisable term insurance plan designed to keep up with your changing needs."
+    },
+    {
+        "tag": "a",
+        "content": "All Whole & Term Life Plans",
+        "url": "/products/life-insurance/whole-and-term-insurance"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore Topics"
+    },
+    {
+        "tag": "a",
+        "content": "STORY\nCan Young Adults Even Afford Insurance Nowadays? By Rice Media",
+        "url": "/wedo/wedohub/do-health/can-young-adults-even-afford-insurance-nowadays"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/can-young-adults-even-afford-insurance-nowadays/article-card.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Can Young Adults Even Afford Insurance Nowadays? By Rice Media"
+    },
+    {
+        "tag": "a",
+        "content": "STORY\nLanded on your first job? This is the first health insurance you should be getting.",
+        "url": "/wedo/wedohub/do-health/first-health-insurance-you-should-be-getting"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-health/first-health-insurance-you-should-be-getting/article-card.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Landed on your first job? This is the first health insurance you should be getting."
+    },
+    {
+        "tag": "a",
+        "content": "STORY\nImagine living in a world without insurance",
+        "url": "/wedo/wedoinnovation/imagine-living-in-a-world-without-insurance"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-innovation/imagine-living-in-a-world-without-insurance/imagine-living-in-a-world-without-insurance-desktop.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "Imagine living in a world without insurance"
+    },
+    {
+        "tag": "h2",
+        "content": "Wealth"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/wealth/what_you_should_have.webp"
+    },
+    {
+        "tag": "p",
+        "content": "Emergency Funds\nAt least 3 \u2013 6 months\u2019 worth of expenses (including dependants) for rainy days."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/wealth/what_you_may_consider.webp"
+    },
+    {
+        "tag": "p",
+        "content": "Savings for your upcoming expenses and a plan for you to live out your golden years comfortably \u2013 the earlier you start, the more time you have to grow your wealth and accumulate more."
+    },
+    {
+        "tag": "li",
+        "content": "Investments\nIt is recommended to allocate at least 10%3 of your take-home pay for key milestones."
+    },
+    {
+        "tag": "li",
+        "content": "A Retirement Plan3\nIt is never too early to start building your nest egg for the retirement lifestyle you want, including monthly payouts."
+    },
+    {
+        "tag": "h2",
+        "content": "Why Act Now"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/wealth/why_act_now_1.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "The earlier you start, the longer time horizon you\u2019ll have to accumulate wealth due to the compounding effect4."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/new-to-workforce/wealth/why_act_now_2.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "As lifespans are increasing5, you\u2019ll need a plan for your financial needs in the future."
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/promotion-icon.webp"
+    },
+    {
+        "tag": "h5",
+        "content": "Connect with a Financial Representative for personalised coverage."
+    },
+    {
+        "tag": "a",
+        "content": "Contact us",
+        "url": "#contact"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconceptions? Let\u2019s correct them."
+    },
+    {
+        "tag": "h5",
+        "content": "I\u2019m too young to start investing."
+    },
+    {
+        "tag": "h5",
+        "content": "Investing is for the rich."
+    },
+    {
+        "tag": "h5",
+        "content": "Investing is risky."
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: I\u2019m too young to start investing."
+    },
+    {
+        "tag": "a",
+        "content": "Whether You\u2019re Aged 20 or 50, Here\u2019s How You Can Start Investing Amid Uncertainty",
+        "url": "https://www.straitstimes.com/business/invest/whether-youre-aged-20-or-50-heres-how-you-can-start-investing-amid-uncertainty"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Investing is for the rich."
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "a",
+        "content": "",
+        "url": "#"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/lifestage/popup/wealth.webp"
+    },
+    {
+        "tag": "h4",
+        "content": "Misconception: Investing is risky."
+    },
+    {
+        "tag": "a",
+        "content": "Managing Investment Risk",
+        "url": "https://www.moneysense.gov.sg/investments/investment-risk/"
+    },
+    {
+        "tag": "a",
+        "content": "Yes, I want an expert\u2019s help",
+        "url": "#contact"
+    },
+    {
+        "tag": "h2",
+        "content": "Find The Right Plan"
+    },
+    {
+        "tag": "li",
+        "content": "Savings"
+    },
+    {
+        "tag": "a",
+        "content": "Savings",
+        "url": "#"
+    },
+    {
+        "tag": "li",
+        "content": "Investments"
+    },
+    {
+        "tag": "a",
+        "content": "Investments",
+        "url": "#"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Saver III\n                                                                A customisable insurance savings plan that helps you save for any key milestones in life.",
+        "url": "/products/wealth-accumulation/savings/pruactive-saver-iii"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/pruactive-saver-iii/pruactivesaveriii-mb.webp?h=202&iar=0&w=360&hash=6D96FA1EB3684F47FBE797EAAB1D46FD"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Saver III"
+    },
+    {
+        "tag": "p",
+        "content": "A customisable insurance savings plan that helps you save for any key milestones in life."
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive Cash\n                                                                Say Yes to an insurance savings plan with yearly cash benefit, that gives you the flexibility and structure to meet today\u2019s needs, with tomorrow\u2019s dreams in mind.",
+        "url": "/products/wealth-accumulation/savings/pruactive-cash"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/pruactive-cash/pruactive-cash-mb.webp?h=202&iar=0&w=360&hash=962D8EF7EA12EEF594968E5C2BF6F5F6"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive Cash"
+    },
+    {
+        "tag": "p",
+        "content": "Say Yes to an insurance savings plan with yearly cash benefit, that gives you the flexibility and structure to meet today\u2019s needs, with tomorrow\u2019s dreams in mind."
+    },
+    {
+        "tag": "a",
+        "content": "PRUWealth Plus (SGD)\n                                                                Grow your savings to meet your family\u2018s needs with a flexible plan that protects you from uncertainties.",
+        "url": "/products/wealth-accumulation/savings/pruwealth-plus-sgd"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/savings/pruwealth-iii-sgd/h228328_pruwealth-iii-collateralupdate-2022_mobile_banner_360x202px6.jpg?h=202&iar=0&w=360&hash=35776A9FFAE1AB64FA4612D2BB53AB56"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUWealth Plus (SGD)"
+    },
+    {
+        "tag": "p",
+        "content": "Grow your savings to meet your family\u2018s needs with a flexible plan that protects you from uncertainties."
+    },
+    {
+        "tag": "a",
+        "content": "All Savings Plans",
+        "url": "/products/wealth-accumulation/savings"
+    },
+    {
+        "tag": "a",
+        "content": "PRUActive LinkGuard\n\n                                                                An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events.",
+        "url": "/products/life-insurance/whole-life-insurance/pruactive-linkguard"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/life-protection/whole-life-insurance/pruactive-linkguard/palg-mb.webp?h=202&iar=0&w=360&hash=5E81743A01A6E605874C3D1837A1A99C"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUActive LinkGuard"
+    },
+    {
+        "tag": "p",
+        "content": "An affordable and flexible investment-linked whole life insurance plan that gives you double coverage against unexpected events."
+    },
+    {
+        "tag": "a",
+        "content": "PRUVantage Assure Series\n                                                                A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times.",
+        "url": "/products/wealth-accumulation/investments/pruvantage-assure-series"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/investments/pruvantage-assure-series/product-card-img.webp?h=202&iar=0&w=360&hash=00EDB212AEA7BF6A2EE0B05213DB9431"
+    },
+    {
+        "tag": "h4",
+        "content": "PRUVantage Assure Series"
+    },
+    {
+        "tag": "p",
+        "content": "A flexible investment-linked plan that protects and grows your wealth so that you can keep up with changing times."
+    },
+    {
+        "tag": "a",
+        "content": "PRULink InvestGrowth\n\n                                                                An investment-linked plan that provides all-round flexibility and lets you build wealth your way.",
+        "url": "/products/wealth-accumulation/investments/prulink-investgrowth"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/products/wealth-accumulation/investments/prulink-investgrowth/pi_prulinkig-360x202.webp?h=202&iar=0&w=360&hash=BF9499B23BF2F2AEBA81DF8963114A15"
+    },
+    {
+        "tag": "h4",
+        "content": "PRULink InvestGrowth"
+    },
+    {
+        "tag": "p",
+        "content": "An investment-linked plan that provides all-round flexibility and lets you build wealth your way."
+    },
+    {
+        "tag": "a",
+        "content": "All Investments Plans",
+        "url": "/products/wealth-accumulation/investments"
+    },
+    {
+        "tag": "h2",
+        "content": "Explore Topics"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                Saving and Investing Wisely",
+        "url": "/wedo/wedohub/do-wealth/saving-and-investing-wisely"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/saving-and-investing-wisely/saving-and-investing-wisely.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "Saving and Investing Wisely"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                4 smart ways to get your finances into tip-top shape",
+        "url": "/wedo/wedohub/do-wealth/4-smart-ways-to-get-your-finances-into-tip-top-shape"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/4-smart-ways-to-get-your-finances-into-tip-top-shape/4-smart-ways-to-get-your-finances-into-tip-top-shape.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "4 smart ways to get your finances into tip-top shape"
+    },
+    {
+        "tag": "a",
+        "content": "story\n                                    \n                            \n                                4 tips for young adults to start planning for their retirement",
+        "url": "/wedo/wedohub/do-wealth/4-tips-for-young-adults-to-start-planning-for-their-retirement"
+    },
+    {
+        "tag": "img",
+        "content": "/-/media/project/prudential/images/wedo/wedolife/do-wealth/peace-of-mind-in-your-golden-years-starts-now/peace-of-mind-in-your-golden-years-starts-now.jpg"
+    },
+    {
+        "tag": "h4",
+        "content": "4 tips for young adults to start planning for their retirement"
+    },
+    {
+        "tag": "h2",
+        "content": "Important Information"
+    },
+    {
+        "tag": "h5",
+        "content": "Footnotes"
+    },
+    {
+        "tag": "p",
+        "content": "*"
+    },
+    {
+        "tag": "p",
+        "content": "Please note that some products have non-guaranteed premiums which are subject to change. In the event of a change in premiums, advanced written notice will be provided."
+    },
+    {
+        "tag": "p",
+        "content": "1"
+    },
+    {
+        "tag": "p",
+        "content": "Get Peace of Mind for Your Healthcare Needs, Central Provident Fund Board"
+    },
+    {
+        "tag": "a",
+        "content": "Get Peace of Mind for Your Healthcare Needs",
+        "url": "https://www.cpf.gov.sg/member/healthcare-financing"
+    },
+    {
+        "tag": "p",
+        "content": "2"
+    },
+    {
+        "tag": "p",
+        "content": "Protection Needs for Different Life Stages: Young Working Adults Entering the Workforce, Life Insurance Association Singapore, 7 June 2019"
+    },
+    {
+        "tag": "a",
+        "content": "Protection Needs for Different Life Stages: Young Working Adults Entering the Workforce",
+        "url": "https://www.lia.org.sg/media/2193/young-working-adults.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "3"
+    },
+    {
+        "tag": "p",
+        "content": "Basic Financial Planning Guide for Fresh Entrant to the Workforce, Moneysense"
+    },
+    {
+        "tag": "a",
+        "content": "Basic Financial Planning Guide for Fresh Entrant to the Workforce",
+        "url": "https://www.moneysense.gov.sg/files/Basic%20Financial%20Planning%20Guide/english__fresh_entrant.pdf"
+    },
+    {
+        "tag": "p",
+        "content": "4"
+    },
+    {
+        "tag": "p",
+        "content": "How Much Do You Need to Start Investing?, The Business Times, 4 July 2024"
+    },
+    {
+        "tag": "a",
+        "content": "How Much Do You Need to Start Investing?",
+        "url": "https://www.businesstimes.com.sg/thrive/how-much-do-you-need-start-investing"
+    },
+    {
+        "tag": "p",
+        "content": "5"
+    },
+    {
+        "tag": "p",
+        "content": "Complete Life Tables for Singapore Resident Population 2022 \u2013 2023, Department of Statistics Singapore, 6 June 2024"
+    },
+    {
+        "tag": "a",
+        "content": "Complete Life Tables for Singapore Resident Population 2022 \u2013 2023",
+        "url": "https://www.singstat.gov.sg/-/media/files/publications/population/lifetable22-23.ashx"
+    },
+    {
+        "tag": "h2",
+        "content": "We\u2019re here to help"
+    },
+    {
+        "tag": "p",
+        "content": "* All fields are mandatory"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d)\u00a0 to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/Privacy-Notice",
+        "url": "/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    }
+]

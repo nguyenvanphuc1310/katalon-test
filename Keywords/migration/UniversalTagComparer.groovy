@@ -1,202 +1,422 @@
-package com.at.util
+package migration
 
 import com.kms.katalon.core.annotation.Keyword
 import com.kms.katalon.core.util.KeywordUtil
-import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
-import com.kms.katalon.core.model.FailureHandling
+import com.kms.katalon.core.webui.driver.DriverFactory
+
 import groovy.json.JsonSlurper
+
+import java.time.Duration
+
+import org.openqa.selenium.JavascriptExecutor
+import org.openqa.selenium.WebDriver
+
 import java.net.URL
+import java.net.URLDecoder
 
 public class UniversalTagComparer {
 
+    private List auditLines = []
+
+    /**
+     * Compare one Live / AEM pair. Returns a result map for StructureCheck / ReportBuilder:
+     * status, reasons, scores, and logLines (the same text as KeywordUtil.logInfo).
+     */
     @Keyword
-    public boolean compareLiveAndAem(String liveUrl, String aemUrl) {
-        boolean overallPassed = true
-        KeywordUtil.logInfo("==================================================")
-        KeywordUtil.logInfo("🚀 UNIVERSAL TAG & CONTENT AUDIT")
-        KeywordUtil.logInfo("Live (Baseline): " + liveUrl)
-        KeywordUtil.logInfo("AEM (Target)   : " + aemUrl)
-        KeywordUtil.logInfo("==================================================")
+    public Map compareLiveAndAem(String liveUrl, String aemUrl) {
+        auditLines = []
+        Map result = blankResult(liveUrl, aemUrl)
+        try {
+            if (!liveUrl?.trim() || !aemUrl?.trim()) {
+                return finalizeResult(result, false, [
+                    "Missing URL — live='${liveUrl}' aem='${aemUrl}'"
+                ])
+            }
 
-        // -------------------------------------------------------------
-        // DATA EXTRACTION
-        // -------------------------------------------------------------
-        WebUI.navigateToUrl(liveUrl)
-        WebUI.waitForPageLoad(10, FailureHandling.OPTIONAL)
-        WebUI.takeFullPageScreenshot()
-        List<Map> liveData = extractDomElements()
+            log("Opening Live and AEM (no tag snapshot on disk)")
+            WebActions.ensureOnPage(liveUrl, true)
+            WebActions.scrollFullPage()
+            List<Map> liveData = extractOnCurrentPage()
 
-        WebUI.navigateToUrl(aemUrl)
-        WebUI.waitForPageLoad(10, FailureHandling.OPTIONAL)
-        WebUI.delay(2)
-        WebUI.takeFullPageScreenshot()
-        List<Map> aemData = extractDomElements()
+            WebActions.ensureOnPage(aemUrl, true)
+            WebActions.scrollFullPage()
+            List<Map> aemData = extractOnCurrentPage()
 
-        // -------------------------------------------------------------
-        // STEP 1: COMPARE TAG COUNTS (STRUCTURAL PERCENTAGE)
-        // -------------------------------------------------------------
-        KeywordUtil.logInfo("--------------------------------------------------")
-        KeywordUtil.logInfo("📊 STEP 1: STRUCTURAL TAG COMPARISON")
-        KeywordUtil.logInfo("--------------------------------------------------")
-        
-        Map liveTagCounts = countTags(liveData)
-        Map aemTagCounts = countTags(aemData)
+            return compareExtracted(liveData, aemData, liveUrl, aemUrl)
+        } catch (Exception e) {
+            log("UniversalTagComparer error: " + e.getMessage())
+            return finalizeResult(result, false, ['Error comparing pages: ' + (e.getMessage() ?: 'unknown error')])
+        }
+    }
 
-        int totalLiveTags = liveData.size()
-        int totalAemTags = aemData.size()
-        KeywordUtil.logInfo("ℹ️ Total Tags Found -> Live: ${totalLiveTags} | AEM: ${totalAemTags}")
+    /**
+     * Compare tag lists already extracted (from ContentSnapshot .tags.json or a live DOM).
+     * No navigation. Image files are still downloaded over HTTP.
+     */
+    @Keyword
+    public Map compareExtracted(List liveData, List aemData, String liveUrl, String aemUrl) {
+        if (auditLines == null) auditLines = []
+        Map result = blankResult(liveUrl, aemUrl)
+        try {
+            liveData = liveData ?: []
+            aemData = aemData ?: []
+            result.liveTags = liveData.size()
+            result.aemTags = aemData.size()
 
-        Set<String> allTags = new TreeSet<>(liveTagCounts.keySet())
-        allTags.addAll(aemTagCounts.keySet())
+            log("==================================================")
+            log("UNIVERSAL TAG & IMAGE AUDIT")
+            log("Live (Baseline): " + liveUrl)
+            log("AEM (Target)   : " + aemUrl)
+            log("Comparing extracted tags — Live ${result.liveTags} | AEM ${result.aemTags}")
+            log("Text is compared by ContentCompare, not here.")
+            log("==================================================")
 
-        int totalDifferences = 0
-        boolean criticalTagMismatch = false
+            log("--------------------------------------------------")
+            log("STEP 1: STRUCTURAL TAG COMPARISON")
+            log("--------------------------------------------------")
 
-        allTags.each { tag ->
-            int liveCount = liveTagCounts.getOrDefault(tag, 0)
-            int aemCount = aemTagCounts.getOrDefault(tag, 0)
-            
-            if (liveCount == aemCount) {
-                KeywordUtil.logInfo("✅ <${tag.toUpperCase()}>: Perfect Match (${liveCount})")
-            } else if (liveCount > aemCount) {
-                int missing = liveCount - aemCount
-                totalDifferences += missing
-                KeywordUtil.logInfo("❌ <${tag.toUpperCase()}>: MISSING IN AEM (Live has ${liveCount}, AEM only has ${aemCount})")
-                if (["img", "h1", "h2", "p"].contains(tag)) criticalTagMismatch = true
+            Map liveTagCounts = countTags(liveData)
+            Map aemTagCounts = countTags(aemData)
+            result.liveTagCounts = liveTagCounts
+            result.aemTagCounts = aemTagCounts
+            log("Total Tags Found -> Live: ${result.liveTags} | AEM: ${result.aemTags}")
+
+            Set<String> allTags = new TreeSet<>(liveTagCounts.keySet())
+            allTags.addAll(aemTagCounts.keySet())
+
+            int totalDifferences = 0
+            boolean criticalTagMismatch = false
+            List tagReasons = []
+
+            allTags.each { tag ->
+                int liveCount = liveTagCounts.getOrDefault(tag, 0)
+                int aemCount = aemTagCounts.getOrDefault(tag, 0)
+
+                if (liveCount == aemCount) {
+                    log("<${tag.toUpperCase()}>: Perfect Match (${liveCount})")
+                } else if (liveCount > aemCount) {
+                    totalDifferences += (liveCount - aemCount)
+                    tagReasons << "Missing ${tag.toUpperCase()} on AEM — Sitecore has ${liveCount}, AEM has ${aemCount}"
+                    log("<${tag.toUpperCase()}>: MISSING IN AEM (Live has ${liveCount}, AEM only has ${aemCount})")
+                    if (["img", "h1", "h2", "p"].contains(tag)) criticalTagMismatch = true
+                } else {
+                    totalDifferences += (aemCount - liveCount)
+                    tagReasons << "Extra ${tag.toUpperCase()} on AEM — Sitecore has ${liveCount}, AEM has ${aemCount}"
+                    log("<${tag.toUpperCase()}>: EXTRA IN AEM (Live has ${liveCount}, AEM has ${aemCount})")
+                    if (["h1"].contains(tag)) criticalTagMismatch = true
+                }
+            }
+
+            result.structuralPercent = 100.0
+            if ((result.liveTags as int) > 0) {
+                result.structuralPercent = Math.max(0.0, 100.0 - ((double) totalDifferences / (result.liveTags as int) * 100))
+            }
+
+            log("Structural Match Score: " + String.format("%.2f", result.structuralPercent) + "%")
+
+            if ((result.structuralPercent as double) < 90.0) {
+                result.passed = false
+                result.reasons << ('Structural match only ' + pct(result.structuralPercent) + '%')
+            }
+            if (criticalTagMismatch) {
+                result.passed = false
+            }
+            if (!result.passed) {
+                result.reasons.addAll(tagReasons)
+                log("STEP 1 FAILED: Too many missing tags or critical structural mismatch.")
             } else {
-                int extra = aemCount - liveCount
-                totalDifferences += extra
-                KeywordUtil.logInfo("⚠️ <${tag.toUpperCase()}>: EXTRA IN AEM (Live has ${liveCount}, AEM has ${aemCount})")
-                if (["h1"].contains(tag)) criticalTagMismatch = true 
+                log("STEP 1 PASSED: Structure is sufficiently matched.")
+            }
+
+            log("--------------------------------------------------")
+            log("STEP 2: IMAGE COMPARISON")
+            log("--------------------------------------------------")
+
+            List<String> liveImages = liveData.findAll { it.tag == 'img' }.collect { formatAbsoluteUrl(it.content, liveUrl) }
+            List<String> aemImages = aemData.findAll { it.tag == 'img' }.collect { formatAbsoluteUrl(it.content, aemUrl) }
+            result.sitecoreImages = liveImages.size()
+            result.aemImages = aemImages.size()
+
+            if (liveImages.isEmpty() && aemImages.isEmpty()) {
+                log("IMAGE MATCH: No images found on either page.")
+            } else {
+                FileImageComparer imageComparer = new FileImageComparer()
+                Map pairing = pairImagesByName(liveImages, aemImages)
+                List paired = (List) pairing.pairs
+                result.imagesChecked = paired.size() + ((List) pairing.unpairedLive).size()
+                List imagePairs = []
+
+                paired.eachWithIndex { Map pair, int i ->
+                    log("Checking Image Pair ${i + 1} of ${paired.size()} (name match: ${pair.liveKey} ↔ ${pair.aemKey})...")
+                    if ((pair.live as String).contains('FAIL_SRCSET') || (pair.aem as String).contains('FAIL_SRCSET')) {
+                        String why = "Image ${i + 1} uses a broken dynamic SRC or SRCSET that cannot be downloaded."
+                        log("IMAGE FAIL: " + why)
+                        result.passed = false
+                        result.imagesFailed = (result.imagesFailed as int) + 1
+                        imagePairs << [
+                            pair    : i + 1,
+                            matched : false,
+                            how     : 'broken src/srcset',
+                            error   : why,
+                            liveUrl : pair.live,
+                            aemUrl  : pair.aem,
+                            liveW   : 0, liveH: 0, aemW: 0, aemH: 0,
+                            hashDist: -1,
+                        ]
+                        return
+                    }
+                    Map cmp = imageComparer.compareImages(pair.live as String, pair.aem as String)
+                    cmp.pair = i + 1
+                    imagePairs << cmp
+                    if (!(cmp.matched as boolean)) {
+                        log("IMAGE FAIL: Image ${i + 1} does not look the same (" + (cmp.how ?: cmp.error ?: 'visual check') + ").")
+                        result.passed = false
+                        result.imagesFailed = (result.imagesFailed as int) + 1
+                    }
+                }
+                ((List) pairing.unpairedLive).each { Object lu ->
+                    int n = imagePairs.size() + 1
+                    result.passed = false
+                    result.imagesFailed = (result.imagesFailed as int) + 1
+                    imagePairs << [
+                        pair    : n,
+                        matched : false,
+                        how     : 'Sitecore has this picture. No AEM file name matched it.',
+                        error   : 'unpaired',
+                        liveUrl : lu.toString(),
+                        aemUrl  : '',
+                        liveW   : 0, liveH: 0, aemW: 0, aemH: 0,
+                        hashDist: -1,
+                    ]
+                    log("IMAGE FAIL: Sitecore picture has no name match on AEM: " + lu)
+                }
+                result.imagePairs = imagePairs
+                int matched = imagePairs.count { it.matched as boolean } as int
+                int checked = imagePairs.size()
+                if (checked > 0) {
+                    if ((result.imagesFailed as int) > 0) {
+                        result.reasons << (matched + ' of ' + checked + ' pictures look the same. ' +
+                            result.imagesFailed + ' do not.')
+                    } else {
+                        result.reasons << (matched + ' of ' + checked + ' pictures look the same.')
+                    }
+                }
+                if (liveImages.size() != aemImages.size()) {
+                    result.reasons << ('Sitecore has ' + liveImages.size() + ' pictures, AEM has ' +
+                        aemImages.size() + '. Paired by file name.')
+                }
+            }
+
+            comparePdfLinks(liveData, aemData, liveUrl, aemUrl, result)
+
+            return finalizeResult(result, result.passed as boolean, (List) result.reasons)
+        } catch (Exception e) {
+            log("UniversalTagComparer error: " + e.getMessage())
+            return finalizeResult(result, false, ['Error comparing pages: ' + (e.getMessage() ?: 'unknown error')])
+        }
+    }
+
+    /**
+     * In-page links that point at PDF files. Pair by filename (Sitecore subset),
+     * then MD5-compare each pair with FileImageComparer.
+     */
+    private void comparePdfLinks(List liveData, List aemData, String liveUrl, String aemUrl, Map result) {
+        List livePdfs = []
+        liveData.findAll { it.tag == 'a' }.each { Map a ->
+            if (!AuditUtils.isPdfUrl(a.url as String)) return
+            livePdfs << [name: pdfFileName(a.url as String),
+                url: formatAbsoluteUrl(a.url as String, liveUrl),
+                text: (a.content ?: '').toString()]
+        }
+        List aemPdfs = []
+        aemData.findAll { it.tag == 'a' }.each { Map a ->
+            if (!AuditUtils.isPdfUrl(a.url as String)) return
+            aemPdfs << [name: pdfFileName(a.url as String),
+                url: formatAbsoluteUrl(a.url as String, aemUrl),
+                text: (a.content ?: '').toString()]
+        }
+
+        if (livePdfs.isEmpty() && aemPdfs.isEmpty()) return
+
+        log("--------------------------------------------------")
+        log("PDF LINKS ON THE PAGE")
+        log("Live: ${livePdfs.size()} | AEM: ${aemPdfs.size()}")
+
+        Map liveByName = [:]
+        livePdfs.each { liveByName.get(it.name, []) << it }
+        Map aemByName = [:]
+        aemPdfs.each { aemByName.get(it.name, []) << it }
+
+        FileImageComparer pdfComparer = new FileImageComparer()
+        Set names = new TreeSet<>(liveByName.keySet())
+        names.addAll(aemByName.keySet())
+
+        names.each { String name ->
+            List liveHits = (List) (liveByName[name] ?: [])
+            List aemHits = (List) (aemByName[name] ?: [])
+            int paired = Math.min(liveHits.size(), aemHits.size())
+            for (int i = 0; i < paired; i++) {
+                result.pdfsChecked = (result.pdfsChecked as int) + 1
+                log("PDF ${name} — Live: ${liveHits[i].url}")
+                log("PDF ${name} — AEM : ${aemHits[i].url}")
+                Map pdf = pdfComparer.comparePdfFiles(liveHits[i].url as String, aemHits[i].url as String)
+                (pdf.logLines as List)?.each { auditLines << (it as String) }
+                if (!(pdf.matched as boolean)) {
+                    result.passed = false
+                    result.pdfsFailed = (result.pdfsFailed as int) + 1
+                    result.reasons << ("PDF file differs: " + name)
+                }
+            }
+            if (liveHits.size() > aemHits.size()) {
+                result.passed = false
+                int missing = liveHits.size() - aemHits.size()
+                result.pdfsFailed = (result.pdfsFailed as int) + missing
+                result.reasons << ("PDF missing on AEM: " + name + " (" + missing + ")")
+                log("PDF missing on AEM: " + name)
+            } else if (aemHits.size() > liveHits.size()) {
+                log("Extra PDF on AEM (not a failure): " + name)
             }
         }
+    }
 
-        double structuralMatchPercent = 100.0
-        if (totalLiveTags > 0) {
-            structuralMatchPercent = Math.max(0.0, 100.0 - ((double) totalDifferences / totalLiveTags * 100))
-        }
+    private String pdfFileName(String href) {
+        String path = (href ?: '').split('\\?')[0].split('#')[0]
+        String name = path.contains('/') ? path.substring(path.lastIndexOf('/') + 1) : path
+        try { name = URLDecoder.decode(name, 'UTF-8') } catch (Exception ignore) { }
+        return name.toLowerCase()
+    }
 
-        KeywordUtil.logInfo("📈 Structural Match Score: " + String.format("%.2f", structuralMatchPercent) + "%")
+    /** JS extract of semantic tags. Caller must already be on the page. */
+    @Keyword
+    public List extractOnCurrentPage() {
+        return extractDomElements()
+    }
 
-        if (structuralMatchPercent < 90.0 || criticalTagMismatch) {
-            KeywordUtil.logInfo("❌ STEP 1 FAILED: Too many missing tags or critical structural mismatch.")
-            overallPassed = false
-        } else {
-            KeywordUtil.logInfo("✅ STEP 1 PASSED: Structure is sufficiently matched.")
-        }
+    private Map blankResult(String liveUrl, String aemUrl) {
+        return [
+            liveUrl           : liveUrl,
+            aemUrl            : aemUrl,
+            status            : 'PASS',
+            passed            : true,
+            reasons           : [],
+            structuralPercent : 0.0,
+            liveTags          : 0,
+            aemTags           : 0,
+            imagesChecked     : 0,
+            imagesFailed      : 0,
+            sitecoreImages    : 0,
+            aemImages         : 0,
+            imagePairs        : [],
+            liveTagCounts     : [:],
+            aemTagCounts      : [:],
+            pdfsChecked       : 0,
+            pdfsFailed        : 0,
+            error             : '',
+            logLines          : [],
+        ]
+    }
 
-        // -------------------------------------------------------------
-        // STEP 2: COMPARE CONTENT INSIDE THE TAGS (TEXT & IMAGES)
-        // -------------------------------------------------------------
-        KeywordUtil.logInfo("--------------------------------------------------")
-        KeywordUtil.logInfo("📄 STEP 2: CONTENT COMPARISON")
-        KeywordUtil.logInfo("--------------------------------------------------")
+    private void log(String msg) {
+        KeywordUtil.logInfo(msg)
+        auditLines << msg
+    }
 
-        if (liveData.isEmpty()) {
-            KeywordUtil.logInfo("❌ STEP 2 SKIPPED: Live page has no readable content (404 Error?)")
-            return false
-        }
-
-        // --- 2A: TEXT COMPARISON ---
-        String liveTextContent = liveData.findAll { it.tag != 'img' }.collect { it.content }.join(" ").replaceAll("\\s+", " ").trim()
-        String aemTextContent = aemData.findAll { it.tag != 'img' }.collect { it.content }.join(" ").replaceAll("\\s+", " ").trim()
-
-        double textSimilarity = calculateSimilarity(liveTextContent, aemTextContent)
-        KeywordUtil.logInfo("ℹ️ Text Content Similarity Score: " + String.format("%.2f", textSimilarity * 100) + "%")
-
-        if (textSimilarity >= 0.85) {
-            KeywordUtil.logInfo("✅ TEXT MATCH: Content survived the migration.")
-        } else {
-            KeywordUtil.logInfo("❌ TEXT MISMATCH: Content similarity is too low!")
-            overallPassed = false
-        }
-
-        // --- 2B: IMAGE COMPARISON ---
-        List<String> liveImages = liveData.findAll { it.tag == 'img' }.collect { formatAbsoluteUrl(it.content, liveUrl) }
-        List<String> aemImages = aemData.findAll { it.tag == 'img' }.collect { formatAbsoluteUrl(it.content, aemUrl) }
-
-        if (liveImages.isEmpty() && aemImages.isEmpty()) {
-            KeywordUtil.logInfo("✅ IMAGE MATCH: No images found on either page.")
-        } else {
-            FileImageComparer imageComparer = new FileImageComparer()
-            int minImages = Math.min(liveImages.size(), aemImages.size())
-            
-            for (int i = 0; i < minImages; i++) {
-                KeywordUtil.logInfo("🔎 Checking Image Pair ${i + 1} of ${minImages}...")
-                
-                // 🔥 NEW: Check if the Javascript flagged a broken srcset
-                if (liveImages[i].contains("FAIL_SRCSET") || aemImages[i].contains("FAIL_SRCSET")) {
-                    KeywordUtil.logInfo("❌ IMAGE FAIL: Image ${i + 1} uses a broken dynamic SRC or SRCSET that cannot be downloaded.")
-                    overallPassed = false
-                    continue
-                }
-
-                boolean imgMatch = imageComparer.downloadAndCompare(liveImages[i], aemImages[i])
-                if (!imgMatch) {
-                    KeywordUtil.logInfo("⚠️ IMAGE WARNING: Image ${i + 1} differs visually.")
-                }
+    private Map finalizeResult(Map result, boolean passed, List reasons) {
+        result.passed = passed
+        result.status = passed ? 'PASS' : 'FAIL'
+        result.logLines = new ArrayList(auditLines)
+        List notes = (reasons ?: []).collect { it?.toString()?.trim() }.findAll { it }.unique()
+        if (passed && notes.isEmpty()) {
+            if ((result.structuralPercent as double) >= 99.995) {
+                notes << 'Tag counts matched perfectly.'
+            } else {
+                notes << ('Tag counts matched (structure ' + pct(result.structuralPercent) + '%).')
             }
         }
+        result.reasons = notes
+        return result
+    }
 
-        return overallPassed
+    private String pct(Object n) {
+        return String.format('%.0f', (n == null ? 0.0 : n as double))
     }
 
     // --- JAVASCRIPT DOM EXTRACTOR ---
+    /**
+     * Product Deck (pili/piib) has few tags. That is not why Chrome freezes.
+     * The old script used innerText + getComputedStyle + offsetWidth on every
+     * node. Those force layout. On a deck that never reaches document.complete
+     * (Evergage/GTM), the script hangs and the 8s Katalon timeout looks like a
+     * freeze. Lifestage pages have the opposite problem: innerText skips
+     * display:none / aria-hidden tab panels, so Investments never appears.
+     *
+     * One script for both: textContent (hidden tabs + no layout), no style
+     * compute, keep imgs inside tab panels even when hidden.
+     */
     private List<Map> extractDomElements() {
-        String jsScript = """
+        String jsScript = '''
             var container = document.querySelector('main') || document.querySelector('[role="main"]') || document.body;
-            var selectors = 'h1, h2, h3, h4, h5, h6, p, li, a, img';
-            var elements = container.querySelectorAll(selectors);
-            
+            var nodes = container.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, a, img');
             var result = [];
-            
-            elements.forEach(function(el) {
-                var tagName = el.tagName.toLowerCase();
-                
-                if (tagName === 'img') {
-                    var src = el.getAttribute('src');
-                    var srcset = el.getAttribute('srcset');
-                    var validUrl = "";
-                    
-                    // 🔥 NEW: Smart SRC vs SRCSET handling
-                    if (src && !src.includes('%7B') && !src.includes('{')) {
-                        // Regular valid src
-                        validUrl = src;
-                    } else if (srcset) {
-                        // Extract the very first valid URL from the srcset string
-                        validUrl = srcset.split(',')[0].trim().split(' ')[0];
-                    } else {
-                        // No valid src and no srcset found
-                        validUrl = "FAIL_SRCSET";
+            function txt(el) {
+                return (el.textContent || '').replace(/\\s+/g, ' ').trim();
+            }
+            function imgUrl(el) {
+                var src = el.getAttribute('src') || '';
+                var srcset = el.getAttribute('srcset') || '';
+                if (src && src.indexOf('%7B') < 0 && src.indexOf('{') < 0) return src.trim();
+                if (srcset) return srcset.split(',')[0].trim().split(' ')[0];
+                return 'FAIL_SRCSET';
+            }
+            for (var i = 0; i < nodes.length; i++) {
+                var el = nodes[i];
+                var tag = el.tagName.toLowerCase();
+                if (tag === 'img') {
+                    var inPanel = el.closest && el.closest('[role=tabpanel], [data-lifestage-tab], [data-content], .card-list-tabs__content');
+                    if (!inPanel && el.closest && el.closest('[aria-hidden=true]')) continue;
+                    var validUrl = imgUrl(el);
+                    if (validUrl === 'FAIL_SRCSET') {
+                        result.push({ tag: 'img', content: 'FAIL_SRCSET' });
+                        continue;
                     }
-
-                    if (validUrl && el.offsetWidth > 30) { 
-                        result.push({ tag: 'img', content: validUrl.trim() });
+                    var low = validUrl.toLowerCase();
+                    var attrW = parseInt(el.getAttribute('width') || '0', 10) || 0;
+                    var attrH = parseInt(el.getAttribute('height') || '0', 10) || 0;
+                    var size = Math.max(attrW, attrH);
+                    if (inPanel || low.indexOf('.svg') !== -1 || size === 0 || size >= 16) {
+                        result.push({ tag: 'img', content: validUrl });
                     }
-                } 
-                else if (tagName === 'a') {
-                    var text = el.innerText.trim();
-                    var href = el.getAttribute('href');
-                    if (text.length > 0 || href) {
-                        result.push({ tag: 'a', content: text, url: href ? href.trim() : '' });
-                    }
-                } 
-                else {
-                    var text = el.innerText.trim();
-                    if (text.length > 0) {
-                        result.push({ tag: tagName, content: text });
-                    }
+                    continue;
                 }
-            });
-            
+                if (tag === 'a') {
+                    var text = txt(el);
+                    var href = el.getAttribute('href');
+                    if (text || href) result.push({ tag: 'a', content: text, url: href ? href.trim() : '' });
+                    continue;
+                }
+                var t = txt(el);
+                if (t) result.push({ tag: tag, content: t });
+            }
             return JSON.stringify(result);
-        """
+        '''
+        WebDriver driver = DriverFactory.getWebDriver()
+        def timeouts = driver.manage().timeouts()
+        Duration previous = null
         try {
-            String jsonStr = WebUI.executeJavaScript(jsScript, null)
-            return new JsonSlurper().parseText(jsonStr) as List<Map>
+            try { previous = timeouts.getScriptTimeout() } catch (Exception ignore) { }
+            timeouts.scriptTimeout(Duration.ofSeconds(20))
+            Object raw = ((JavascriptExecutor) driver).executeScript(jsScript)
+            String jsonStr = (raw instanceof String) ? (String) raw : groovy.json.JsonOutput.toJson(raw)
+            List parsed = new JsonSlurper().parseText(jsonStr) as List<Map>
+            log('Extracted ' + parsed.size() + ' semantic tag(s) (textContent, no layout measure)')
+            return parsed
         } catch (Exception e) {
-            KeywordUtil.logInfo("⚠️ Error extracting elements: " + e.getMessage())
+            log("Error extracting elements: " + e.getMessage())
             return []
+        } finally {
+            if (previous != null) {
+                try { timeouts.scriptTimeout(previous) } catch (Exception ignore) { }
+            }
         }
     }
 
@@ -208,6 +428,58 @@ public class UniversalTagComparer {
             counts[tag] = counts.getOrDefault(tag, 0) + 1
         }
         return counts
+    }
+
+    /**
+     * Pair Sitecore images to AEM by file-name tokens, not list index.
+     * Index pairing shifted every later photo after one extra SVG / hidden-tab image.
+     */
+    private Map pairImagesByName(List liveImages, List aemImages) {
+        List live = (liveImages ?: []) as List
+        List aem = (aemImages ?: []) as List
+        Set used = [] as Set
+        List pairs = []
+        List unpairedLive = []
+        live.each { Object lu ->
+            String liveUrl = lu?.toString() ?: ''
+            String liveKey = imageKey(liveUrl)
+            int best = -1
+            int bestScore = 0
+            aem.eachWithIndex { Object au, int i ->
+                if (used.contains(i)) return
+                int s = imageKeyScore(liveKey, imageKey(au?.toString() ?: ''))
+                if (s > bestScore) { bestScore = s; best = i }
+            }
+            if (best >= 0 && bestScore >= 1) {
+                used << best
+                pairs << [live: liveUrl, aem: aem[best].toString(),
+                    liveKey: liveKey, aemKey: imageKey(aem[best].toString()), score: bestScore]
+            } else {
+                unpairedLive << liveUrl
+            }
+        }
+        return [pairs: pairs, unpairedLive: unpairedLive]
+    }
+
+    private String imageKey(String url) {
+        String path = (url ?: '').split('\\?')[0].split('#')[0]
+        String name = path.contains('/') ? path.substring(path.lastIndexOf('/') + 1) : path
+        try { name = URLDecoder.decode(name, 'UTF-8') } catch (Exception ignore) { }
+        name = name.toLowerCase().replaceAll('\\.[a-z0-9]+$', '')
+        name = name.replaceAll('[-_]+', ' ')
+        name = name.replaceAll('\\b\\d+x\\d+\\b', ' ')
+        name = name.replaceAll('\\b(mb|desktop|mobile|wid|qlt|img|image|icon|line|light|users)\\b', ' ')
+        return name.replaceAll('\\s+', ' ').trim()
+    }
+
+    private int imageKeyScore(String a, String b) {
+        if (!a || !b) return 0
+        if (a == b) return 10
+        if (a.contains(b) || b.contains(a)) return 6
+        Set ta = (a.split(' ') as List).findAll { it.length() > 2 } as Set
+        Set tb = (b.split(' ') as List).findAll { it.length() > 2 } as Set
+        if (!ta || !tb) return 0
+        return ta.intersect(tb).size()
     }
 
     // --- HELPER: FORMAT ABSOLUTE URLS FOR DOWNLOAD ---
@@ -225,27 +497,4 @@ public class UniversalTagComparer {
         }
     }
 
-    // --- HELPER: LEVENSHTEIN TEXT SIMILARITY ---
-    private double calculateSimilarity(String s1, String s2) {
-        if (s1.equals(s2)) return 1.0
-        int longerLength = Math.max(s1.length(), s2.length())
-        if (longerLength == 0) return 1.0
-        
-        int[] costs = new int[s2.length() + 1]
-        for (int i = 0; i <= s1.length(); i++) {
-            int lastValue = i
-            for (int j = 0; j <= s2.length(); j++) {
-                if (i == 0) costs[j] = j
-                else if (j > 0) {
-                    int newValue = costs[j - 1]
-                    if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                        newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1
-                    costs[j - 1] = lastValue
-                    lastValue = newValue
-                }
-            }
-            if (i > 0) costs[s2.length()] = lastValue
-        }
-        return (longerLength - costs[s2.length()]) / (double) longerLength
-    }
 }

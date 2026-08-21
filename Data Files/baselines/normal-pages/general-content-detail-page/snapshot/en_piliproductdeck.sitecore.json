@@ -1,26 +1,26 @@
 {
     "url": "https://www.prudential.com.sg/piliproductdeck",
     "side": "sitecore",
-    "capturedAt": "2026-08-19T16:42:25",
-    "profile": "prudential-sitecore@5",
+    "capturedAt": "2026-08-21T08:25:03",
+    "profile": "prudential-sitecore@6",
     "contentRoot": "main[role=main]",
     "tabGroups": [
         
     ],
     "skipped": {
+        "noise": 0,
         "formLabel": 0,
         "hidden": 0,
-        "noText": 24,
-        "noise": 0,
-        "scanned": 29,
-        "tooShort": 0
+        "tooShort": 0,
+        "noText": 1,
+        "scanned": 4
     },
     "rootText": "PRUIndex Lifetime Income Product Deck One Agency English SCB English UOB English",
     "states": [
         {
-            "group": "",
             "id": "acc:0",
             "kind": "accordion",
+            "group": "",
             "label": "Product Deck",
             "parent": "",
             "text": "One Agency English SCB English UOB English"
@@ -31,54 +31,34 @@
     ],
     "items": [
         {
-            "full": "PRU",
-            "href": "",
-            "kind": "para",
+            "text": "PRUIndex Lifetime Income",
+            "full": "PRUIndex Lifetime Income",
+            "kind": "heading",
             "path": "PRUIndex Lifetime Income",
-            "reach": "visible",
-            "stateId": "",
             "tab": "",
-            "text": "PRU"
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
         },
         {
-            "full": "Index Lifetime Income",
-            "href": "",
-            "kind": "para",
-            "path": "PRUIndex Lifetime Income",
-            "reach": "visible",
-            "stateId": "",
-            "tab": "",
-            "text": "Index Lifetime Income"
-        },
-        {
+            "text": "Product Deck",
             "full": "Product Deck",
-            "href": "",
             "kind": "heading",
             "path": "",
-            "reach": "visible",
+            "tab": "",
             "stateId": "",
-            "tab": "",
-            "text": "Product Deck"
-        },
-        {
-            "full": "One Agency",
             "href": "",
-            "kind": "para",
-            "path": "section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "One Agency"
+            "reach": "visible"
         },
         {
+            "text": "English",
             "full": "English",
-            "href": "/-/media/project/prudential/pdf/piliproductdeck/pruindex_lifetime_income_oa.pdf",
             "kind": "cta",
             "path": "section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
             "tab": "",
-            "text": "English"
+            "stateId": "acc:0",
+            "href": "/-/media/project/prudential/pdf/piliproductdeck/pruindex_lifetime_income_oa.pdf",
+            "reach": "visible"
         }
     ]
 }

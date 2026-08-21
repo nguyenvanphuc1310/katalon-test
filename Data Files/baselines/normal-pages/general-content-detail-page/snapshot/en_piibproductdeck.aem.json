@@ -1,137 +1,104 @@
 {
     "url": "https://aem-uat.prudential.com.sg/en/piibproductdeck",
     "side": "aem",
-    "capturedAt": "2026-08-19T13:50:15",
-    "profile": "prudential-aem@4",
+    "capturedAt": "2026-08-21T09:09:28",
+    "profile": "prudential-aem@5",
     "contentRoot": "main.main__container",
     "tabGroups": [
         
     ],
     "skipped": {
+        "noise": 0,
         "formLabel": 0,
         "hidden": 0,
-        "noise": 1,
-        "tooShort": 0
+        "tooShort": 0,
+        "noText": 0,
+        "scanned": 7
     },
     "rootText": "PRUIndex Income Boost Product Deck One AgencyEnglishopens in a new tabSCBEnglishopens in a new tabUOBEnglishopens in a new tab",
     "states": [
         {
-            "group": "",
             "id": "acc:0",
             "kind": "accordion",
+            "group": "",
             "label": "Product Deck",
             "parent": "",
             "text": "One AgencyEnglishopens in a new tabSCBEnglishopens in a new tabUOBEnglishopens in a new tab"
         }
     ],
+    "formOptions": [
+        
+    ],
     "items": [
         {
+            "text": "PRUIndex Income Boost",
+            "full": "PRUIndex Income Boost",
+            "kind": "heading",
+            "path": "PRUIndex Income Boost",
+            "tab": "",
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
+        },
+        {
+            "text": "Index Income Boost",
             "full": "PRUIndex Income Boost",
             "kind": "para",
             "path": "PRUIndex Income Boost",
-            "reach": "visible",
-            "stateId": "",
             "tab": "",
-            "text": "Index Income Boost"
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
         },
         {
-            "full": "PRU",
-            "kind": "para",
-            "path": "PRUIndex Income Boost",
-            "reach": "visible",
-            "stateId": "",
+            "text": "Product Deck",
+            "full": "Product Deck",
+            "kind": "heading",
+            "path": "PRUIndex Income Boost > Product Deck",
             "tab": "",
-            "text": "PRU"
+            "stateId": "",
+            "href": "",
+            "reach": "visible"
         },
         {
+            "text": "Product Deck",
             "full": "Product Deck",
             "kind": "cta",
             "path": "PRUIndex Income Boost > Product Deck",
-            "reach": "visible",
+            "tab": "",
             "stateId": "",
-            "tab": "",
-            "text": "Product Deck"
+            "href": "",
+            "reach": "visible"
         },
         {
-            "full": "One Agency",
-            "kind": "para",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "One Agency"
-        },
-        {
+            "text": "English",
             "full": "Englishopens in a new tab",
             "kind": "cta",
             "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
             "tab": "",
-            "text": "English"
+            "stateId": "acc:0",
+            "href": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-OA.pdf",
+            "reach": "visible"
         },
         {
-            "full": "opens in a new tab",
-            "kind": "cta",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "accordion",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "opens in a new tab"
-        },
-        {
-            "full": "SCB",
-            "kind": "para",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "SCB"
-        },
-        {
+            "text": "English",
             "full": "Englishopens in a new tab",
             "kind": "cta",
             "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
             "tab": "",
-            "text": "English"
+            "stateId": "acc:0",
+            "href": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-SCB.pdf",
+            "reach": "visible"
         },
         {
-            "full": "opens in a new tab",
-            "kind": "cta",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "accordion",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "opens in a new tab"
-        },
-        {
-            "full": "UOB",
-            "kind": "para",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
-            "tab": "",
-            "text": "UOB"
-        },
-        {
+            "text": "English",
             "full": "Englishopens in a new tab",
             "kind": "cta",
             "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "visible",
-            "stateId": "acc:0",
             "tab": "",
-            "text": "English"
-        },
-        {
-            "full": "opens in a new tab",
-            "kind": "cta",
-            "path": "PRUIndex Income Boost > Product Deck > section:Product Deck",
-            "reach": "accordion",
             "stateId": "acc:0",
-            "tab": "",
-            "text": "opens in a new tab"
+            "href": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/pdf/piibproductdeck/PRUIndex-Income-Boost-Launch-Pitch-Deck-UOB.pdf",
+            "reach": "visible"
         }
     ]
 }

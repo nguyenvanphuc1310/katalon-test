@@ -16,6 +16,13 @@ import migration.StateMatch
  * sentence at different points), but scoped by the tab an item lives in, so text
  * that moved between tabs is reported once as WRONG_TAB instead of twice as a
  * MISSING + ONLY_ON_AEM pair.
+ *
+ * Nested tabs are not a special page. Learn more about your needs
+ * (Protection / Wealth / For your dependants) owns a different Find The Right
+ * Plan on every lifestage page — that is just two tab levels. Each panel's
+ * captured text is a claim, not only the DOM-split items: older snapshots
+ * stored almost no items, so a product that swapped under Wealth > Savings
+ * never became a row if we only walked items.
  */
 public class ContentCompare {
 
@@ -234,7 +241,12 @@ public class ContentCompare {
 			// counted as found in the right tab, and WRONG_TAB stopped firing for them entirely.
 			Closure present = { Map blob ->
 				boolean inScope = foundIn(n, blob.blob, blob.noSpace)
-				return shortText ? (inScope && foundAsWholeItem(n, aemItems)) : inScope
+				if (!shortText) return inScope
+				// Headings and tab labels are compared as words. AEM tabs write #name into the
+				// address bar; that is display, not missing text. Other short labels still need
+				// a whole item so "Find out more" inside a sentence does not count.
+				if (item.kind == 'heading' || isStateLabel(n, sc.states, aem.states)) return inScope
+				return inScope && foundAsWholeItem(n, aemItems)
 			}
 
 			if (stateBlob != null && present(stateBlob)) return   // right text, right state
@@ -285,9 +297,18 @@ public class ContentCompare {
 						note: 'new page says: ' + textOf(best)]
 				}
 			} else {
-				findings << [verdict: 'MISSING_ON_AEM', path: item.path, kind: item.kind, text: textOf(item), note: '']
+				// Short CTAs are counted on the page blob (hero + each strip). One item-level
+				// miss would screenshot the wrong Contact us. Defer to reportExtraCtaCopies.
+				if (item.kind == 'cta' && shortText) return
+				String near = nearContext(scAll.blob, n, 0)
+				findings << [verdict: 'MISSING_ON_AEM', path: item.path, kind: item.kind,
+					text: textOf(item),
+					note: near ? ('at the content: “' + near + '”') : '']
 			}
 		}
+
+		reportExtraCtaCopies(scItems, scAll, aemAll, findings)
+		reportPairedStateClaims(sc, states, aemBlobByScState, aemStateLabel, aemAll, scItems, aemItems, findings)
 
 		// AEM-only text is informational (subset rule); rewordings are not repeated here
 		aemItems.each { it ->
@@ -304,13 +325,25 @@ public class ContentCompare {
 		// — true, but useless, and it said nothing about which panel had no counterpart.
 		((List) states.scOnly).each { s ->
 			Map st = (Map) s
-			findings << [verdict: 'STATE_ONLY_ON_LIVE', path: st.group ?: '', kind: st.kind,
-				text: st.label, note: 'no matching ' + st.kind + ' on the new page — its content was compared against the whole page instead']
+			if (labelTextOnPage((String) st.label, aemAll)) {
+				findings << [verdict: 'UI_DISPLAY', path: st.group ?: '', kind: st.kind,
+					text: st.label,
+					note: 'Sitecore shows this as a ' + st.kind + '. AEM has the same words in the page text (often a tab that adds #… to the URL). Compared as text only.']
+			} else {
+				findings << [verdict: 'STATE_ONLY_ON_LIVE', path: st.group ?: '', kind: st.kind,
+					text: st.label, note: 'no matching ' + st.kind + ' on the new page — its content was compared against the whole page instead']
+			}
 		}
 		((List) states.aemOnly).each { s ->
 			Map st = (Map) s
-			findings << [verdict: 'STATE_ONLY_ON_NEW', path: st.group ?: '', kind: st.kind,
-				text: st.label, note: st.kind + ' exists only on the new page']
+			if (labelTextOnPage((String) st.label, scAll)) {
+				findings << [verdict: 'UI_DISPLAY', path: st.group ?: '', kind: st.kind,
+					text: st.label,
+					note: 'AEM shows this as a ' + st.kind + ' (the URL gets #… when you click). Sitecore has the same words as page content. Compared as text only.']
+			} else {
+				findings << [verdict: 'STATE_ONLY_ON_NEW', path: st.group ?: '', kind: st.kind,
+					text: st.label, note: st.kind + ' exists only on the new page']
+			}
 		}
 
 		// --- links: same wording, different destination.
@@ -338,7 +371,7 @@ public class ContentCompare {
 			}
 		}
 
-		// --- dropdown contents, which never render and so were never compared
+		// Dropdown choices collected only from visible <select>s at capture time.
 		Set scOpts = ((sc.formOptions ?: []) as List).collect { norm(it.toString()) }.findAll { it } as Set
 		Set aemOpts = ((aem.formOptions ?: []) as List).collect { norm(it.toString()) }.findAll { it } as Set
 		(scOpts - aemOpts).each { Object o ->
@@ -368,14 +401,216 @@ public class ContentCompare {
 	}
 
 	/**
-	 * Comparable form of a link target: the path, minus the AEM `/en` language prefix and minus any
-	 * trailing slash, so only a real change of destination shows up. In-page anchors and
-	 * javascript: handlers carry no destination to compare and are ignored.
+	 * Comparable form of a link target: the path only.
+	 * AEM tabs append #tabname to the same page — that is UI, not a different destination.
+	 * Hash-only hrefs and javascript: handlers are ignored.
 	 */
 	static String linkKey(String href) {
 		String h = (href ?: '').trim()
-		if (!h || h.startsWith('#') || h.startsWith('javascript:')) return ''
+		if (!h || h.startsWith('javascript:')) return ''
+		int hash = h.indexOf('#')
+		if (hash >= 0) h = h.substring(0, hash).trim()
+		if (!h) return ''
 		return h.replaceFirst('^/en(/|$)', '/').replaceAll('/+$', '').toLowerCase()
+	}
+
+	/** True when this text is the label of a tab or accordion on either snapshot. */
+	static boolean isStateLabel(String n, Object scStates, Object aemStates) {
+		if (!n) return false
+		List all = []
+		all.addAll((scStates ?: []) as List)
+		all.addAll((aemStates ?: []) as List)
+		return all.any { Object o ->
+			norm(((Map) o).label?.toString()) == n
+		}
+	}
+
+	/**
+	 * Each paired Sitecore tab panel is a claim, not only the items collected
+	 * inside it.
+	 *
+	 * Learn more about your needs (Protection / Wealth / For your dependants)
+	 * swaps the whole Find The Right Plan. Those product names already live in
+	 * `states[].text` on every lifestage snapshot. They never became items when
+	 * Sitecore wrote <h4><b>PRU</b>Wealth Plus</h4> — ownText was empty — so
+	 * walking items alone reported a clean page. Sentences from the Sitecore
+	 * panel are checked against the paired AEM panel (same scope as items).
+	 * After recapture the same sentences also become items and are skipped
+	 * here so a row is not doubled.
+	 */
+	private static void reportPairedStateClaims(Map sc, Map states, Map aemBlobByScState,
+			Map aemStateLabel, Map aemAll, List scItems, List aemItems, List findings) {
+		Set already = [] as Set
+		scItems.each { already << norm(textOf(it)) }
+		findings.each { already << norm((((Map) it).text ?: '').toString()) }
+
+		List scStates = (sc.states ?: []) as List
+		((List) states.pairs).each { Object p ->
+			Map pair = (Map) p
+			Map scSt = (Map) pair.sc
+			if (scSt.kind != 'tab') return
+			Map stateBlob = (Map) aemBlobByScState[scSt.id.toString()]
+			if (stateBlob == null) return
+			String aemLabel = (aemStateLabel[scSt.id.toString()] ?: scSt.label)?.toString()
+			String path = stateChain(scStates, scSt)
+			List aemSentences = sentencesOf((String) ((Map) pair.aem).text)
+
+			sentencesOf((String) scSt.text).each { Object raw ->
+				String sentence = (String) raw
+				String n = norm(sentence)
+				if (!n || n.length() < MIN_LEN) return
+				if (n == norm((String) scSt.label)) return
+				if (coveredByCollectedText(n, already)) return
+
+				if (foundIn(n, stateBlob.blob, stateBlob.noSpace)) {
+					already << n
+					return
+				}
+				already << n
+				// Reword against THIS panel first. "A lifelong" vs "Lifelong" on the
+				// same product card is not WRONG_TAB just because the other need-tab
+				// still has the old wording.
+				Set st = tokens(n)
+				String bestText = ''
+				double bestScore = 0d
+				aemItems.each { Object o ->
+					double s = overlap(st, tokens(norm(textOf(o))))
+					if (s > bestScore) { bestScore = s; bestText = textOf(o) }
+				}
+				aemSentences.each { Object o ->
+					String cand = (String) o
+					double s = overlap(st, tokens(norm(cand)))
+					if (s > bestScore) { bestScore = s; bestText = cand }
+				}
+				if (bestText && bestScore >= REWORD_OVERLAP) {
+					Set want = numbers(n), got = numbers(norm(bestText))
+					if (want != got) {
+						findings << [verdict: 'NUMBER_CHANGED', path: path, kind: 'para', text: sentence,
+							note: "figures changed: ${(want - got) ?: '(none)'} -> ${(got - want) ?: '(none)'}; new page says: " + bestText]
+					} else {
+						findings << [verdict: 'TEXT_CHANGED', path: path, kind: 'para', text: sentence,
+							note: 'new page says: ' + bestText]
+					}
+					return
+				}
+				if (foundIn(n, aemAll.blob, aemAll.noSpace)) {
+					findings << [verdict: 'WRONG_TAB', path: path, kind: 'para', text: sentence,
+						note: "should sit under \"${aemLabel}\" on the new page, but was found under another section"]
+					return
+				}
+				String near = nearContext(norm((String) scSt.text), n, 0)
+				findings << [verdict: 'MISSING_ON_AEM', path: path, kind: 'para', text: sentence,
+					note: near ? ('at the content: “' + near + '”') : ('under "' + path + '"')]
+			}
+		}
+	}
+
+	/** Ancestor tab labels, outermost first: "Wealth > Savings". */
+	private static String stateChain(List states, Map st) {
+		Map byId = [:]
+		states.each { Object o ->
+			Map s = (Map) o
+			if (s.id != null) byId[s.id.toString()] = s
+		}
+		List labs = []
+		Map cur = st
+		Set seen = [] as Set
+		while (cur != null && !seen.contains(cur.id.toString())) {
+			seen << cur.id.toString()
+			String lab = (cur.label ?: '').toString().trim()
+			if (lab) labs.add(0, lab)
+			String p = (cur.parent ?: '').toString()
+			cur = p ? (Map) byId[p] : null
+		}
+		return labs.join(' > ')
+	}
+
+	static List sentencesOf(String raw) {
+		if (!raw) return []
+		String t = raw.replaceAll('\\s+', ' ').trim()
+		List out = []
+		int start = 0
+		for (int i = 0; i < t.length(); i++) {
+			char c = t.charAt(i)
+			if ((c == ('.' as char) || c == ('?' as char) || c == ('!' as char))
+					&& i + 1 < t.length() && t.charAt(i + 1) == (' ' as char)) {
+				String s = t.substring(start, i).trim()
+				if (s.length() >= MIN_LEN) out << s
+				start = i + 2
+			}
+		}
+		String tail = t.substring(start).trim()
+		if (tail.length() >= MIN_LEN) out << tail
+		return out
+	}
+
+	private static boolean coveredByCollectedText(String n, Set already) {
+		if (already.contains(n)) return true
+		return already.any { Object o ->
+			String it = (o ?: '').toString()
+			if (!it || it.length() < MIN_LEN) return false
+			if (it == n || it.contains(n)) return true
+			return n.startsWith(it) && it.length() >= 12
+		}
+	}
+
+	/**
+	 * Sitecore repeats the same short CTA (Contact us) beside each "Connect with a
+	 * Financial Representative…" strip. Presence on AEM's hero must not hide those extras.
+	 */
+	private static void reportExtraCtaCopies(List scItems, Map scAll, Map aemAll, List findings) {
+		Set labels = [] as Set
+		scItems.each { Object o ->
+			if (((Map) o).kind != 'cta') return
+			String n = norm(textOf(o))
+			if (n && n.length() < SHORT_TEXT_LEN) labels << n
+		}
+		labels.each { Object lab ->
+			String n = (String) lab
+			int want = countIn(n, scAll.blob)
+			int got = countIn(n, aemAll.blob)
+			if (got >= want) return
+			String shown = n
+			scItems.each { Object o ->
+				if (((Map) o).kind == 'cta' && norm(textOf(o)) == n) shown = textOf(o)
+			}
+			// Same neighbour sentence on every tab → one finding, not three identical rows.
+			Map byNear = [:]
+			for (int i = got; i < want; i++) {
+				String near = nearContext(scAll.blob, n, i) ?: ''
+				byNear[near] = ((byNear[near] ?: 0) as int) + 1
+			}
+			byNear.each { Object nearObj, Object cntObj ->
+				String near = nearObj?.toString() ?: ''
+				int cnt = cntObj as int
+				String note = near ? ('at the content: “' + near + '”') : ''
+				if (cnt > 1 && note) note += ' (' + cnt + ' times on Sitecore)'
+				findings << [verdict: 'MISSING_ON_AEM', path: near, kind: 'cta',
+					text: shown, note: note]
+			}
+		}
+	}
+
+	/** Sentence immediately before the Nth occurrence of n in the page blob. */
+	static String nearContext(String blob, String n, int occurrenceIndex) {
+		if (!blob || !n) return ''
+		int i = -n.length()
+		for (int k = 0; k <= occurrenceIndex; k++) {
+			i = blob.indexOf(n, i + n.length())
+			if (i < 0) return ''
+		}
+		String pre = blob.substring(Math.max(0, i - 160), i).replaceAll('\\s+', ' ').trim()
+		int cut = Math.max(pre.lastIndexOf('. '), pre.lastIndexOf('? '))
+		if (cut >= 0 && cut < pre.length() - 6) pre = pre.substring(cut + 2).trim()
+		if (pre.length() > 110) pre = pre.substring(pre.length() - 110).replaceFirst('^\\S{1,12}\\s', '')
+		return pre.replaceAll(/^[“"'\s]+|[”"'\s]+$/, '')
+	}
+
+	/** Tab/section title appears as words on the other page (ignore #hash and widget type). */
+	static boolean labelTextOnPage(String label, Map page) {
+		String n = norm(label)
+		if (!n || n.length() < 3) return false
+		return foundIn(n, (page.blob ?: '').toString(), (page.noSpace ?: '').toString())
 	}
 
 

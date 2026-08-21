@@ -1,0 +1,334 @@
+[
+    {
+        "tag": "li",
+        "content": "Home"
+    },
+    {
+        "tag": "a",
+        "content": "Home",
+        "url": "/en/"
+    },
+    {
+        "tag": "li",
+        "content": "Lifestage"
+    },
+    {
+        "tag": "h1",
+        "content": "Insurance For Life\u2019s Journeys"
+    },
+    {
+        "tag": "p",
+        "content": "Insurance For Life\u2019s Journeys"
+    },
+    {
+        "tag": "p",
+        "content": "From health insurance and wealth accumulation for young adults to protection and financial plans for retirees, we\u2019re here to provide tailored solutions to protect you and your loved ones at every phase of life."
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/lifestage/life-stage-listing.jpg"
+    },
+    {
+        "tag": "p",
+        "content": "Where are you in life?"
+    },
+    {
+        "tag": "a",
+        "content": "New to workforce You could be around 19 - 29 years old Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future. opens in a new tab",
+        "url": "/en/lifestage/new-to-workforce/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-48?qlt=85&wid=320&ts=1784734479978&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "New to workforce"
+    },
+    {
+        "tag": "p",
+        "content": "New to workforce"
+    },
+    {
+        "tag": "h6",
+        "content": "You could be around 19 - 29 years old"
+    },
+    {
+        "tag": "p",
+        "content": "Young, healthy, and freshly graduated, you\u2019re searching for proper coverage that you can build on for your future."
+    },
+    {
+        "tag": "a",
+        "content": "Settling down You could be around 24 - 35 years old Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building.",
+        "url": "/en/lifestage/settling-down/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-45?qlt=85&wid=320&ts=1784734486969&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Settling down"
+    },
+    {
+        "tag": "p",
+        "content": "Settling down"
+    },
+    {
+        "tag": "h6",
+        "content": "You could be around 24 - 35 years old"
+    },
+    {
+        "tag": "p",
+        "content": "Whether you\u2019re settling into a long-term relationship, starting a family or anything in between, you\u2019re looking to protect the life you\u2019re building."
+    },
+    {
+        "tag": "a",
+        "content": "Young family You could be around 24 - 35 years old You have young children to care for and want peace of mind to ensure your family\u2019s well-being.",
+        "url": "/en/lifestage/young-family/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-47?qlt=85&wid=320&ts=1784734494482&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Young family"
+    },
+    {
+        "tag": "p",
+        "content": "Young family"
+    },
+    {
+        "tag": "h6",
+        "content": "You could be around 24 - 35 years old"
+    },
+    {
+        "tag": "p",
+        "content": "You have young children to care for and want peace of mind to ensure your family\u2019s well-being."
+    },
+    {
+        "tag": "a",
+        "content": "Caring for elderly parents or children You could be around 35 - 59 years old Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both. opens in a new tab",
+        "url": "/en/lifestage/caring-for-elderly-parents-or-children/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-46?qlt=85&wid=320&ts=1784734513625&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Caring for elderly parents or children"
+    },
+    {
+        "tag": "p",
+        "content": "Caring for elderly parents or children"
+    },
+    {
+        "tag": "h6",
+        "content": "You could be around 35 - 59 years old"
+    },
+    {
+        "tag": "p",
+        "content": "Getting the right protection to secure against the unexpected is your priority while supporting your children, parents, or even both."
+    },
+    {
+        "tag": "a",
+        "content": "Retirement You could be any age! Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met. opens in a new tab",
+        "url": "/en/lifestage/retirement/"
+    },
+    {
+        "tag": "img",
+        "content": "https://s7ap1.scene7.com/is/image/prudentialholdingsstage/card-49?qlt=85&wid=320&ts=1784734530829&$FullWidth$&dpr=off"
+    },
+    {
+        "tag": "h2",
+        "content": "Retirement"
+    },
+    {
+        "tag": "p",
+        "content": "Retirement"
+    },
+    {
+        "tag": "h6",
+        "content": "You could be any age!"
+    },
+    {
+        "tag": "p",
+        "content": "Retiring soon or simply planning ahead, you\u2019re looking for coverage to ensure your needs during your golden years are met."
+    },
+    {
+        "tag": "h2",
+        "content": "Useful tools and guides"
+    },
+    {
+        "tag": "p",
+        "content": "Check out these handy guides and tools."
+    },
+    {
+        "tag": "a",
+        "content": "Needs Analysis Calculator opens in a new tab",
+        "url": "https://www.prudential.com.sg/Services/PruDiscovery/About"
+    },
+    {
+        "tag": "p",
+        "content": "Needs Analysis Calculator"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/images/products/products-icon/Calculator_Tool.svg"
+    },
+    {
+        "tag": "a",
+        "content": "FAQs",
+        "url": "/en/claims-and-services/support/faqs/"
+    },
+    {
+        "tag": "p",
+        "content": "FAQs"
+    },
+    {
+        "tag": "img",
+        "content": "/content/dam/prudential-aem-lbu/pacs/en/project/prudential/images/products/products-icon/FAQ.svg"
+    },
+    {
+        "tag": "h2",
+        "content": "We\u2019re here to help"
+    },
+    {
+        "tag": "p",
+        "content": "Start your financial planning journey with us today. Our Financial Representative will be in touch to assist you."
+    },
+    {
+        "tag": "p",
+        "content": "* All fields are mandatory"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "https://www.prudential.com.sg/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Declaration"
+    },
+    {
+        "tag": "p",
+        "content": "By submitting this form, I confirm that I have read, understood and given my consent"
+    },
+    {
+        "tag": "a",
+        "content": "consent",
+        "url": "#"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/en/Privacy-Notice",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    },
+    {
+        "tag": "h2",
+        "content": "Or give us a call: 1800 333 0333"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that if I am an European Union (\u201cEU\u201d) resident individual (i.e. my residential address is based in any of the EU countries), I can refer to Prudential Privacy Notice (which is available at https://www.prudential.com.sg/privacy-notice) for more information on the rights available to me under the GDPR."
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/privacy-notice",
+        "url": "https://www.prudential.com.sg/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "Declaration"
+    },
+    {
+        "tag": "p",
+        "content": "By submitting this form, I confirm that I have read, understood and given my consent"
+    },
+    {
+        "tag": "a",
+        "content": "consent",
+        "url": "#"
+    },
+    {
+        "tag": "p",
+        "content": "Consent"
+    },
+    {
+        "tag": "p",
+        "content": "For Prudential Assurance Company Singapore and its related corporations, respective representatives, agents, third party service providers, contractors and/or appointed distribution/business partners (collectively referred to as \u201cPrudential\u201d) to collect, use, disclose and/or process my/our personal data for the purpose of contacting me about products and services distributed, marketed and/or introduced by Prudential through marketing activities via all channels including but not limited to SMS, Social Media, In-app Push Notification, Phone Call etc and perusing my contact details which Prudential has in its records from time to time and in accordance to the Prudential\u2019s Privacy Notice."
+    },
+    {
+        "tag": "a",
+        "content": "Privacy Notice.",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "I hereby expressly understand and agree that my given consent(s) herein do not supersede or replace any other consents and/or previous consents which I may have previously given to Prudential in respect of my personal data and is without prejudice to any legal rights available to Prudential to collect, use or disclose my personal data."
+    },
+    {
+        "tag": "p",
+        "content": "For existing customers:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I can refer to Prudential's Privacy Notice, which is available at https://www.prudential.com.sg/en/Privacy-Notice for more information on contacting Prudential for feedback, access, correction and withdrawal on the use of my personal data"
+    },
+    {
+        "tag": "a",
+        "content": "https://www.prudential.com.sg/en/Privacy-Notice",
+        "url": "https://www.prudential.com.sg/en/Privacy-Notice"
+    },
+    {
+        "tag": "p",
+        "content": "For individuals who are new to Prudential:"
+    },
+    {
+        "tag": "p",
+        "content": "I understand that I will receive a notification through email or SMS on how I can provide feedback and request to access, correct and withdraw the use of my personal data."
+    },
+    {
+        "tag": "h2",
+        "content": "Or give us a call: 1800 333 0333"
+    }
+]
