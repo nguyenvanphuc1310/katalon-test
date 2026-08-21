@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-015 — Desktop/mobile chart layout. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_015</name>
+   <tag>prudiscovery,DS-015</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>d0b87e96-06f3-4ca3-9e9e-9609bd8cb7e1</testCaseGuid>
+</TestCaseEntity>

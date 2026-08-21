@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Retired. Use Test Cases/migration-aem/templates/custom-pages/prudiscovery/TC_DS_002 … TC_DS_015 in TS_PRUDiscovery_Compare.</description>
+   <name>TC_PRUDiscovery_Scenarios</name>
+   <tag>template,custom,prudiscovery</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b7c4e1a0-9d2f-4c8a-8e11-3f6a0d5b1c22</testCaseGuid>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Excel Test ID (DS-001)</description>
+      <id>a1000001-0001-4000-8000-000000000001</id>
+      <masked>false</masked>
+      <name>testId</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Scenario name</description>
+      <id>a1000001-0001-4000-8000-000000000002</id>
+      <masked>false</masked>
+      <name>scenario</name>
+   </variable>
+   <variable>
+      <defaultValue>'0'</defaultValue>
+      <description>Number of children — 0 skips Education</description>
+      <id>a1000001-0001-4000-8000-000000000003</id>
+      <masked>false</masked>
+      <name>childrenCount</name>
+   </variable>
+   <variable>
+      <defaultValue>'false'</defaultValue>
+      <description>Whether retirement data is seeded</description>
+      <id>a1000001-0001-4000-8000-000000000004</id>
+      <masked>false</masked>
+      <name>hasRetirementData</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Expected route tokens, e.g. savings&gt;education&gt;retirement&gt;protection&gt;report</description>
+      <id>a1000001-0001-4000-8000-000000000005</id>
+      <masked>false</masked>
+      <name>expectedRoute</name>
+   </variable>
+   <variable>
+      <defaultValue>'routing'</defaultValue>
+      <description>routing | report-tabs | report-fallback</description>
+      <id>a1000001-0001-4000-8000-000000000006</id>
+      <masked>false</masked>
+      <name>kind</name>
+   </variable>
+   <variable>
+      <defaultValue>''</defaultValue>
+      <description>Excel notes</description>
+      <id>a1000001-0001-4000-8000-000000000007</id>
+      <masked>false</masked>
+      <name>notes</name>
+   </variable>
+</TestCaseEntity>

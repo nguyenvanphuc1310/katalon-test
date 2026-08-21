@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-011 — Stale child state. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_011</name>
+   <tag>prudiscovery,DS-011</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>0db7d3b0-91b3-4879-835e-c167e26a5273</testCaseGuid>
+</TestCaseEntity>

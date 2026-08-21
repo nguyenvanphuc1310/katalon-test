@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-009 — Unavailable Education report tab. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_009</name>
+   <tag>prudiscovery,DS-009</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4a9d59b4-8166-454a-9b80-82458727b7d7</testCaseGuid>
+</TestCaseEntity>

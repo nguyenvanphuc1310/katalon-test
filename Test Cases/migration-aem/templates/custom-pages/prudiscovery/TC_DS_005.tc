@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-005 — Zero value state. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_005</name>
+   <tag>prudiscovery,DS-005</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>21606b49-8d14-43d7-99e4-167b8d0192fb</testCaseGuid>
+</TestCaseEntity>

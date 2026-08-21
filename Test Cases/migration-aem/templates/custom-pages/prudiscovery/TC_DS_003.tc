@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-003 — No children/with retirement. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_003</name>
+   <tag>prudiscovery,DS-003</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>79482de7-7305-4c7c-b667-aaf41686d3b2</testCaseGuid>
+</TestCaseEntity>

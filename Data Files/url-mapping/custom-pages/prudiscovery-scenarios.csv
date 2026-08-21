@@ -1,0 +1,16 @@
+testId,scenario,preconditions,expected
+DS-001,Full data journey,"Seed valid savings, child education, retirement, protection state",Savings → Education → Retirement → Protection → Report
+DS-002,No children/no retirement,children=0; no retirement data,Savings → Protection → Report
+DS-003,No children/with retirement,children=0; valid retirement data,Savings → Retirement → Protection → Report
+DS-004,Empty state,Clear Discovery storage,Next stays blocked on empty required steps
+DS-005,Zero value state,Seed explicit monetary $0 values,$0 is treated as present; Next is not stuck invalid
+DS-006,Partial/full state,Seed partial then complete required values,Partial blocks Next; complete enables Next
+DS-007,Married goals,marital_status=married; children=0,Wedding and Children goals are disabled
+DS-008,Report tab deep links,All sections available,Each report hash opens the matching tab
+DS-009,Unavailable Education report tab,children=0,#education falls back and the hash normalizes
+DS-010,Malformed other-goals storage,Set yif_other_goals_json to invalid JSON,Report opens with no crash
+DS-011,Stale child state,children=0 with stale tb_chld=true,Education is excluded when child count is zero
+DS-012,DAM methodology link,Configured learnMorePath points at DAM PDF,Learn More is a DAM PDF not .html
+DS-013,No editor shell leakage,Rendered page outside author editor,No editor.html in public navigation links
+DS-014,Positive and zero goal data,Positive and zero-value goal fixtures,Chart/legend values render
+DS-015,Desktop/mobile chart layout,"1920, 1366, 768, 390 viewports",No overflow or clipped chart/legend

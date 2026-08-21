@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-006 — Partial/full state. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_006</name>
+   <tag>prudiscovery,DS-006</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>5b188254-036f-4aa0-b374-05d3f764a369</testCaseGuid>
+</TestCaseEntity>

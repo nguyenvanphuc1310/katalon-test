@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Build the PRUDiscovery HTML report (AEM UAT evidence only).</description>
+   <name>TC_Build_PRUDiscovery_Report</name>
+   <tag>report,prudiscovery</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>c8d5f2b1-0e30-4d9b-9f22-4a7b1e6c2d33</testCaseGuid>
+</TestCaseEntity>

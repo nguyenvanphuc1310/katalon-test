@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-010 — Malformed other-goals storage. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_010</name>
+   <tag>prudiscovery,DS-010</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>053d8967-a9eb-4b91-92cb-189127c6986d</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-007 — Married goals. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_007</name>
+   <tag>prudiscovery,DS-007</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>d4b16fd9-6bf0-4e2d-9cc5-004db09a6296</testCaseGuid>
+</TestCaseEntity>

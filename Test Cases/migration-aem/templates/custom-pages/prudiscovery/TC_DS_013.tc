@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-013 — No editor shell leakage. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_013</name>
+   <tag>prudiscovery,DS-013</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b122daef-8f5e-4e86-872c-c356ebdc3f33</testCaseGuid>
+</TestCaseEntity>

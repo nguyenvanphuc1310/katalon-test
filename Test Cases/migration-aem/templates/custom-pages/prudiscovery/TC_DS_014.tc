@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-014 — Positive and zero goal data. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_014</name>
+   <tag>prudiscovery,DS-014</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>6c1ff1db-a437-4332-8635-7511f2f7e898</testCaseGuid>
+</TestCaseEntity>

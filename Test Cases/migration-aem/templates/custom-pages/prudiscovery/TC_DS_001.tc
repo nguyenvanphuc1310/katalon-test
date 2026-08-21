@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-001 — Full data journey. AEM UAT only. Screenshot fixture: children plus retirement, all Discovery steps.</description>
+   <name>TC_DS_001</name>
+   <tag>prudiscovery,DS-001</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>31de558a-d38e-4e9a-b05b-f013eeead9e0</testCaseGuid>
+</TestCaseEntity>

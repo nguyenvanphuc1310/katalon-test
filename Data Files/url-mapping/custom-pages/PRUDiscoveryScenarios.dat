@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>PRUDiscovery scenarios from the 2026-08-15 PACS AEM Regression Test Pack.</description>
+   <name>PRUDiscoveryScenarios</name>
+   <tag>custom,prudiscovery</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>d9e6a3c2-1f41-4e0c-a033-5b8c2f7d3e44</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/custom-pages/prudiscovery-scenarios.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

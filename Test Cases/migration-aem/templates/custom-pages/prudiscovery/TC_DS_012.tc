@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>PRUDiscovery DS-012 — DAM methodology link. AEM UAT only. Preconditions drive the typed values.</description>
+   <name>TC_DS_012</name>
+   <tag>prudiscovery,DS-012</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>efd4749c-d314-44df-85e6-9831f109d3ab</testCaseGuid>
+</TestCaseEntity>
