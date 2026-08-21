@@ -1,8 +1,8 @@
 {
-  "_comment": "Per-host content-extraction profile. Selectors verified against the live DOM of both sites on 2026-08-18. Adding a CMS means adding a block here, not changing code. Profile ids are bumped whenever the SHAPE of a snapshot changes, so a snapshot taken before the change is identifiable: @5 adds a link destination per CTA item and a formOptions list. See docs/plans/2026-08-19-image-content-check-hardening.md",
+  "_comment": "Per-host content-extraction profile. Selectors verified against the live DOM of both sites on 2026-08-18. Adding a CMS means adding a block here, not changing code. Profile ids are bumped whenever the SHAPE of a snapshot changes, so a snapshot taken before the change is identifiable: @5 adds a link destination per CTA item and a formOptions list; @6 splits the aria-hidden drop out of skipped.noise into skipped.ariaHidden, which is what SCOPE_ASYMMETRY adds to skipped.hidden. A snapshot below @6 must not be compared against one at @6 — the counters do not mean the same thing. 2026-08-19-image-content-check-hardening.md @7 records a link destination on ANY item that sits inside an anchor, not only those classified cta — a heading wrapped in a link is classified heading by the kind cascade, so 326 real destinations across the 8 captured pages were being dropped; and it adds landedUrl and canonical, so a capture can refuse a redirect, a soft-404 or an unpublished /content/ author page instead of snapshotting it as ordinary content. expandTrigger was removed the same day together with the WebActions keywords that never read it. 2026-08-19-image-content-check-hardening.md @8 brings Sitecore's lifestages popups into scope by naming their trigger in accordionTrigger, so their content becomes reachable items instead of being dropped as hidden.2026-08-19-image-content-check-hardening.md @9 makes `tabs` a LIST of widget configs (a bare object is still accepted) and adds mode 'fragment', which brings Sitecore's outer lifestage tab widget into scope. See docs/plans/2026-08-19-image-content-check-hardening.md",
   "profiles": {
     "www.prudential.com.sg": {
-      "id": "prudential-sitecore@5",
+      "id": "prudential-sitecore@9",
       "contentRoot": [
         "main[role=main]",
         "main",
@@ -20,33 +20,39 @@
         ".screen-reader-text",
         ".km-diff-badge"
       ],
-      "tabs": {
-        "mode": "attr",
-        "group": "ul.tabs-primary",
-        "tab": "li > a[data-tab]",
-        "tabAttr": "data-tab",
-        "container": ".card-list-tabs",
-        "panel": ".card-list-tabs__content",
-        "panelAttr": "data-content"
-      },
+      "tabs": [
+        {
+          "_note": "The product widget: ul.tabs-primary with data-tab -> data-content.",
+          "mode": "attr",
+          "group": "ul.tabs-primary",
+          "tab": "li > a[data-tab]",
+          "tabAttr": "data-tab",
+          "container": ".card-list-tabs",
+          "panelAttr": "data-content"
+        },
+        {
+          "_note": "The outer lifestage widget: Protection | Wealth | For your dependants. Its tabs are anchors whose href fragment names the panel by the VALUE of data-lifestage-tab, not by id — no element on these pages carries id=\"wealth\" — so mode 'fragment' is needed. Its inactive panels are plain display:none divs holding ~186 text-bearing elements a page; without this block they were unreachable and dropped as hidden, which is most of what SCOPE_ASYMMETRY reported, and AEM's three matching tabs had nothing to pair with. Must be kind 'tab', not an accordionTrigger entry: StateMatch refuses to pair a tab with an accordion.",
+          "mode": "fragment",
+          "group": ".lifestage-tabs-nav",
+          "tab": "a[href^='#']",
+          "panelAttr": "data-lifestage-tab"
+        }
+      ],
       "accordionTrigger": [
         "[data-toggle=collapse]",
         "[aria-expanded]",
         "details > summary",
         ".accordion-toggle",
         ".accordion__header",
-        ".accordion-comp-header"
+        ".accordion-comp-header",
+        ".lifestage-popup-btn"
       ],
-      "expandTrigger": [
-        "ul.tabs-primary li a",
-        "[data-toggle=collapse]",
-        "details:not([open]) > summary",
-        ".accordion-comp-header"
-      ],
-      "accordionPanel": ".accordion-comp-content-area"
+      "accordionPanel": ".accordion-comp-content-area",
+      "_note": "accordionTrigger includes .lifestage-popup-btn, which is not an accordion but uses the same mechanism — a trigger that reveals a region — and the existing href-'#' branch resolves it because the trigger carries href=\"#popup-N\" and <div id=\"popup-N\" class=\"lifestages-popup\" style=\"display:none\"> sits inside the content root. Verified 2026-08-21: 9 triggers, 9 panels, all inside main[role=main], and all 9 panels' text present on AEM. Those nine popups account for only ~14 of the hidden elements, though — the bulk was the lifestage tab widget, which is why `tabs` is now a list; see the note on its second entry."
     },
     "aem-uat.prudential.com.sg": {
-      "id": "prudential-aem@5",
+      "id": "prudential-aem@9",
+      "_note": "No accordionPanel entry, deliberately: all 7 accordion triggers on every captured AEM page carry data-cmp-hook-accordion=button AND aria-controls pointing at their cmp-accordion__panel, so the aria-controls branch resolves every one of them. Sitecore needs the explicit selector because its accordion carries no aria-controls, no data-target and no href. Verified 2026-08-21 over the 8 general-content-detail-page snapshots. Two noise entries were added the same day, both measured on those snapshots: .cmp-link__screen-reader-only is the class AEM actually uses for the copy read as 'opens in a new tab' (.cmp-link-accessibility, added earlier, matches one node per page and is kept only in case other components use it) and it alone produced 155 of the 235 ONLY_ON_AEM rows in the 2026-08-20 report; .cmp-breadcrumb is inside main.main__container on AEM and outside main[role=main] on Sitecore, so it is content on one side and chrome on the other.",
       "contentRoot": [
         "main.main__container",
         "main",
@@ -62,6 +68,8 @@
         ".sr-only",
         ".visually-hidden",
         ".cmp-link-accessibility",
+        ".cmp-link__screen-reader-only",
+        ".cmp-breadcrumb",
         ".km-diff-badge"
       ],
       "tabs": {
@@ -73,15 +81,11 @@
         "[aria-expanded]",
         "[data-cmp-hook-accordion=button]",
         "details > summary"
-      ],
-      "expandTrigger": [
-        "[aria-expanded=false]",
-        "details:not([open]) > summary"
       ]
     }
   },
   "default": {
-    "id": "generic@4",
+    "id": "generic@9",
     "contentRoot": [
       "main[role=main]",
       "main",
@@ -107,10 +111,6 @@
     "accordionTrigger": [
       "[aria-expanded]",
       "details > summary"
-    ],
-    "expandTrigger": [
-      "[aria-expanded=false]",
-      "details:not([open]) > summary"
     ]
   }
 }

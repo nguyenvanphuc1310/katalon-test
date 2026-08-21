@@ -16,9 +16,8 @@ Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`.
 |---|---|---|
 | `MISSING_ON_AEM` | Live-page text found nowhere on the new page | 🔴 fails the page |
 | `NUMBER_CHANGED` | Same sentence, different figures — a sum, premium, age, percentage or policy term | 🔴 fails the page |
-| `LINK_CHANGED` | Same button wording, different destination | 🔴 fails the page |
 | `WRONG_TAB` | The text exists but under a different tab | 🔴 fails the page |
-| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page's findings rest on a weaker measurement | 🟡 warning |
+| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page cannot be judged | 🔴 fails the page |
 | `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🔴 fails the page |
 | `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🔴 fails the page |
 | `STATE_ONLY_ON_LIVE` | A tab/section of the live page with no counterpart | 🟡 warning |
@@ -37,7 +36,7 @@ spelled-out label:
 | Level | Label printed | Colour | Verdicts |
 |---|---|---|---|
 | error | `FAILS THE PAGE` | red `--fail` `#B3261E` on `--fail-soft` | the six in `ContentCompare.ERRORS` |
-| warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the four warnings above |
+| warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the two warnings above |
 | info | `FOR INFORMATION` | neutral `--muted` on `--sunk` | `ONLY_ON_AEM` |
 
 The label is not decoration: this report is printed, forwarded and read on strange screens, and
@@ -68,17 +67,51 @@ text with something glued to one end (AEM appends accessibility copy with no sep
 the live page's `English` is `Englishopens in a new tab` there), or an item short enough
 that the label is still its subject.
 
+The glued-on form is bounded by `AFFIX_EXTRA_MAX = 40` **characters**, not by a ratio. The
+ratio used for the containment case cannot express "plus a short fixed suffix": `English` is 7
+characters and AEM's addition is 18, so a 3× bound rejects it and reports `English` as missing
+content on every product-deck page. What the bound has to exclude is a paragraph of arbitrary
+length answering a short CTA because it happens to begin with the same words, and a character
+count does that.
+
 ### `COUNT_MISMATCH` fails the page — read `SCOPE_ASYMMETRY` first
 
 A text the live page states twice and the new page states once has lost an appearance, and
 that is content the migration did not carry, so it fails (changed 2026-08-20; it warned
 before).
 
-The caveat that made it a warning has not gone away: the two sides do not yet read comparable
-content — on the lifestage pages the live side discards 83–160 hidden elements where the new
-side discards exactly 8, which is what `SCOPE_ASYMMETRY` says out loud. A page can therefore
-fail on a count difference the extraction produced rather than the migration. When a page
-carries both verdicts, read the `SCOPE_ASYMMETRY` block before acting on its counts.
+The caveat that made it a warning has not gone away, but **the evidence for it turned out to be
+partly the measurement's own fault.** The reading everyone quoted — "the live side discards
+83–160 hidden elements where the new side discards exactly 8" — was `SCOPE_ASYMMETRY` comparing
+two counters that do not mean the same thing on the two CMSes: Sitecore marks nothing
+`aria-hidden` so its invisible content sat in `skipped.hidden`, AEM marks every inactive panel
+so its invisible content sat in `skipped.noise`. Since 2026-08-21 both sides are measured as
+`hidden + ariaHidden` (`ContentCompare.hiddenCount()`), and **how much asymmetry is left is not
+yet known** — the snapshots on disk predate the split. Until they are re-captured at `@7`, a
+page can still fail on a count difference the extraction produced rather than the migration.
+When a page carries both verdicts, read the `SCOPE_ASYMMETRY` block before acting on its counts.
+
+### `SCOPE_ASYMMETRY` fails the page, and it measures three things
+
+It is an error (changed 2026-08-21; it warned before), and it is a different **kind** of error
+from the six above it. Those say the migration lost content. This one says the check could not
+tell — so every other verdict on the page is measuring the extraction rather than the page. It
+fails because the alternative is worse: as a warning it let `en_lifestage` read `PASS` while its
+new side had collected **one element out of the whole document**. A page that cannot be judged
+must not report that it passed.
+
+The old rule read one counter, `skipped.hidden`. That is what missed `en_lifestage`: its hidden
+counts were 12 against 0, well inside the threshold, while its item counts were 30 against 1.
+Three measures are compared now, and any one of them firing is enough:
+
+| Measure | Catches |
+|---|---|
+| `hidden + ariaHidden` | one side dropping invisible content the other kept |
+| items collected | an item walk that died early, or a content root that resolved to the wrong element |
+| `skipped.scanned` | a content root far smaller on one side than the other (compared only when both snapshots carry the counter) |
+
+Each uses the same bar — `hi >= SCOPE_ASYMMETRY_MIN (20)` **and** `hi >= lo * 3 + 10` — so a 3×
+gap between 2 and 8 says nothing and does not fire.
 
 Only text of at least 40 characters is counted at all: counting substrings, `Protection`
 occurred 24 times on the live page and 23 on the new one — true, unactionable, and it would
@@ -106,7 +139,6 @@ pages comparable — and it is also what makes the score unable to replace the v
 |---|---:|---|
 | `MISSING_ON_AEM` | 1.0 | exactly one item of the live page is gone |
 | `NUMBER_CHANGED` | 1.0 | |
-| `LINK_CHANGED` | 1.0 | |
 | `WRONG_TAB` | 0.5 | reachable, just not where the visitor looked |
 | `STATE_ONLY_ON_LIVE` | 0.5 | its contents are already counted item by item; 1.0 would charge the same loss twice |
 | `COUNT_MISMATCH` | 0.3 | the measurement is weaker than the count suggests |

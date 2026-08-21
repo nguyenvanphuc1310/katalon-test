@@ -61,6 +61,7 @@ a crawl that read the page wrongly still writes a file and still passes. Open on
 just wrote:
 
 ```
+"profile": "prudential-aem@7",   # BOTH sides must read @7 — see below
 "items": 168,                    # 150-400 for a General Content Detail page; under 10 = broken
 "skipped": { "scanned": 1070 },  # 1,000-1,600; under 50 = the item walk died early
 "rootText": "…"                  # 10,000+ characters
@@ -70,6 +71,39 @@ If those are wrong, do **not** run recompare: it will overwrite the previous res
 comparison against nothing, and pages will flip to PASS because there was nothing left to miss.
 Re-run the capture instead.
 
+Since 2026-08-21 two gates enforce most of this for you, so the check above is a confirmation
+rather than the only line of defence:
+
+- **The capture refuses to overwrite a good snapshot with a worse one.** Fewer than 10 items, no
+  `rootText`, or more than half the items / `rootText` / `scanned` lost against the file already
+  on disk stops the run before the write. The previous snapshot stays; the rejected capture is
+  written beside it as `<slug>.<side>.rejected.json` — open that one to see what the crawl read.
+- **The comparison refuses an unjudgeable pair**, recording `FAIL` with
+  `0 live items compared: the two snapshots cannot be compared — …` instead of numbers. Mixed
+  `@N` shapes, a missing `rootText`, captures over 7 days apart, or an item walk that died early.
+
+A run that stops is doing its job. The failure these replace was silent and green.
+
+**Check the profile id on both sides, and check that they agree.** This is not bookkeeping — the
+id says what shape the file has, and comparing two shapes silently produces findings that mean
+nothing. It has already happened twice:
+
+- `@4` items carry **no `href`**, so a `@4` AEM file against a `@5` Sitecore file makes
+  `LINK_CHANGED` unable to fire at all — and its absence from the report then reads as "no link
+  changed", which is not what was measured.
+- `@9` makes `tabs` a list of widget configs and adds `mode: 'fragment', bringing Sitecore's outer
+  lifestage tab widget into scope; `@8` added its popups.
+- `@7` records a link destination on **any** item inside an anchor, not only those classified
+  `cta` — a linked heading was classified `heading` and lost its destination, which is 326 real
+  links across the 8 captured pages. It also adds `landedUrl` and `canonical`, so a capture can
+  refuse a redirect, a soft-404 or an unpublished `/content/…` author page.
+- `@6` splits the `aria-hidden` drop into `skipped.ariaHidden`, which `SCOPE_ASYMMETRY` adds to
+  `skipped.hidden`. A pre-`@6` file reads that counter as 0, so the asymmetry figure is wrong in
+  whichever direction that side happens to hide its content.
+
+Both `skipped` maps should also carry the **same keys**. A missing `scanned` or `noText` on one
+side means that file came out of an older collector, whatever its id says.
+
 ## Reading the results
 
 | Where | What |
@@ -78,7 +112,7 @@ Re-run the capture instead.
 | `Reports/parity-report/templates/<group>-<pagetype>.html` | one file per template — that template's own pass rate, then its pages with how many test cases each one passed and failed |
 | `Reports/parity-report/pages/<slug>.html` | one file per compared page — the test cases run against that URL |
 | `Reports/parity-report/pages/<slug>__<check>.html` | one file per test case of a page — the counts, then every failing text |
-| `Reports/ContentAudit/<slug>/findings.csv` | every finding, with its score weight |
+| `Reports/ContentAudit/<slug>/findings.csv` | every finding — `verdict,kind,"path","text","note"`. The score `weight` column is specified but not written by the current code |
 
 The pass rate is a **page** rate: how many pages carry a PASS verdict, out of the pages that
 were actually judged. Pages with no result on disk and pages recorded `NOT_RUN` are in neither

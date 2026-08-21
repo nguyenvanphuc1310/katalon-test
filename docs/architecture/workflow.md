@@ -117,7 +117,7 @@ The gate itself is one list, and it does not care how large the page is:
 
 ```groovy
 // Keywords/migration/checks/ContentCompare.groovy
-static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED']
+static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED']
 ```
 
 > **Note on the score.** [../reference/verdicts-and-score.md](../reference/verdicts-and-score.md)

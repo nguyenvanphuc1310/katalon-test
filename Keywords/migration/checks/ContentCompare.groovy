@@ -94,12 +94,35 @@ public class ContentCompare {
 	 */
 	static final int SHORT_LABEL_SLACK = 3
 
+	/**
+	 * Most characters an item may carry BEYOND the label it is answering, when it merely begins or
+	 * ends with it rather than equalling it.
+	 *
+	 * 40 is set from the thing this allowance exists for and nothing else: AEM's glued
+	 * accessibility copy, "opens in a new tab", is 18 characters, and the longest such suffix
+	 * measured on the captured pages is under 30. 40 leaves headroom for a variant without letting
+	 * a sentence qualify — the hole being closed is a paragraph of arbitrary length answering a
+	 * short CTA because it happens to start with the same words.
+	 */
+	static final int AFFIX_EXTRA_MAX = 40
+
 	static boolean foundAsWholeItem(String n, List items) {
 		if (!n) return true
 		return items.any { Object it ->
 			String o = norm(textOf(it))
-			if (o == n || o.startsWith(n) || o.endsWith(n)) return true
-			if (o.length() > n.length() * SHORT_LABEL_SLACK) return false
+			// Exact equality needs no bound — the item IS the text.
+			if (o == n) return true
+			// The affix branch used to have no bound at all, so a paragraph of any length answered
+			// a short label as long as it happened to begin or end with it.
+			//
+			// The bound is an ABSOLUTE number of extra characters, not the ratio used below, and
+			// the difference matters: the case this branch exists for is AEM gluing its
+			// accessibility copy onto a label with no separator, so the live page's "English" is
+			// "Englishopens in a new tab" there. That is 18 extra characters on a 7-character
+			// label — a 3x ratio rejects it, and doing so reported "English" as missing content
+			// three times on every product-deck page. A ratio cannot express "plus a short fixed
+			// suffix"; a character count can.
+			if (o.startsWith(n) || o.endsWith(n)) return o.length() - n.length() <= AFFIX_EXTRA_MAX
 			int at = o.indexOf(n)
 			while (at >= 0) {
 				boolean leftOk = (at == 0) || !Character.isLetterOrDigit(o.charAt(at - 1))
@@ -175,6 +198,32 @@ public class ContentCompare {
 	private static Map blobOf(List texts) {
 		String b = norm(texts.join(' \n '))
 		return [blob: b, noSpace: b.replace(' ', '')]
+	}
+
+	/**
+	 * Every element the collector discarded for being invisible, whichever mechanism hid it.
+	 *
+	 * `hidden` is "no client rects", `ariaHidden` is "inside [aria-hidden=true]". They are two
+	 * counters because they are two different drops, and they are summed here because a page does
+	 * not care how its content was hidden — see the SCOPE_ASYMMETRY block.
+	 */
+	private static int hiddenCount(Map skipped) {
+		Map s = skipped ?: [:]
+		return (((s.hidden ?: 0) as int) + ((s.ariaHidden ?: 0) as int))
+	}
+
+	/**
+	 * "<a> against <b> <what>" when the two numbers are too far apart to have measured the same page,
+	 * or '' when they are close enough.
+	 *
+	 * Both bars have to be cleared. The RATIO is what says the difference is structural rather than
+	 * ordinary page-to-page variation; the FLOOR (SCOPE_ASYMMETRY_MIN) is what stops it firing on
+	 * small numbers, where a 3x gap is 2 against 8 and means nothing.
+	 */
+	private static String gapBetween(int a, int b, String what) {
+		int hi = Math.max(a, b), lo = Math.min(a, b)
+		if (hi < SCOPE_ASYMMETRY_MIN || hi < lo * 3 + 10) return ''
+		return "${a} ${what} on the live page against ${b} on the new page"
 	}
 
 	/**
@@ -265,14 +314,21 @@ public class ContentCompare {
 			// not present at all: reworded, or genuinely gone
 			Set st = tokens(n)
 			Map best = null
+			int bestIndex = -1
 			double bestScore = 0d
-			aemItems.each { o ->
+			aemItems.eachWithIndex { o, int ai ->
+				// One counterpart, one claim. This scan used to run over every AEM item with no
+				// exclusion — `consumedAem` was written on the line below and then read only by the
+				// ONLY_ON_AEM pass — so a single AEM paragraph could be the "rewording" of any
+				// number of live texts at once, quietly downgrading several genuine losses to one
+				// shared counterpart.
+				if (consumedAem.contains(ai)) return
 				Map cand = (Map) o
 				double s = overlap(st, tokens(norm(textOf(cand))))
-				if (s > bestScore) { bestScore = s; best = cand }
+				if (s > bestScore) { bestScore = s; best = cand; bestIndex = ai }
 			}
 			if (best != null && bestScore >= REWORD_OVERLAP) {
-				consumedAem << textOf(best)
+				consumedAem << bestIndex
 				// Same sentence, different figures. Token overlap cannot separate these two cases —
 				// it is exactly what makes a changed sum assured look like a rewording — so the
 				// numbers are compared on their own and outrank the overlap score.
@@ -289,10 +345,12 @@ public class ContentCompare {
 			}
 		}
 
-		// AEM-only text is informational (subset rule); rewordings are not repeated here
-		aemItems.each { it ->
+		// AEM-only text is informational (subset rule); rewordings are not repeated here.
+		// Indexed, not text-matched: `consumedAem` used to hold the counterpart's TEXT, so
+		// consuming one item also silenced every other AEM item that happened to read the same.
+		aemItems.eachWithIndex { it, int ai ->
 			Map item = (Map) it
-			if (consumedAem.contains(textOf(item))) return
+			if (consumedAem.contains(ai)) return
 			String n = norm(textOf(item))
 			if (foundIn(n, scAll.blob, scAll.noSpace)) return
 			findings << [verdict: 'ONLY_ON_AEM', path: item.path, kind: item.kind, text: textOf(item), note: '']
@@ -313,30 +371,24 @@ public class ContentCompare {
 				text: st.label, note: st.kind + ' exists only on the new page']
 		}
 
-		// --- links: same wording, different destination.
-		// Matched on the LABEL, because that is what a visitor recognises, and only where the label
-		// identifies exactly one link on each side — a "Find out more" appearing six times says
-		// nothing about which six destinations should correspond.
-		Map scLinks = [:], aemLinks = [:]
-		scItems.each { Object o ->
-			Map i = (Map) o
-			if (i.kind == 'cta' && i.href) scLinks.get(norm(textOf(i)), []) << i.href.toString()
-		}
-		aemItems.each { Object o ->
-			Map i = (Map) o
-			if (i.kind == 'cta' && i.href) aemLinks.get(norm(textOf(i)), []) << i.href.toString()
-		}
-		scLinks.each { Object k, Object v ->
-			String label = (String) k
-			List hrefs = (List) v
-			List other = (List) (aemLinks[label] ?: [])
-			if (hrefs.size() != 1 || other.size() != 1) return
-			String want = linkKey((String) hrefs[0]), got = linkKey((String) other[0])
-			if (want && got && want != got) {
-				findings << [verdict: 'LINK_CHANGED', path: label, kind: 'cta', text: label,
-					note: "goes to ${got} on the new page, ${want} on the live page"]
-			}
-		}
+		// --- link destinations are NOT compared. Removed 2026-08-21, the day it first produced
+		// numbers, by the decision of whoever reads this report.
+		//
+		// It worked, and what it found was real: 161 rows over 5 pages, 37 distinct destinations, 0 of
+		// them a normalisation artefact. But they were all one thing — AEM restructured its paths
+		// wholesale (/products/health-insurance/... -> /products/health/..., /wedo/wedohub/... ->
+		// /knowledge-corner/...). The text, the tab and the card are identical on both sides; only the
+		// URL prefix moved, deliberately, as part of the migration. A verdict that fires on every
+		// product link of every page and means "the site was reorganised" is noise in a check whose
+		// question is whether the TEXT survived.
+		//
+		// It was also the one verdict whose `path` was wrong: it set path to the label, so all 161 rows
+		// showed the same string under "where on the live page" as under "text", while every other
+		// verdict carries the real h1..h4 > tab breadcrumb.
+		//
+		// `href` is still captured on every item (@7) and `linkKey()` is still used by
+		// ContentSnapshot.pathKeyOf to check the landed page, so restoring this costs a rule, not a
+		// re-crawl. If it ever comes back it needs a way to ignore a known path migration.
 
 		// --- dropdown contents are NOT compared. `<option>` text never renders, so the collector
 		// in ContentScope takes it without asking whether the enclosing <select> is visible — and
@@ -350,14 +402,38 @@ public class ContentCompare {
 		// assumption is false and the counts above are measuring the extraction, not the page —
 		// which is the shape of the aria-hidden defect found on 2026-08-18, when AEM marked every
 		// inactive tab panel hidden and Sitecore marked none. Nothing detected it; now something does.
-		int scHidden = ((((Map) (sc.skipped ?: [:])).hidden ?: 0) as int)
-		int aemHidden = ((((Map) (aem.skipped ?: [:])).hidden ?: 0) as int)
-		int hi = Math.max(scHidden, aemHidden), lo = Math.min(scHidden, aemHidden)
-		if (hi >= SCOPE_ASYMMETRY_MIN && hi >= lo * 3 + 10) {
+		//
+		// The two counters are ADDED because the CMSes hide content differently and the check must
+		// not care which mechanism was used. Sitecore marks nothing aria-hidden, so its invisible
+		// content is all in `hidden`; AEM marks every inactive panel, so its invisible content is
+		// in `ariaHidden`. Reading `hidden` alone compared 83-160 against a flat 8 on all five
+		// lifestage pages and fired on every one of them — a difference the extraction produced,
+		// not the page. `ariaHidden` is absent from snapshots taken before 2026-08-21 and defaults
+		// to 0, which reproduces the old reading rather than inventing a number for them.
+		//
+		// Three measures, not one. The hidden-element rule alone missed the worst pair in the repo:
+		// en_lifestage compared 30 live items against 1 on the new side — an extraction that
+		// collected a single element and left an intact rootText, so 12 of the 30 still "matched"
+		// against a snapshot that had read nothing — and it stayed silent, because the hidden counts
+		// were 12 against 0. What was asymmetric there was the ITEM COUNT, which nothing looked at.
+		List asym = []
+		String hiddenGap = gapBetween(hiddenCount((Map) sc.skipped), hiddenCount((Map) aem.skipped),
+			'hidden element(s) skipped')
+		if (hiddenGap) asym << hiddenGap
+		String itemGap = gapBetween(scItems.size(), aemItems.size(), 'content item(s) collected')
+		if (itemGap) asym << itemGap
+		// scanned is absent from snapshots taken before the counter existed; compare only when both carry it
+		Object scScanned = ((Map) (sc.skipped ?: [:])).scanned, aemScanned = ((Map) (aem.skipped ?: [:])).scanned
+		if (scScanned != null && aemScanned != null) {
+			String scanGap = gapBetween(scScanned as int, aemScanned as int, 'element(s) scanned')
+			if (scanGap) asym << scanGap
+		}
+		if (asym) {
 			findings << [verdict: 'SCOPE_ASYMMETRY', path: '', kind: 'scope',
-				text: "${scHidden} hidden element(s) skipped on the live page against ${aemHidden} on the new page",
-				note: 'the two sides did not read comparable content, so presence and occurrence counts ' +
-					'on this page are weaker than they look — check the content root and the hidden-content rules']
+				text: asym.join('; '),
+				note: 'the two sides did not read comparable content, so every presence and occurrence ' +
+					'result on this page is measuring the extraction rather than the page — check the ' +
+					'content root and the hidden-content rules, and re-capture before reading any other finding']
 		}
 
 		Map counts = [:]
@@ -381,8 +457,8 @@ public class ContentCompare {
 	/**
 	 * Verdicts that fail the page; everything else is warning/info.
 	 *
-	 * LINK_CHANGED is an error: a visitor pressing the same button arrives somewhere else, and
-	 * nothing detected it before — items carried their wording but never their destination.
+	 * LINK_CHANGED is gone (2026-08-21). This check asks one question — did the TEXT survive — and a
+	 * changed URL prefix is not an answer to it. See the note where the comparison used to be.
 	 *
 	 * NUMBER_CHANGED is an error: a different figure is content the live page states and the new
 	 * page does not, and plain rewording (mostly punctuation) stays a warning.
@@ -395,9 +471,16 @@ public class ContentCompare {
 	 *
 	 * TEXT_CHANGED is an error: the live wording is not what the new page shows, however small the
 	 * edit. Rewording is a content difference, and this check exists to report content differences.
+	 *
+	 * SCOPE_ASYMMETRY is an error, and it is a different KIND of error from the six above it. Those
+	 * say the migration lost content. This one says the check could not tell: the two sides did not
+	 * read comparable content, so every other verdict on the page is measuring the extraction. It
+	 * fails the page because the alternative is worse — as a warning it let a page whose new side
+	 * collected one element out of the whole document read PASS, which is the single most expensive
+	 * thing this check can do. A page that cannot be judged must not report that it passed.
 	 */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED',
-		'COUNT_MISMATCH', 'TEXT_CHANGED']
+	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED',
+		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 
 	/** Write findings.csv and state_pairs.csv */
 	@Keyword

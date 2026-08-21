@@ -21,3 +21,8 @@ build
 CLAUDE.md
 
 Data Files/baselines/
+Data Files/url-mapping/normal-pages/general-content-detail-page.csv
+
+# Katalon writes one of these per run, in the project root
+.temp-*-args-*.txt
+.temp-S0821_18-args-1787307578324.txt

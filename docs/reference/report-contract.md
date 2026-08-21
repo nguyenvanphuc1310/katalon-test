@@ -78,12 +78,23 @@ Each check id names its own evidence folder through `CHECK_EVIDENCE` in `ReportB
 | File | Format | Notes |
 |---|---|---|
 | `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | strict `$`-anchored regex; the `weight` column **must** stay optional in it — see below |
-| `ContentAudit/<slug>/score.csv` | `field,value` quoted pairs | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy` |
+| `ContentAudit/<slug>/score.csv` | `field,value` quoted pairs | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy`. **Not written by the current code**, and nothing reads it; the stale copies were deleted on 2026-08-21 |
 | `ContentAudit/<slug>/state_pairs.csv` | `pair,sc_id,sc_label,aem_id,aem_label,by,score` | rendered as the tab-pairing table |
 
-The parsers are strict and **drop rows they cannot match without saying so**. That is the
-worst failure mode a report can have — it just goes quiet — which is why the contract has
-its own assertion harness.
+The parsers are strict and **drop rows they cannot match**. That is the worst failure mode a
+report can have — it just goes quiet — which is why the contract has its own assertion harness.
+
+Since 2026-08-21 `readFindings` at least **says so**, on the two ways a row can vanish:
+
+- a line that does not match the pattern — a contract break;
+- a line that matches but carries a verdict listed in neither `ERRORS`, `WARNINGS` nor `INFOS`.
+  `findingBlocks` walks `FINDING_ORDER` and `checkStatsOf` tallies the three lists, so such a row
+  renders nowhere **and** counts nowhere. This is not hypothetical either: 18 `OPTION_MISSING`
+  rows, left by the build that predated the verdict's removal, were invisible in the
+  2026-08-20 report.
+
+Both log a `KeywordUtil.logWarning` naming the file. A warning in the run log is not a substitute
+for the removed harness — it only fires when someone runs the build and reads the log.
 
 It has happened. `ReportBuilder`'s findings reader required the five quoted columns and
 nothing after them, while every `findings.csv` on disk ends with `,1.0`. The `$` anchor

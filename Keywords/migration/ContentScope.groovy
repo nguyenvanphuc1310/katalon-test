@@ -120,44 +120,68 @@ public class ContentScope {
 			return b === '-' || b === '_';
 		}
 
-		var T = P.tabs || {};
-		var groups = T.group ? root.querySelectorAll(T.group) : [];
-		for (var g = 0; g < groups.length; g++) {
-			var tabs = groups[g].querySelectorAll(T.tab);
-			var labels = [];
-			var groupAnchor = txt(groups[g].previousElementSibling || groups[g]).slice(0, 80);
-			for (var t = 0; t < tabs.length; t++) {
-				var tab = tabs[t], label = txt(tab), panel = null;
-				if (T.mode === 'aria') {
-					var id = tab.getAttribute('aria-controls');
-					if (id) panel = document.getElementById(id);
-				} else {
-					var key = tab.getAttribute(T.tabAttr);
-					var box = groups[g].closest(T.container) || groups[g].parentElement;
-					if (box && key) {
-						panel = box.querySelector('[' + T.panelAttr + '="' + key + '"]');
-						// Sitecore authors the same component two ways: data-tab="content-tab-1"
-						// pointing at data-content="content-tab-1", and data-tab="tab1" pointing at
-						// data-content="content-tab1". An exact-only lookup found no panel on the
-						// second kind, so every inactive tab's text was dropped as hidden and then
-						// reported as ONLY_ON_AEM. Fall back to a prefixed key, on a separator
-						// boundary so "tab1" cannot claim "content-tab11".
-						if (!panel) {
-							var cands = box.querySelectorAll('[' + T.panelAttr + ']');
-							for (var c = 0; c < cands.length; c++) {
-								if (panelKeyMatches(cands[c].getAttribute(T.panelAttr) || '', key)) { panel = cands[c]; break; }
+		// A site can carry MORE THAN ONE tab widget, authored differently. `tabs` is therefore a
+		// list of configs, and a bare object is accepted as a list of one so older profiles keep
+		// working. Prudential's lifestage pages have two: the product `ul.tabs-primary` widget, and
+		// an outer `Protection | Wealth | For your dependants` widget whose panels are plain
+		// `display:none` divs. Describing only the first left the second's two inactive panels
+		// unreachable — about 186 text-bearing elements per page, which is the bulk of what
+		// SCOPE_ASYMMETRY was reporting, and it left AEM's three matching tabs with no counterpart
+		// to pair against.
+		var TABS = P.tabs || {};
+		if (!(TABS instanceof Array)) TABS = TABS.group ? [TABS] : [];
+		var gi = 0;
+		for (var ti = 0; ti < TABS.length; ti++) {
+			var T = TABS[ti];
+			var groups = T.group ? root.querySelectorAll(T.group) : [];
+			for (var g = 0; g < groups.length; g++, gi++) {
+				var tabs = groups[g].querySelectorAll(T.tab);
+				var labels = [];
+				var groupAnchor = txt(groups[g].previousElementSibling || groups[g]).slice(0, 80);
+				for (var t = 0; t < tabs.length; t++) {
+					var tab = tabs[t], label = txt(tab), panel = null;
+					if (T.mode === 'aria') {
+						var id = tab.getAttribute('aria-controls');
+						if (id) panel = document.getElementById(id);
+					} else if (T.mode === 'fragment') {
+						// The tab is an anchor and its href names the panel — but by the value of an
+						// attribute, not by id: <a href="#wealth"> against
+						// <div data-lifestage-tab="wealth">. No element on these pages carries
+						// id="wealth", so the ordinary fragment lookup resolves nothing.
+						var frag = (tab.getAttribute('href') || '').replace(/^#/, '');
+						if (frag) {
+							try { panel = root.querySelector('[' + T.panelAttr + '="' + frag + '"]'); } catch (e) { }
+						}
+					} else {
+						var key = tab.getAttribute(T.tabAttr);
+						var box = groups[g].closest(T.container) || groups[g].parentElement;
+						if (box && key) {
+							panel = box.querySelector('[' + T.panelAttr + '="' + key + '"]');
+							// Sitecore authors the same component two ways: data-tab="content-tab-1"
+							// pointing at data-content="content-tab-1", and data-tab="tab1" pointing at
+							// data-content="content-tab1". An exact-only lookup found no panel on the
+							// second kind, so every inactive tab's text was dropped as hidden and then
+							// reported as ONLY_ON_AEM. Fall back to a prefixed key, on a separator
+							// boundary so "tab1" cannot claim "content-tab11".
+							if (!panel) {
+								var cands = box.querySelectorAll('[' + T.panelAttr + ']');
+								for (var c = 0; c < cands.length; c++) {
+									if (panelKeyMatches(cands[c].getAttribute(T.panelAttr) || '', key)) { panel = cands[c]; break; }
+								}
 							}
 						}
 					}
+					if (label) labels.push(label);
+					if (panel && label) {
+						// `gi` counts groups across every widget, so ids stay unique when a second
+						// widget is added and do not renumber the first one's.
+						var sid = 'tab:' + gi + ':' + t;
+						panelLabel.push([panel, label, sid]);
+						states.push({ id: sid, kind: 'tab', group: groupAnchor, label: label, el: panel });
+					}
 				}
-				if (label) labels.push(label);
-				if (panel && label) {
-					var sid = 'tab:' + g + ':' + t;
-					panelLabel.push([panel, label, sid]);
-					states.push({ id: sid, kind: 'tab', group: groupAnchor, label: label, el: panel });
-				}
+				if (labels.length) tabGroups.push({ label: groupAnchor, tabs: labels });
 			}
-			if (labels.length) tabGroups.push({ label: groupAnchor, tabs: labels });
 		}
 
 		// ---- accordion regions: region -> trigger text, so collapsed content stays comparable
@@ -226,7 +250,14 @@ public class ContentScope {
 		// candidates reported all-zero skips, which reads as a clean page rather than a
 		// broken extraction. `scanned` is kept for the same reason: without it there is no
 		// way to tell "the root was tiny" from "everything in it was dropped".
-		var items = [], skipped = { noise: 0, formLabel: 0, hidden: 0, tooShort: 0, noText: 0, scanned: 0 };
+		// `ariaHidden` is counted apart from `noise` because it is a HIDDEN drop, not a selector
+		// drop, and SCOPE_ASYMMETRY has to add the two together: Sitecore marks nothing
+		// aria-hidden, so all of its invisible content lands in `hidden`, while AEM marks every
+		// inactive panel, so its invisible content used to land in `noise`. Comparing the two
+		// `hidden` figures alone therefore compared two different things — the live side read
+		// 83-160 against a flat 8 on the new side on every lifestage page, which is the extractor
+		// speaking, not the page.
+		var items = [], skipped = { noise: 0, formLabel: 0, hidden: 0, ariaHidden: 0, tooShort: 0, noText: 0, scanned: 0 };
 		var h = ['', '', '', ''];   // running h1..h4 context, document order
 		var all = root.querySelectorAll('*');
 		for (var a = 0; a < all.length; a++) {
@@ -257,7 +288,7 @@ public class ContentScope {
 			// while Sitecore marks none, so treating it as noise deleted one CMS's tab
 			// content and kept the other's. Only decorative aria-hidden outside any tab or
 			// accordion is dropped.
-			if (!tabLabel && !accLabel && el.closest('[aria-hidden=true]')) { skipped.noise++; continue; }
+			if (!tabLabel && !accLabel && el.closest('[aria-hidden=true]')) { skipped.ariaHidden++; continue; }
 			// Hidden and not reachable by any tab/accordion = not page content
 			// (this is what removes Sitecore's hidden form-builder labels).
 			if (!visible && !tabLabel && !accLabel) { skipped.hidden++; continue; }
@@ -273,20 +304,26 @@ public class ContentScope {
 
 			// Where a link actually goes. Nothing compared this before, so a CTA that kept its
 			// wording and changed its destination passed every check on the page.
+			//
+			// Read for EVERY item, not only those classified `cta`. `kind` is an ordered cascade
+			// and the tag test wins, so a heading wrapped in an <a> — the standard card and
+			// product-tile pattern on both sites — was classified `heading`, never reached the
+			// `cta` arm, and had its destination dropped. Measured over the 8 captured pages:
+			// 326 such links, 45-64% of every in-page heading on the six lifestage pages, pointing
+			// at real product pages. `kind` is deliberately NOT changed — a heading is still a
+			// heading for reporting and for the h1..h4 path context; only the href gate moved.
 			var href = '';
-			if (kind === 'cta') {
-				// NOT `var a`: `a` is the index of the enclosing item loop and `var` is
-				// function-scoped, so naming the anchor `a` overwrote the counter with an
-				// element, made `a++` NaN and ended the whole crawl at the FIRST CTA on the
-				// page — which is how a 1,122-element page snapshotted as 3 items.
-				var anchor = el.closest('a');
-				if (anchor && anchor.getAttribute('href')) {
-					try {
-						var u = new URL(anchor.href, document.baseURI);
-						// path only: the domain legitimately changes between the two systems
-						href = u.pathname.replace(/\\/+$/, '') + (u.hash || '');
-					} catch (e) { href = anchor.getAttribute('href') || ''; }
-				}
+			// NOT `var a`: `a` is the index of the enclosing item loop and `var` is
+			// function-scoped, so naming the anchor `a` overwrote the counter with an
+			// element, made `a++` NaN and ended the whole crawl at the FIRST CTA on the
+			// page — which is how a 1,122-element page snapshotted as 3 items.
+			var anchor = el.closest('a');
+			if (anchor && anchor.getAttribute('href')) {
+				try {
+					var u = new URL(anchor.href, document.baseURI);
+					// path only: the domain legitimately changes between the two systems
+					href = u.pathname.replace(/\\/+$/, '') + (u.hash || '');
+				} catch (e) { href = anchor.getAttribute('href') || ''; }
 			}
 
 			items.push({
@@ -334,7 +371,23 @@ public class ContentScope {
 		var marked = root.querySelectorAll('[data-km-drop]');
 		for (var i = 0; i < marked.length; i++) marked[i].removeAttribute('data-km-drop');
 
+		// Which page the browser thinks this is. Read here rather than through a second
+		// executeScript so it cannot drift from the DOM the items were read out of.
+		//
+		// `canonical` is what caught nothing before: en_lifestage.aem.json was captured from an
+		// unpublished author branch — its canonical is /content/prudential-aem-lbu/pacs/backup/
+		// test1/lifestage — and the snapshot looked ordinary in every other respect. A missing
+		// canonical is normal (both productdeck pages on the live side carry none), so the
+		// caller must treat '' as "no opinion", never as a failure.
+		var canonical = '';
+		var cl = document.querySelector('link[rel=canonical]');
+		if (cl && cl.getAttribute('href')) {
+			try { canonical = new URL(cl.href, document.baseURI).pathname; }
+			catch (e) { canonical = cl.getAttribute('href') || ''; }
+		}
+
 		return { root: rootSel, tabGroups: tabGroups, items: items, skipped: skipped,
-			rootText: rootText, states: stateOut, formOptions: formOptions };
+			rootText: rootText, states: stateOut, formOptions: formOptions,
+			landedUrl: document.location.href, canonical: canonical };
 	'''
 }

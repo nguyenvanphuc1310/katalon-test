@@ -22,7 +22,8 @@ import com.kms.katalon.core.util.KeywordUtil
  * their result file, without touching the report. What the check writes but a reader cannot act
  * on — the raw summary line, the score — is deliberately not rendered.
  *
- * A page fails on any MISSING_ON_AEM / WRONG_TAB / NUMBER_CHANGED / LINK_CHANGED, however
+ * A page fails on any MISSING_ON_AEM / WRONG_TAB / NUMBER_CHANGED / COUNT_MISMATCH /
+ * TEXT_CHANGED / SCOPE_ASYMMETRY, however
  * large the page is: losing one button is losing content. The live page is the reference and
  * a subset baseline, so extra text on the new page is reported and never fails.
  *
@@ -71,14 +72,13 @@ public class ReportBuilder {
 	static final Map CHECK_EVIDENCE = [content: 'ContentAudit']
 
 	/** Most severe first: the reading order of the blocks on a page */
-	static final List FINDING_ORDER = ['MISSING_ON_AEM', 'NUMBER_CHANGED', 'LINK_CHANGED',
+	static final List FINDING_ORDER = ['MISSING_ON_AEM', 'NUMBER_CHANGED',
 		'WRONG_TAB', 'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY',
 		'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW', 'ONLY_ON_AEM']
 
 	static final Map FINDING_TITLE = [
 		MISSING_ON_AEM: 'Missing on the new page',
 		NUMBER_CHANGED: 'Figures changed',
-		LINK_CHANGED: 'Same button, different destination',
 		WRONG_TAB: 'Present, but under a different tab',
 		SCOPE_ASYMMETRY: 'The two pages were not read comparably',
 		COUNT_MISMATCH: 'Appears fewer times than on the live page',
@@ -91,7 +91,6 @@ public class ReportBuilder {
 	static final Map FINDING_HINT = [
 		MISSING_ON_AEM: 'Not found anywhere on the new page.',
 		NUMBER_CHANGED: 'Same sentence, different figures — a sum, an age, a percentage, a policy term.',
-		LINK_CHANGED: 'Same wording, different destination.',
 		WRONG_TAB: 'On the new page, but under a different tab.',
 		SCOPE_ASYMMETRY: 'The two pages were not read on equal terms, so these findings rest on a weaker measurement.',
 		COUNT_MISMATCH: 'On the new page, but fewer times than on the live page — the missing appearances are missing content.',
@@ -101,10 +100,10 @@ public class ReportBuilder {
 		ONLY_ON_AEM: 'Extra text on the new page. The live page is a subset baseline, so this never fails.']
 
 	/** The six that fail a page. Kept identical to ContentCompare.ERRORS. */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED', 'LINK_CHANGED',
-		'COUNT_MISMATCH', 'TEXT_CHANGED']
+	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED',
+		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 	/** Worth reading, but they do not fail the page */
-	static final List WARNINGS = ['SCOPE_ASYMMETRY', 'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
+	static final List WARNINGS = ['STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
 	/** Never a problem: the live page is a subset baseline */
 	static final List INFOS = ['ONLY_ON_AEM']
 
@@ -162,7 +161,34 @@ public class ReportBuilder {
 				result  : results['content'],
 			]
 		}
+		warnOnSlugCollisions(pages)
 		return pages
+	}
+
+	/**
+	 * Two URLs that produce one slug produce one set of files, and the second silently overwrites
+	 * the first — the same snapshot, the same findings.csv, the same content.txt.
+	 *
+	 * `AuditUtils.slugOf` collapses every run of non-alphanumerics to `_`, so `/a/b-c` and `/a-b/c`
+	 * are the same slug. The scheme is deliberately NOT changed here: it names every file already
+	 * on disk, so changing it is a migration, and there are no collisions in the mapping today.
+	 * What was missing is any way to find out — this makes the collision loud while it is still
+	 * cheap to fix. The risk scales with the mapping: 20 rows today against a target near 1,700.
+	 */
+	private static void warnOnSlugCollisions(List pages) {
+		Map bySlug = [:]
+		pages.each { Object p ->
+			Map page = (Map) p
+			bySlug.get(page.slug, []) << page.aem
+		}
+		bySlug.each { Object slug, Object urls ->
+			List all = ((List) urls).unique()
+			if (all.size() > 1) {
+				KeywordUtil.markWarning("Slug collision: ${all.size()} URLs share the slug '${slug}' " +
+					"and therefore share one snapshot, one findings.csv and one verdict — ${all.join(' | ')}. " +
+					'Only the last one checked is represented in the report.')
+			}
+		}
 	}
 
 	/**
@@ -187,6 +213,13 @@ public class ReportBuilder {
 	 * columns exactly drops **every** row of **every** page, in silence, and the report then
 	 * reads "no findings" on a page that failed. That is not hypothetical — it shipped once; see
 	 * docs/reference/report-contract.md.
+	 *
+	 * Both ways a row can vanish are now logged, because silence is the whole failure mode here.
+	 * A row that does not match the pattern is a contract break. A row that matches but carries a
+	 * verdict listed in neither ERRORS, WARNINGS nor INFOS renders nowhere (findingBlocks walks
+	 * FINDING_ORDER) and is counted nowhere (checkStatsOf tallies the three lists), so the page
+	 * silently loses it: that is what happened to the 18 OPTION_MISSING rows left on disk by the
+	 * build that predated the verdict's removal.
 	 */
 	private static List readFindings(String proj, String slug, String checkId) {
 		String kind = CHECK_EVIDENCE[checkId]
@@ -194,11 +227,26 @@ public class ReportBuilder {
 		File f = new File(proj + '/Reports/' + kind + '/' + slug + '/findings.csv')
 		if (!f.exists()) return []
 		List rows = []
+		int unparsed = 0
 		f.readLines('UTF-8').drop(1).each { String line ->
+			if (!line.trim()) return
 			def m = (line =~ /^(\w+),(\w*),"((?:[^"]|"")*)","((?:[^"]|"")*)","((?:[^"]|"")*)"(?:,[-0-9.]+)?$/)
 			if (m.find()) rows << [verdict: m.group(1), kind: m.group(2),
 				path: m.group(3).replace('""', '"'), text: m.group(4).replace('""', '"'),
 				note: m.group(5).replace('""', '"')]
+			else unparsed++
+		}
+		if (unparsed > 0) {
+			KeywordUtil.markWarning("${f.getPath()}: ${unparsed} row(s) did not match the findings contract " +
+				'and are missing from the report — see docs/reference/report-contract.md')
+		}
+		Set unknown = rows.collect { (String) it.verdict }.findAll {
+			!ERRORS.contains(it) && !WARNINGS.contains(it) && !INFOS.contains(it)
+		} as Set
+		if (unknown) {
+			KeywordUtil.markWarning("${f.getPath()}: verdict(s) ${unknown.join(', ')} are in neither ERRORS, " +
+				'WARNINGS nor INFOS, so they are rendered nowhere and counted nowhere. Either add them to ' +
+				'ReportBuilder or re-run the check that wrote this file.')
 		}
 		return rows
 	}

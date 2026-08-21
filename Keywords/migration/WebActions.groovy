@@ -153,65 +153,11 @@ public class WebActions {
 		Thread.sleep(800)
 	}
 
-	/** Expand every accordion / tab / read-more inside the content area (header/nav/footer excluded):
-	 *  just expandOneLayer repeated until nothing is left to click. */
-	@Keyword
-	static void openHiddenContent() {
-		int pass = 0
-		while (pass < 8 && expandOneLayer()) pass++
-	}
-
-	/**
-	 * Expand ONE layer of hidden content and return whether anything was clicked.
-	 * Unlike openHiddenContent (which opens everything), this reveals content
-	 * gradually so each layer can be screenshotted: all currently visible
-	 * accordions/read-mores, but only ONE unselected tab per tab group (tab
-	 * panels replace each other, so successive layers walk through the tabs).
-	 * Clicked triggers are marked with data-km-clicked and never clicked twice.
-	 */
-	@Keyword
-	static boolean expandOneLayer() {
-		WebDriver driver = DriverFactory.getWebDriver()
-		JavascriptExecutor js = (JavascriptExecutor) driver
-		Closure inChrome = { el ->
-			(Boolean) js.executeScript(
-				"return !!arguments[0].closest('header,nav,footer,[role=banner],[role=navigation],[role=contentinfo]')", el)
-		}
-		Closure fresh = { el -> el.getAttribute('data-km-clicked') == null }
-		int clicked = 0
-		Closure clickAll = { List els ->
-			els.each { el ->
-				try {
-					js.executeScript(
-						"arguments[0].setAttribute('data-km-clicked','1'); arguments[0].scrollIntoView({block:'center'}); arguments[0].click()", el)
-					clicked++
-					Thread.sleep(400)
-				} catch (Exception ignore) { }
-			}
-		}
-
-		clickAll(driver.findElements(By.cssSelector('[aria-expanded="false"]'))
-			.findAll { it.isDisplayed() && !inChrome(it) && it.getAttribute('role') != 'tab' && fresh(it) })
-
-		// one tab per group: closest [role=tablist], or the parent element as fallback
-		Map onePerGroup = [:]
-		driver.findElements(By.cssSelector('[role="tab"]'))
-			.findAll { it.isDisplayed() && !inChrome(it) && it.getAttribute('aria-selected') != 'true' && fresh(it) }
-			.each { tab ->
-				String gid = (String) js.executeScript(
-					"var g=arguments[0].closest('[role=tablist]')||arguments[0].parentElement;" +
-					"if(!g.dataset.kmTabgroup){g.dataset.kmTabgroup=String(Math.random()).slice(2);}" +
-					'return g.dataset.kmTabgroup;', tab)
-				if (!onePerGroup.containsKey(gid)) onePerGroup[gid] = tab
-			}
-		clickAll(onePerGroup.values() as List)
-
-		String lc = "translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')"
-		String cond = ['read more', 'show more', 'view more', 'see more', 'load more', 'xem them']
-			.collect { "contains(${lc},'${it}')" }.join(' or ')
-		clickAll(driver.findElements(By.xpath("//button[${cond}] | //a[${cond}]"))
-			.findAll { it.isDisplayed() && !inChrome(it) && fresh(it) })
-
-		return clicked > 0
-	}
+	// openHiddenContent()/expandOneLayer() lived here and were deleted on 2026-08-21.
+	// Nothing called them. They looked like tab/accordion coverage, and that appearance was
+	// the danger: ContentScope reads every panel straight out of the DOM without clicking,
+	// and the panels really are there — measured over the 8 captured pages, 43 of 43 AEM
+	// tabpanels, 7 of 7 AEM accordion panels and every Sitecore panel are non-empty in the
+	// saved HTML. Clicking would have added crawl time and mutated the page before the read,
+	// which is the very thing capture()'s forced reload exists to prevent.
 }

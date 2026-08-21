@@ -50,8 +50,9 @@ rm -rf bin/keyword .cache/Keywords      # Katalon runs what is in bin/, not what
 
 then run `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare`. It re-judges the nine
 snapshots already on disk — no browser, no VPN — and `TC_Build_Parity_Report` at the end of
-it rebuilds `Reports/parity-report/`. Green is 9/9 pages judged and an
-index that lists three templates.
+it rebuilds `Reports/parity-report/`. Green is every page that has a snapshot pair on disk
+judged — nine today, out of the 281 pairs the mapping now names — and an index that lists
+three templates.
 
 ## 4. First run inside Studio
 
