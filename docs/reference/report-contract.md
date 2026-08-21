@@ -54,6 +54,12 @@ failed test case fails the page, however many others passed. It is what the inde
 tables and every pass rate count. That rate stays a **page** rate and never becomes a test-case
 rate — see [verdicts-and-score.md](verdicts-and-score.md).
 
+`WARN` is a judged verdict, not a missing one. It is in `JUDGED` alongside `PASS` and `FAIL`,
+and in `THROUGH` alongside `PASS` — so a warned page is in the pass rate's denominator **and**
+its numerator, coloured amber rather than green. Leaving `WARN` out of `JUDGED` is the specific
+mistake this line exists to prevent: every warned page would silently join the "not run" bucket
+and be reported as work nobody has done.
+
 ## Parsed by regex
 
 `itemsCompared()` reads **one number** out of the first detail line:
@@ -77,9 +83,15 @@ Each check id names its own evidence folder through `CHECK_EVIDENCE` in `ReportB
 
 | File | Format | Notes |
 |---|---|---|
-| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | strict `$`-anchored regex; the `weight` column **must** stay optional in it — see below |
-| `ContentAudit/<slug>/score.csv` | `field,value` quoted pairs | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy`. **Not written by the current code**, and nothing reads it; the stale copies were deleted on 2026-08-21 |
+| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | `weight` is **written** since 2026-08-21 (`ContentCompare.WEIGHTS`); it must nonetheless stay **optional** in the reader's regex — see below |
+| `ContentAudit/<slug>/score.csv` | `field,value` | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy`. Written by `ContentCompare.write()` and read by `ReportBuilder.readScore()` since 2026-08-21 |
 | `ContentAudit/<slug>/state_pairs.csv` | `pair,sc_id,sc_label,aem_id,aem_label,by,score` | rendered as the tab-pairing table |
+
+The score is **read from `score.csv`, never recomputed** by the report. Recomputing it would be
+a second implementation of the formula, free to disagree with the one that actually set the
+verdict, and the reader would see a score of 96 beside a FAIL with no way to tell which half was
+wrong. `ReportBuilder` re-declares only `PASS_SCORE`/`WARN_SCORE`, and only to colour
+**averages**; a single test case is coloured by the grade the check recorded.
 
 The parsers are strict and **drop rows they cannot match**. That is the worst failure mode a
 report can have — it just goes quiet — which is why the contract has its own assertion harness.
@@ -114,7 +126,10 @@ removed with `tools/` on 2026-08-20.
 3. Put the headline on the **first** detail line, opening with the `<N> live items compared`
    clause if the test case counts items — that clause is all `itemsCompared()` parses.
 4. Write evidence to `Reports/<CHECK_EVIDENCE[id]>/<slug>/findings.csv` in the format above.
-   Rows whose verdict is in `ERRORS` fail the test case, and therefore the page.
+   Rows whose verdict is in `ERRORS` are counted as content that did not survive, and their
+   weights decide the band. A check that wants a score writes `score.csv` too; one that does
+   not simply omits it, and the report renders that test case without a score rather than
+   inventing one.
 5. Re-render the report and open the test case's own file on a URL that should show the new
    evidence. Every parser here is strict and silent, so "it compiled" is not the test — "the
    file lists the rows" is.

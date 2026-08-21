@@ -20,12 +20,18 @@ import com.kms.katalon.core.util.KeywordUtil
  * A "test case" is a check id: one entry of CHECK_ORDER, run against one URL. Only `content`
  * has a producer today; the others (GA4, images, metadata) get their row as soon as they write
  * their result file, without touching the report. What the check writes but a reader cannot act
- * on — the raw summary line, the score — is deliberately not rendered.
+ * on — the raw summary line — is deliberately not rendered.
  *
- * A page fails on any MISSING_ON_AEM / WRONG_TAB / NUMBER_CHANGED / COUNT_MISMATCH /
- * TEXT_CHANGED / SCOPE_ASYMMETRY, however
- * large the page is: losing one button is losing content. The live page is the reference and
- * a subset baseline, so extra text on the new page is reported and never fails.
+ * Two numbers are reported side by side and answer different questions. The **pass rate** counts
+ * whole pages that cleared the gate: how many pages still need work. The **score** (read from
+ * score.csv, never recomputed here) is how much of one page survived, and is what the pages of a
+ * template are sorted by — it is a work queue, not a second verdict. Neither is derived from the
+ * other, and a page can score 99 and still be FAIL, because a changed figure or an unusable
+ * comparison fails at any score.
+ *
+ * A page's result is the worst its test cases reached: FAIL, then WARN (through the gate, wants
+ * reading), then PASS. The live page is the reference and a subset baseline, so extra text on the
+ * new page is reported and never fails.
  *
  * Input is files on disk, never the Katalon log:
  *
@@ -262,17 +268,46 @@ public class ReportBuilder {
 		return m.find() ? (m.group(1) as int) : 0
 	}
 
+	/**
+	 * score.csv as a `field -> value` map, or [:] when the check that ran wrote none.
+	 *
+	 * READ, never recomputed. The score is what the verdict was banded from, and a report that
+	 * derived it a second time from findings.csv would be a second implementation of the formula,
+	 * free to disagree with the one that actually set the verdict — the reader would then see a
+	 * score of 96 beside a FAIL and have no way to tell which half was wrong. The same duplication
+	 * already exists for ERRORS (see the list above, kept in step with ContentCompare by comment
+	 * only); it is not worth repeating for arithmetic.
+	 */
+	private static Map readScore(String proj, String slug, String checkId) {
+		String kind = CHECK_EVIDENCE[checkId]
+		if (!kind) return [:]
+		File f = new File(proj + '/Reports/' + kind + '/' + slug + '/score.csv')
+		if (!f.exists()) return [:]
+		Map out = [:]
+		f.readLines('UTF-8').drop(1).each { String line ->
+			int c = line.indexOf(',')
+			if (c > 0) out[line.substring(0, c)] = line.substring(c + 1).replaceAll('^"|"$', '').replace('""', '"')
+		}
+		return out
+	}
+
 	/** Everything one test case on one page contributes to the report, read once. */
 	private static Map checkStatsOf(String proj, Map p, String checkId) {
 		Map res = (Map) ((Map) p.results)[checkId]
 		List rows = res == null ? [] : readFindings(proj, (String) p.slug, checkId)
+		Map sc = res == null ? [:] : readScore(proj, (String) p.slug, checkId)
 		return [check  : checkId,
 			verdict: res ? (String) res.verdict : 'NA',
 			items  : itemsCompared(res == null ? null : (String) res.detail),
 			rows   : rows,
 			failed : rows.count { ERRORS.contains(it.verdict) },
 			warned : rows.count { WARNINGS.contains(it.verdict) },
-			extra  : rows.count { INFOS.contains(it.verdict) }]
+			extra  : rows.count { INFOS.contains(it.verdict) },
+			// null, not 0, when no score was written: "not scored" and "scored zero" are opposite
+			// statements, and a 0 default would drag every average down towards a claim nobody made.
+			score  : sc.score == null ? null : (sc.score as double),
+			lowConf: sc.confidence == 'low',
+			confWhy: (String) (sc.confidenceWhy ?: '')]
 	}
 
 	/** The content test case — what the index and the template tables still count in texts. */
@@ -310,6 +345,7 @@ public class ReportBuilder {
 
 	private static Map caseTallyOf(List cases) {
 		return [pass  : cases.count { it.verdict == 'PASS' },
+			warn  : cases.count { it.verdict == 'WARN' },
 			fail  : cases.count { it.verdict == 'FAIL' },
 			notRun: cases.count { !JUDGED.contains(it.verdict) }]
 	}
@@ -334,8 +370,17 @@ public class ReportBuilder {
 		}.join(' ')
 	}
 
-	/** The only two verdicts a pass rate can be counted from. */
-	static final List JUDGED = ['PASS', 'FAIL']
+	/**
+	 * The verdicts a pass rate can be counted from.
+	 *
+	 * WARN belongs here. It is a page the check reached a conclusion about — through the gate, with
+	 * reservations — and leaving it out would put every warned page in the same bucket as one that
+	 * was never run: out of the denominator, out of the tally, and reported as work not yet done.
+	 * That is exactly what happened the first time a producer started emitting WARN.
+	 */
+	static final List JUDGED = ['PASS', 'WARN', 'FAIL']
+	/** Judged verdicts that cleared the gate. WARN is a pass that wants reading, not a failure. */
+	static final List THROUGH = ['PASS', 'WARN']
 
 	/**
 	 * The pass rate of a set of pages, as `[html, cls]`: "90% (18 of 20)" plus good/bad.
@@ -343,22 +388,63 @@ public class ReportBuilder {
 	 * Two rules this rate must keep.
 	 *
 	 * It is a **page**-level rate and never a text-level one. It counts whole pages that cleared
-	 * the verdict gate; a page that lost one text out of 127 is one failed page here, exactly as
-	 * it is everywhere else in the report. The two numbers answer different questions and must
-	 * not be blended into a "% of texts that survived".
+	 * the verdict gate; a page that lost 30% of its text is one failed page here, exactly as it is
+	 * everywhere else in the report. The two numbers answer different questions — "how many pages
+	 * still need work" and "how much of this page survived" — and must not be blended into a "% of
+	 * texts that survived". The second question now has its own answer, the score, and it is
+	 * reported separately for that reason.
 	 *
-	 * Its denominator is the pages actually judged — PASS or FAIL. A page with no result on
+	 * Its denominator is the pages actually judged — PASS, WARN or FAIL. A page with no result on
 	 * disk, or one whose result reads NOT_RUN, is in neither half: in the denominator it would
 	 * read as a failure the check never made, in the numerator it would hide. Nothing judged
 	 * prints no rate at all rather than 0% — an empty batch is not a total failure.
+	 *
+	 * WARN counts as passed, because it is: it cleared the gate. It still colours the rate amber
+	 * rather than green, so a template carried entirely by warnings cannot read as clean.
 	 */
 	private static Map rateOf(List verdicts) {
 		int total = verdicts.count { JUDGED.contains(it) }
-		int passed = verdicts.count { it == 'PASS' }
+		int passed = verdicts.count { THROUGH.contains(it) }
+		int warned = verdicts.count { it == 'WARN' }
 		if (total <= 0) return [html: '&mdash;', cls: '']
 		int p = (int) Math.round(passed * 100.0d / total)
-		return [html: p + '% <span class="of">(' + passed + ' of ' + total + ')</span>',
-			cls : passed == total ? 'good' : 'bad']
+		return [html: p + '% <span class="of">(' + passed + ' of ' + total +
+				(warned > 0 ? ', ' + warned + ' with reservations' : '') + ')</span>',
+			cls : passed < total ? 'bad' : warned > 0 ? 'warn' : 'good']
+	}
+
+	/**
+	 * The mean score of a set of test cases, as `[html, cls]`, or `[html: '—']` when it cannot be
+	 * stated.
+	 *
+	 * Low-confidence scores are left out: a 92 measured over 11 items is not the same claim as a 92
+	 * over 300, and averaging them together publishes the weaker one under the authority of the
+	 * stronger. When EVERY score in the set is low confidence the average is withheld entirely
+	 * rather than computed from nothing but weak evidence — an average of guesses is a guess.
+	 */
+	private static Map scoreAvgOf(List stats) {
+		List usable = stats.findAll { it.score != null && !it.lowConf }
+		if (!usable) return [html: '&mdash;', cls: '']
+		double avg = (usable.sum { it.score as double } as double) / usable.size()
+		int dropped = stats.count { it.score != null && it.lowConf }
+		return [html: String.format('%.1f', avg) +
+				(dropped > 0 ? " <span class=\"of\">(${dropped} low&#8209;confidence excluded)</span>" : ''),
+			cls : scoreCls(avg)]
+	}
+
+	/**
+	 * The band a score falls in, as a CSS class.
+	 *
+	 * Kept identical to ContentCompare.PASS_SCORE / WARN_SCORE, the same way ERRORS above is kept
+	 * identical to ContentCompare.ERRORS — by comment, because this renderer reads files and does
+	 * not import the checks that write them. Only AVERAGES are banded here; a single test case is
+	 * coloured by the grade the check itself recorded, never by re-deciding it from the number.
+	 */
+	static final double PASS_SCORE = 95.0d
+	static final double WARN_SCORE = 90.0d
+
+	private static String scoreCls(double score) {
+		return score >= PASS_SCORE ? 'good' : score >= WARN_SCORE ? 'warn' : 'bad'
 	}
 
 	// ---------------------------------------------------------------- rendering
@@ -420,6 +506,7 @@ public class ReportBuilder {
 	private static String renderIndex(String proj, List pages, List groups, Map byGroup) {
 		int compared = pages.count { it.result != null }
 		int withFindings = pages.count { pageVerdict(it) == 'FAIL' }
+		int withReservations = pages.count { pageVerdict(it) == 'WARN' }
 		Map overall = rateOf(pages.collect { Map p -> pageVerdict(p) })
 
 		StringBuilder h = new StringBuilder()
@@ -435,16 +522,20 @@ public class ReportBuilder {
 		h << "<div><dt>Pages in scope</dt><dd>${pages.size()}</dd></div>"
 		h << "<div><dt>Compared in this run</dt><dd>${compared}</dd></div>"
 		h << "<div><dt>Pages with findings</dt><dd class=\"${withFindings > 0 ? 'bad' : 'good'}\">${withFindings}</dd></div>"
+		if (withReservations > 0) {
+			h << "<div><dt>Passed with reservations</dt><dd class=\"warn\">${withReservations}</dd></div>"
+		}
 		h << "<div><dt>Pass rate</dt><dd class=\"${overall.cls}\">${overall.html}</dd></div>"
 		h << '</dl></header>'
 
 		h << '<section class="overview"><h2 class="minor">Templates</h2>'
 		h << '<div class="scroll"><table class="matrix"><thead><tr><th>Template</th><th>Pages</th><th>Compared</th>'
-		h << '<th>Texts compared</th><th>Texts failed</th><th>Pass rate</th><th>Result</th><th></th></tr></thead><tbody>'
+		h << '<th>Texts compared</th><th>Texts failed</th><th>Avg score</th><th>Pass rate</th>'
+		h << '<th>Result</th><th></th></tr></thead><tbody>'
 		groups.each { String g ->
 			List gp = (List) byGroup[g]
 			if (!gp) return
-			h << '<tr class="grouprow"><th colspan="8" scope="colgroup">'
+			h << '<tr class="grouprow"><th colspan="9" scope="colgroup">'
 			h << esc(GROUP_TITLE[g] ?: (g.capitalize() + ' pages')) + '</th></tr>'
 			templatesOf(gp).each { Map t ->
 				List done = t.pages.findAll { it.result != null }
@@ -457,6 +548,8 @@ public class ReportBuilder {
 				h << "<td class=\"num\">${t.pages.size()}</td><td class=\"num\">${done.size()}</td>"
 				h << "<td class=\"num\">${items ?: '&mdash;'}</td>"
 				h << '<td class="num">' + (failedTexts > 0 ? "<b class=\"bad\">${failedTexts}</b>" : '&mdash;') + '</td>'
+				Map avg = scoreAvgOf(stats)
+				h << "<td class=\"num rate ${avg.cls}\">${avg.html}</td>"
 				Map r = rateOf(verdicts)
 				h << "<td class=\"num rate ${r.cls}\">${r.html}</td>"
 				h << '<td>' + (done.isEmpty() ? '<span class="chip NA">not compared</span>'
@@ -527,12 +620,22 @@ public class ReportBuilder {
 		StringBuilder h = new StringBuilder()
 		if (done) {
 			h << '<div class="scroll"><table class="matrix"><thead><tr><th>Page</th><th>Result</th>'
-			h << '<th>Test cases</th><th></th></tr></thead><tbody>'
-			done.each { Map p ->
+			h << '<th>Score</th><th>Test cases</th><th></th></tr></thead><tbody>'
+			// Worst score first. This table is the work queue for a template, and the page that lost
+			// the most content is the one to open first — alphabetical order buries it.
+			done.sort { Map p ->
+				Double sc = (Double) statsOf(proj, p).score
+				sc == null ? 101.0d : sc
+			}.each { Map p ->
 				String v = pageVerdict(p)
+				Map st = statsOf(proj, p)
 				Map tally = caseTallyOf(casesOf(proj, p))
 				h << "<tr><th scope=\"row\"><a class=\"mono\" href=\"${pageHref(p, '../')}\">${esc(shortPath((String) p.aem))}</a></th>"
 				h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run' : v.toLowerCase()}</span></td>"
+				h << '<td class="num">' + (st.score == null ? '&mdash;'
+						: "<b class=\"${v == 'FAIL' ? 'bad' : v == 'WARN' ? 'warn' : 'good'}\">" +
+						String.format('%.1f', st.score as double) + '</b>' +
+						(st.lowConf ? '<span class="of"> low conf.</span>' : '')) + '</td>'
 				h << '<td class="casetally">' + tallyHtml(tally) + '</td>'
 				h << "<td><a href=\"${pageHref(p, '../')}\">open &rsaquo;</a></td></tr>"
 			}
@@ -579,7 +682,7 @@ public class ReportBuilder {
 		h << '<p class="page-status">Test cases run against this URL: ' + tallyHtml(tally) + '</p>'
 
 		h << '<div class="scroll"><table class="matrix"><thead><tr><th>Test case</th><th>Result</th>'
-		h << '<th>Findings</th><th></th></tr></thead><tbody>'
+		h << '<th>Score</th><th>Findings</th><th></th></tr></thead><tbody>'
 		cases.each { Map c ->
 			String id = (String) c.check
 			String v = (String) c.verdict
@@ -590,6 +693,9 @@ public class ReportBuilder {
 			h << (hasFile ? "<a href=\"${escAttr(checkFile(p, id))}\">${esc(title)}</a>" : esc(title))
 			h << "<span class=\"sub casedesc\">${esc(CHECK_DESC[id] ?: '')}</span></th>"
 			h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run yet' : v == 'NOT_RUN' ? 'not run' : v.toLowerCase()}</span></td>"
+			h << '<td class="num">' + (c.score == null ? '&mdash;'
+					: "<b class=\"${v == 'FAIL' ? 'bad' : v == 'WARN' ? 'warn' : 'good'}\">" +
+					String.format('%.1f', c.score as double) + '</b>') + '</td>'
 			h << '<td class="num">' + (failed > 0 ? "<b class=\"bad\">${failed}</b>" : '&mdash;') + '</td>'
 			h << '<td>' + (hasFile ? "<a href=\"${escAttr(checkFile(p, id))}\">open &rsaquo;</a>" : '') + '</td></tr>'
 		}
@@ -665,7 +771,23 @@ public class ReportBuilder {
 			h << "<div><dt>Failed</dt><dd class=\"${failed > 0 ? 'bad' : 'good'}\">${failed}</dd></div>"
 			h << "<div><dt>Warnings</dt><dd>${s.warned}</dd></div>"
 			h << "<div><dt>Only on the new page</dt><dd>${s.extra}</dd></div>"
+			if (s.score != null) {
+				// Coloured by the recorded verdict, not by re-banding the number: when a hard-fail
+				// verdict overrode a high score, a green 99 beside a red FAIL is the report arguing
+				// with itself. The score says how much survived; the badge above says what to do.
+				h << "<div><dt>Score</dt><dd class=\"${verdict == 'FAIL' ? 'bad' : verdict == 'WARN' ? 'warn' : 'good'}\">"
+				h << "${String.format('%.1f', s.score as double)}<span class=\"of\"> / 100</span></dd></div>"
+			}
 			h << '</dl>'
+			if (s.score != null && verdict == 'FAIL' && (s.score as double) >= WARN_SCORE) {
+				h << '<p class="callout">This page scores above the pass mark and still fails: it carries a '
+				h << 'finding that no score can offset &mdash; a changed figure, or a comparison whose two '
+				h << 'sides did not read the same amount of content. The finding is below.</p>'
+			}
+			if (s.lowConf && s.confWhy) {
+				h << "<p class=\"callout warn\">Low confidence &mdash; ${esc(s.confWhy)}. "
+				h << 'Read the findings rather than the score.</p>'
+			}
 			// The failing texts open, everything else folded: this file is read to fix failures.
 			h << findingBlocks((List) s.rows, ERRORS, true)
 			h << findingBlocks((List) s.rows, WARNINGS, false)
@@ -682,13 +804,17 @@ public class ReportBuilder {
 		return h.toString()
 	}
 
-	/** "1 pass / 2 fail · 1 not run" — the same phrasing wherever test cases are counted. */
+	/** "1 pass / 1 warn / 2 fail · 1 not run" — the same phrasing wherever test cases are counted. */
 	private static String tallyHtml(Map tally) {
 		int pass = tally.pass as int
+		int warn = (tally.warn ?: 0) as int
 		int fail = tally.fail as int
 		int notRun = tally.notRun as int
 		StringBuilder h = new StringBuilder()
 		h << (pass > 0 ? "<b class=\"good\">${pass}</b>" : '0') + ' pass'
+		// Only shown when it happened. A permanent "0 warn" on every page of a site that has none
+		// is a column of noise between the two numbers anyone is actually reading.
+		if (warn > 0) h << " / <b class=\"warn\">${warn}</b> with reservations"
 		h << ' / ' + (fail > 0 ? "<b class=\"bad\">${fail}</b>" : '0') + ' fail'
 		if (notRun > 0) h << " <span class=\"sub\">&middot; ${notRun} not run</span>"
 		return h.toString()
@@ -911,7 +1037,14 @@ public class ReportBuilder {
 		h << '.facts>div:last-child{border-right:0}'
 		h << '.facts dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}'
 		h << '.facts dd{margin:2px 0 0;font-family:var(--serif);font-size:24px;font-variant-numeric:tabular-nums}'
-		h << '.facts dd.bad{color:var(--fail)}.facts dd.good{color:var(--pass)}'
+		h << '.facts dd.bad{color:var(--fail)}.facts dd.good{color:var(--pass)}.facts dd.warn{color:var(--warn)}'
+		// A verdict that has no rule renders as unstyled body text and stops being a signal at all —
+		// which is the quiet way a whole band of results goes unread. Every class the score can
+		// produce (good/warn/bad) is defined everywhere it can appear.
+		h << 'td.rate.warn{color:var(--warn)}b.warn,td b.warn,td.casetally b.warn,.page-status b.warn{color:var(--warn)}'
+		h << '.callout{margin:16px 0;padding:12px 14px;border-left:3px solid var(--fail);'
+		h << 'background:var(--fail-soft);color:var(--fail);border-radius:0 6px 6px 0;font-size:14px}'
+		h << '.callout.warn{border-left-color:var(--warn);background:var(--warn-soft);color:var(--warn)}'
 		// "(18 of 20)" rides along with the percentage everywhere: a rate with no denominator
 		// hides that 100% can mean two pages.
 		h << '.facts dd .of{font-family:var(--sans);font-size:12px;color:var(--muted)}'

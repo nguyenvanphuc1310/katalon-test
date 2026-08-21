@@ -22,9 +22,19 @@ import migration.ContentSnapshot
  * What counts as content is decided by ContentScope from Data Files/site-profiles.json
  * (positive scoping to a content root), and each item carries the tab it lives in.
  *
- * The verdict is strict: any MISSING_ON_AEM / WRONG_TAB / NUMBER_CHANGED / COUNT_MISMATCH /
- * TEXT_CHANGED / SCOPE_ASYMMETRY fails the page, however large the page is. Losing one line of
- * copy is losing content. Link destinations are NOT compared — this check is about text.
+ * The verdict is banded on a score, not on whether the two pages are identical. Every finding
+ * still costs the page a weighted fraction of one live item (ContentCompare.WEIGHTS), and the
+ * page grades PASS at 95 or above, WARN down to 90, FAIL below it. Two pages are almost never
+ * identical after a migration — a curly quote, a non-breaking space, a rephrased CTA — and a gate
+ * that failed all of them was reporting only that fact.
+ *
+ * Two things the band does not soften. NUMBER_CHANGED and SCOPE_ASYMMETRY fail the page at any
+ * score (ContentCompare.HARD_FAIL): a wrong figure is the page stating something false, and a
+ * scope asymmetry says the comparison itself is void. And nothing here changes what is REPORTED —
+ * every finding is still written to findings.csv and still shown in full. The score decides where
+ * the gate sits; it does not decide what the reader is told.
+ *
+ * Link destinations are NOT compared — this check is about text.
  */
 public class ContentTextCheck {
 
@@ -86,18 +96,23 @@ public class ContentTextCheck {
 		String outDir = AuditUtils.reportDir('ContentAudit', pageurl)
 		ContentCompare.write(result, outDir)
 
-		List errors = ((List) result.findings).findAll { ContentCompare.ERRORS.contains(it.verdict) }
+		Map g = ContentCompare.grade(result)
 		String summary = ContentCompare.summary(result)
 
 		KeywordUtil.logInfo("${summary} — ${outDir}")
 		KeywordUtil.logInfo("Snapshots: live ${sc.capturedAt} (${sc.contentRoot}) | new ${aem.capturedAt} (${aem.contentRoot})")
 
-		if (errors.isEmpty()) {
-			AuditUtils.recordResult(pageurl, 'content', 'PASS', summary)
-			return
+		AuditUtils.recordResult(pageurl, 'content', (String) g.grade, summary)
+
+		// WARN deliberately does not mark the test case failed. It is a page that cleared the gate
+		// and still wants a reader; failing it in Katalon would collapse the band back into the
+		// pass/fail the band exists to open up, and the suite result would show nothing new.
+		if (g.grade == 'FAIL') {
+			KeywordUtil.markFailed("Content does not match the live page: ${summary} — see ${outDir}/findings.csv")
+		} else if (g.grade == 'WARN') {
+			KeywordUtil.logInfo("Passed the gate with reservations (score ${String.format('%.1f', g.score as double)}" +
+				", below ${ContentCompare.PASS_SCORE}) — read ${outDir}/findings.csv")
 		}
-		AuditUtils.recordResult(pageurl, 'content', 'FAIL', summary)
-		KeywordUtil.markFailed("Content does not match the live page: ${summary} — see ${outDir}/findings.csv")
 	}
 
 	/**

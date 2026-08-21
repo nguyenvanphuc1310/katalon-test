@@ -2,30 +2,40 @@
 
 Two results per page. They answer different questions and are deliberately not merged.
 
-> **The score is deferred.** `ReportBuilder` renders the **verdict only** — see
-> [report-contract.md](report-contract.md). The verdict table below is
-> live and is the source of the 10 finding values; [the score section](#score--the-ranking) is
-> kept as the specification to restore, not as something the report reads. The two must still
-> never be derived from one another when the score returns.
+> **Both are live.** `ContentCompare.grade()` computes the score, `write()` records it in
+> `score.csv`, and `ReportBuilder` renders it — see [report-contract.md](report-contract.md).
+> The verdict is now **banded on the score**, which is the one place the two touch: the score
+> decides which band the page lands in, and nothing else about the score is derived from the
+> verdict or the verdict from anything but the band and the hard gate.
 
 ## Verdict — the gate
 
-Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`.
+Written by `ContentTextCheck` to `Reports/parity-results/<slug>/content.txt`, as one of
+`PASS`, `WARN`, `FAIL` or `NOT_RUN`. Which one is decided by the [score band and the hard
+gate](#grades-and-the-hard-gate), not by whether any single finding exists.
 
-| Verdict | Meaning | Level |
-|---|---|---|
-| `MISSING_ON_AEM` | Live-page text found nowhere on the new page | 🔴 fails the page |
-| `NUMBER_CHANGED` | Same sentence, different figures — a sum, premium, age, percentage or policy term | 🔴 fails the page |
-| `WRONG_TAB` | The text exists but under a different tab | 🔴 fails the page |
-| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page cannot be judged | 🔴 fails the page |
-| `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🔴 fails the page |
-| `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🔴 fails the page |
-| `STATE_ONLY_ON_LIVE` | A tab/section of the live page with no counterpart | 🟡 warning |
-| `STATE_ONLY_ON_NEW` | A tab/section only on the new page | 🟡 warning |
-| `ONLY_ON_AEM` | Extra text on the new page — subset rule | ⚪ info |
+Two lists, and they are not the same list. `ERRORS` says which findings are **content the
+migration did not carry** — they are what the report prints in red and counts as "texts
+failed". `WEIGHTS` says **how much of the page** each one costs, and that is what the band is
+computed from. A text that is simply gone is a whole item lost; the same text reworded is still
+readable and costs a tenth of one. Both are errors; only one of them should be able to fail a
+large page on its own.
+
+| Verdict | Meaning | Level | Weight |
+|---|---|---|---:|
+| `MISSING_ON_AEM` | Live-page text found nowhere on the new page | 🔴 counts against the page | 1.0 |
+| `NUMBER_CHANGED` | Same sentence, different figures — a sum, premium, age, percentage or policy term | 🔴 **fails at any score** | 1.0 |
+| `WRONG_TAB` | The text exists but under a different tab | 🔴 counts against the page | 0.5 |
+| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page cannot be judged | 🔴 **fails at any score** | 0.0 |
+| `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🔴 counts against the page | 0.3 |
+| `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🔴 counts against the page | 0.1 |
+| `STATE_ONLY_ON_LIVE` | A tab/section of the live page with no counterpart | 🟡 warning | 0.5 |
+| `STATE_ONLY_ON_NEW` | A tab/section only on the new page | 🟡 warning | 0.0 |
+| `ONLY_ON_AEM` | Extra text on the new page — subset rule | ⚪ info | 0.0 |
 
 `NOT_RUN` means the check does not apply (the URL serves a PDF). It is not the same as a
-missing file, which means the page has not been checked yet.
+missing file, which means the page has not been checked yet. `WARN` means the page cleared the
+gate and still wants a reader — it does **not** mark the Katalon test case failed.
 
 ### How the three levels render
 
@@ -36,6 +46,11 @@ spelled-out label:
 | Level | Label printed | Colour | Verdicts |
 |---|---|---|---|
 | error | `FAILS THE PAGE` | red `--fail` `#B3261E` on `--fail-soft` | the six in `ContentCompare.ERRORS` |
+
+The error label still reads `FAILS THE PAGE` because that is what these findings are — content
+that did not survive. Whether the **page** ends up FAIL is the band's decision, and a page can
+carry a handful of red findings and still pass. The block label describes the finding; the badge
+at the top of the file describes the page.
 | warning | `WARNING` | amber `--warn` `#8A5A00` on `--warn-soft` | the two warnings above |
 | info | `FOR INFORMATION` | neutral `--muted` on `--sunk` | `ONLY_ON_AEM` |
 
@@ -119,14 +134,11 @@ have failed the page.
 
 ## Score — the ranking
 
-> **Deferred by decision — not implemented, and not rendered by the report.** The current
-> report scope is verdict-only, so nothing consumes a score today. `ContentCompare` also has no
-> `WEIGHTS` and no `score()`, `write()` emits no `weight` column and no `score.csv`, and
-> `ReportBuilder` renders no score. The generated files under `Reports/` were produced by an
-> earlier build that had it. (The offline harness that asserted the score was removed with
-> `tools/` on 2026-08-20.) Everything
-> below is the specification to restore it to; see
-> [open point 6](../overview/project-tracking.md#open-points).
+> **Implemented 2026-08-21.** `ContentCompare.WEIGHTS`, `HARD_FAIL`, `PASS_SCORE`,
+> `WARN_SCORE` and `grade()` are in the committed code; `write()` emits the `weight` column and
+> `score.csv`; `ReportBuilder` renders the score on the test-case file, sorts a template's pages
+> by it, and averages it per template. It ranks pages by how much work each needs — it is not a
+> second verdict, and the hard gate below overrides it.
 
 ```
 score = 100 × (1 − Σ weight(finding) / items compared)
@@ -150,9 +162,21 @@ column, so anyone can add the column up in a spreadsheet and reproduce the score
 
 ### Grades and the hard gate
 
-`PASS ≥ 98 · WARN 95–98 · FAIL < 95`, **except** that any `NUMBER_CHANGED` or
-`LINK_CHANGED` grades FAIL whatever the score. A wrong sum assured is not the kind of defect
-that gets averaged away.
+`PASS ≥ 95 · WARN 90–95 · FAIL < 90`, **except** that any `NUMBER_CHANGED` or
+`SCOPE_ASYMMETRY` grades FAIL whatever the score, and so does a page where **0 items were
+compared**. A wrong sum assured is not the kind of defect that gets averaged away; a scope
+asymmetry weighs 0.0, so without the hard gate a page whose only finding is "the two sides did
+not read comparable content" would score a clean 100 and pass; and `1 − Σw/0` is a division by
+zero that would otherwise read as a perfect page.
+
+The band was chosen at 90 because two pages are almost never byte-identical after a migration —
+a curly quote, a non-breaking space, a rephrased CTA — and a gate that failed every one of them
+was reporting only that fact. `WARN` is **through the gate**: `ContentTextCheck` does not mark
+the Katalon test case failed, and `ReportBuilder` counts it in the numerator of the pass rate
+while still colouring it amber.
+
+The thresholds are constants in `ContentCompare`, not configuration. `ReportBuilder` repeats
+them (for colouring **averages** only) and is kept in step by comment, the same way `ERRORS` is.
 
 ### Confidence
 

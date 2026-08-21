@@ -482,14 +482,123 @@ public class ContentCompare {
 	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED',
 		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 
-	/** Write findings.csv and state_pairs.csv */
+	/**
+	 * What each finding costs the page, as a fraction of one live item.
+	 *
+	 * ERRORS above says WHICH findings are content the migration did not carry. This says HOW MUCH
+	 * of the page each one is, and the two are deliberately different questions: a text that is
+	 * simply not on the new page is a whole item lost, the same text reworded is still readable and
+	 * costs a tenth of one. Both are errors; only one of them should be able to fail a large page
+	 * on its own.
+	 *
+	 * SCOPE_ASYMMETRY weighs 0 and is in HARD_FAIL instead — it does not say a fraction of the page
+	 * was lost, it says the measurement is void, and there is no fraction that expresses that.
+	 */
+	static final Map WEIGHTS = [
+		MISSING_ON_AEM    : 1.0d,  // not on the new page at all: a whole item gone
+		NUMBER_CHANGED    : 1.0d,  // a different figure is a different statement — also HARD_FAIL
+		WRONG_TAB         : 0.5d,  // on the page, behind the wrong tab: findable, but not where the reader looks
+		STATE_ONLY_ON_LIVE: 0.5d,  // a live tab with no counterpart: everything under it is at risk
+		COUNT_MISMATCH    : 0.3d,  // some of its appearances survived
+		TEXT_CHANGED      : 0.1d,  // the text is there, reworded
+		ONLY_ON_AEM       : 0.0d,  // the live page is a subset baseline: extra text is never a loss
+		STATE_ONLY_ON_NEW : 0.0d,
+		SCOPE_ASYMMETRY   : 0.0d]
+
+	/**
+	 * Verdicts that fail the page at any score.
+	 *
+	 * NUMBER_CHANGED: a wrong sum assured, premium or interest rate is not a small imperfection in
+	 * an otherwise good page, it is the page stating something false. It must not be averaged away
+	 * by the 300 texts around it that are fine.
+	 *
+	 * SCOPE_ASYMMETRY: its weight is 0 by design, so without this list a page whose ONLY finding is
+	 * "the two sides did not read comparable content" would score a clean 100 and PASS. That is the
+	 * en_lifestage regression the verdict was created to stop, re-entering through the score.
+	 */
+	static final List HARD_FAIL = ['NUMBER_CHANGED', 'SCOPE_ASYMMETRY']
+
+	/** At or above this score the page passes */
+	static final double PASS_SCORE = 95.0d
+	/** At or above this score the page is through the gate but wants a human: WARN. Below it: FAIL. */
+	static final double WARN_SCORE = 90.0d
+
+	/**
+	 * Fewer items than this and the score is too coarse to trust: one MISSING_ON_AEM out of 39
+	 * moves it by more than 2.5 points, so a single finding can cross a whole band.
+	 */
+	static final int LOW_CONFIDENCE_ITEMS = 40
+
+	/**
+	 * The page's score and its grade.
+	 *
+	 * score = 100 x (1 - sum of finding weights / live items compared). Dividing by the number of
+	 * live items is what makes two pages of different sizes comparable — and it is also exactly why
+	 * the score cannot replace the findings: 99.2 on a 127-item page still means a real button is
+	 * gone, and that button is in findings.csv either way. The score decides where the gate sits,
+	 * not what is reported.
+	 *
+	 * Returns [score, grade, items, lost, hardFailures, confidence, confidenceWhy].
+	 */
+	@Keyword
+	static Map grade(Map result) {
+		List findings = (List) (result.findings ?: [])
+		int items = (result.scItems ?: 0) as int
+
+		// Nothing was compared, so nothing can be concluded. This must return before the arithmetic:
+		// `1 - lost/0` is a division by zero, and reading "no items" as "no losses" is precisely the
+		// failure mode that turns a broken crawl green. Callers already refuse these pages before
+		// reaching diff(); this is the second line of defence, not the first.
+		if (items <= 0) {
+			return [score: 0.0d, grade: 'FAIL', items: 0, lost: 0.0d, hardFailures: 0,
+				confidence: 'low', confidenceWhy: 'no live items were compared, so there is nothing to score']
+		}
+
+		double lost = 0.0d
+		findings.each { lost += ((WEIGHTS[it.verdict] ?: 0.0d) as double) }
+		// A page can carry more weight than it has items (every item missing, plus unmatched tabs).
+		// Clamp rather than report a negative score: below zero there is nothing left to rank.
+		double score = Math.max(0.0d, 100.0d * (1.0d - lost / items))
+
+		int hard = findings.count { HARD_FAIL.contains(it.verdict) }
+		// Banded first, then overridden — so a page that is 99% intact and states one wrong figure
+		// still shows the 99 next to its FAIL. Hiding the score there would misdescribe the work.
+		String g = score >= PASS_SCORE ? 'PASS' : score >= WARN_SCORE ? 'WARN' : 'FAIL'
+		if (hard > 0) g = 'FAIL'
+
+		String why = ''
+		if (findings.any { it.verdict == 'SCOPE_ASYMMETRY' }) {
+			why = 'the two sides did not read comparable content, so the denominator is not the page'
+		} else if (items < LOW_CONFIDENCE_ITEMS) {
+			why = "only ${items} live items were compared, so one finding moves the score by " +
+				"${String.format('%.1f', 100.0d / items)} points"
+		}
+
+		return [score: score, grade: g, items: items, lost: lost, hardFailures: hard,
+			confidence: why ? 'low' : 'normal', confidenceWhy: why]
+	}
+
+	/** Write findings.csv, score.csv and state_pairs.csv */
 	@Keyword
 	static void write(Map result, String outDir) {
-		List csv = ['verdict,kind,path,text,note']
+		List csv = ['verdict,kind,path,text,note,weight']
 		((List) result.findings).each { f ->
-			csv << [f.verdict, f.kind, AuditUtils.csvq(f.path), AuditUtils.csvq(f.text), AuditUtils.csvq(f.note)].join(',')
+			csv << [f.verdict, f.kind, AuditUtils.csvq(f.path), AuditUtils.csvq(f.text), AuditUtils.csvq(f.note),
+				String.format('%.1f', (WEIGHTS[f.verdict] ?: 0.0d) as double)].join(',')
 		}
 		new File(outDir + '/findings.csv').setText(csv.join('\n'), 'UTF-8')
+
+		// The score the verdict was banded from, so the report can show it without recomputing the
+		// formula a second time. Two implementations of one formula drift; a file does not.
+		Map g = grade(result)
+		new File(outDir + '/score.csv').setText(['field,value',
+			'score,' + String.format('%.1f', g.score as double),
+			'grade,' + g.grade,
+			'items,' + g.items,
+			'lost,' + String.format('%.1f', g.lost as double),
+			'hardFailures,' + g.hardFailures,
+			'confidence,' + g.confidence,
+			'confidenceWhy,' + AuditUtils.csvq(g.confidenceWhy)].join('\n'), 'UTF-8')
 
 		List sp = ['pair,sc_id,sc_label,aem_id,aem_label,by,score']
 		((List) (result.statePairs ?: [])).eachWithIndex { p, int i ->
@@ -509,11 +618,19 @@ public class ContentCompare {
 		int paired = ((List) (result.statePairs ?: []))?.size() ?: 0
 		// The leading clause is parsed by ReportBuilder.summaryOf with a literal regex; new counters
 		// are appended after it so that regex keeps matching.
+		Map g = grade(result)
+		String hard = g.hardFailures > 0
+			? ' (failed regardless of score: ' +
+				((List) result.findings).findAll { HARD_FAIL.contains(it.verdict) }
+					.collect { it.verdict }.unique().join(', ') + ')'
+			: ''
 		return "${result.scItems} live items compared: " +
 			"${c.MISSING_ON_AEM ?: 0} missing, ${c.WRONG_TAB ?: 0} in the wrong tab, " +
 			"${c.TEXT_CHANGED ?: 0} reworded, ${c.ONLY_ON_AEM ?: 0} only on the new page" +
 			"; ${c.NUMBER_CHANGED ?: 0} with changed figures, ${c.COUNT_MISMATCH ?: 0} appearing fewer times" +
 			"; ${paired} tab/section(s) paired, ${c.STATE_ONLY_ON_LIVE ?: 0} unmatched on the live page, " +
-			"${c.STATE_ONLY_ON_NEW ?: 0} only on the new page"
+			"${c.STATE_ONLY_ON_NEW ?: 0} only on the new page" +
+			"; score ${String.format('%.1f', g.score as double)}/100${hard}" +
+			(g.confidence == 'low' ? " — low confidence: ${g.confidenceWhy}" : '')
 	}
 }

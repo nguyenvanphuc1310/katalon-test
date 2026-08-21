@@ -168,15 +168,18 @@ again to `@7` the same day — see the changelog — so the current floor is `@7
 
 ## 4. Result
 
-`ContentTextCheck` records a **verdict** and `ContentCompare` computes a **score** — see
+`ContentCompare.grade()` turns the findings into a **score** — `100 x (1 - sum of finding
+weights / live items compared)` — and `ContentTextCheck` bands that score into the **verdict**:
+`PASS` at 95 or above, `WARN` down to 90, `FAIL` below it, with `NUMBER_CHANGED`,
+`SCOPE_ASYMMETRY` and "0 items compared" failing at any score. See
 [verdicts-and-score.md](../reference/verdicts-and-score.md). Outputs:
 
 | File | Contents |
 |---|---|
 | `Reports/parity-results/<slug>/content.txt` | verdict on line 1, summary from line 2 — named after the check id, which is also its test case in the report |
-| `Reports/ContentAudit/<slug>/findings.csv` | one row per finding, with its score weight * |
-| `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, confidence * |
+| `Reports/ContentAudit/<slug>/findings.csv` | one row per finding, with its score weight |
+| `Reports/ContentAudit/<slug>/score.csv` | score, grade, items, points lost, hard failures, confidence |
 | `Reports/ContentAudit/<slug>/state_pairs.csv` | which tab paired with which, and how |
 
-\* The `weight` column and `score.csv` are not written by the code currently on disk — see the
-note in [verdicts-and-score.md](../reference/verdicts-and-score.md#score--the-ranking).
+The report **reads** `score.csv`; it never recomputes the formula. Adding up the `weight` column
+of `findings.csv` in a spreadsheet reproduces `lost`, and therefore the score, exactly.
