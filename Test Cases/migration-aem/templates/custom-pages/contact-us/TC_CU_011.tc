@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 011 — Enquiry email. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_011</name>
+   <tag>contactus,CU-011</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>bde5516c-a126-4e80-bede-1070594d430a</testCaseGuid>
+</TestCaseEntity>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 005 — Required validation. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_005</name>
+   <tag>contactus,CU-005</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>ed4dcee5-f212-448e-9fc6-80182c4c0d1c</testCaseGuid>
+</TestCaseEntity>

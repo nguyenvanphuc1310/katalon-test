@@ -20,7 +20,7 @@ public class PacsRegressionReportBuilder {
 	static final String OUT_FOLDER = 'Reports/pacs-regression-report'
 
 	static final List SECTION_ORDER = [
-		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'pruadvisers',
+		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'pruadvisers',
 	]
 
 	static final Map SECTION_TITLE = [
@@ -31,6 +31,7 @@ public class PacsRegressionReportBuilder {
 		opus        : 'Opus',
 		awards      : 'Agency Awards Night',
 		shariah     : 'Shariah Quiz',
+		contactus   : 'Contact Us',
 		pruadvisers : 'PRUAdvisers',
 	]
 
@@ -83,6 +84,12 @@ public class PacsRegressionReportBuilder {
 	@Keyword
 	static void startCustomPagesRun() {
 		['ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah'].each { startRun(it) }
+	}
+
+	/** Clear only Contact Us. Leaves Discovery and Custom pages tabs in place. */
+	@Keyword
+	static void startContactUsRun() {
+		startRun('contactus')
 	}
 
 	@Keyword

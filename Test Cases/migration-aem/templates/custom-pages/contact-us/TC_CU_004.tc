@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 004 — UTM, owner Yes. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_004</name>
+   <tag>contactus,CU-004</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>d4238393-9262-43ae-86bc-6974b059a01d</testCaseGuid>
+</TestCaseEntity>

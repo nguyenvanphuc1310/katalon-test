@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 001 — Insurance enquiry, owner No. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_001</name>
+   <tag>contactus,CU-001</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>28baff45-ae5b-4082-8c2b-6aaac2ad765b</testCaseGuid>
+</TestCaseEntity>

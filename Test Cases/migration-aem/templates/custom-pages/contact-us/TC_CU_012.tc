@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 012 — Duplicate prevention. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_012</name>
+   <tag>contactus,CU-012</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>52522598-fad6-447c-9e4e-59b1daf273d4</testCaseGuid>
+</TestCaseEntity>

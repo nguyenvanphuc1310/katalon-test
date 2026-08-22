@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 010 — Backend/API failure. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_010</name>
+   <tag>contactus,CU-010</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>0ab5741f-41f4-48ba-be63-3eda089dfb15</testCaseGuid>
+</TestCaseEntity>

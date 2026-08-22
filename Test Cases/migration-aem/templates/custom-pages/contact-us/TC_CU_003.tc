@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 003 — Policy Coverage, owner Yes. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_003</name>
+   <tag>contactus,CU-003</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4711d36a-06ce-450e-a713-e1394291a006</testCaseGuid>
+</TestCaseEntity>

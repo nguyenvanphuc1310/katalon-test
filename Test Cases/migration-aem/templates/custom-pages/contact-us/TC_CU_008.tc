@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 008 — Owner Yes/No visibility. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_008</name>
+   <tag>contactus,CU-008</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>4bf1cfae-357f-4110-8461-cbfe01c15c83</testCaseGuid>
+</TestCaseEntity>

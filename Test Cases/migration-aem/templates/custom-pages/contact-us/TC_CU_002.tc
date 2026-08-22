@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 002 — Surrender/termination, owner Yes. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_002</name>
+   <tag>contactus,CU-002</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>ffec53de-f1e3-4bb9-876e-55f31fb0c57c</testCaseGuid>
+</TestCaseEntity>

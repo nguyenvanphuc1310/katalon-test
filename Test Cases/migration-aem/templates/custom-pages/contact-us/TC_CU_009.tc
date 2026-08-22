@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 009 — reCAPTCHA / token. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_009</name>
+   <tag>contactus,CU-009</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>5f995a04-1e46-411a-8cef-ce81953c8475</testCaseGuid>
+</TestCaseEntity>

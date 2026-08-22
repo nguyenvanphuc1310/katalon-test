@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 006 — UTM, owner No. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_006</name>
+   <tag>contactus,CU-006</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a3571636-e874-4100-8bfd-f774eeaf3d40</testCaseGuid>
+</TestCaseEntity>

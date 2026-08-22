@@ -1,0 +1,13 @@
+testId,section,scenario,owner,enquiry,aemPath,suite
+CU-001,contactus,Insurance enquiry owner No,No,Insurance Product Enquiry,/en/contact-us/,run
+CU-002,contactus,Surrender/termination owner Yes,Yes,Surrender/Termination of policy[ies],/en/contact-us/,run
+CU-003,contactus,Policy Coverage owner Yes,Yes,Enquiry on Policy Coverage,/en/contact-us/,run
+CU-004,contactus,UTM owner Yes,Yes,Enquiry on Policy Coverage,/en/contact-us/,run
+CU-005,contactus,Required validation,,,/en/contact-us/,run
+CU-006,contactus,UTM owner No,No,Enquiry on Policy Coverage,/en/contact-us/,run
+CU-007,contactus,Every enquiry type,Yes,all 8,/en/contact-us/,run
+CU-008,contactus,Owner Yes/No visibility,,,/en/contact-us/,run
+CU-009,contactus,reCAPTCHA token,,,/en/contact-us/,run
+CU-010,contactus,Backend API failure,,,/en/contact-us/,run
+CU-011,contactus,Enquiry email,Yes,Enquiry on Policy Coverage,/en/contact-us/,run
+CU-012,contactus,Duplicate prevention,Yes,Enquiry on Policy Coverage,/en/contact-us/,run

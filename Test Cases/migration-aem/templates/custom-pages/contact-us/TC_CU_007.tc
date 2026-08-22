@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Contact Us 007 — Every enquiry type. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CU_007</name>
+   <tag>contactus,CU-007</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b512bed7-7643-4c40-b857-46f0b75f1eb9</testCaseGuid>
+</TestCaseEntity>
