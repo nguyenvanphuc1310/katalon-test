@@ -142,7 +142,7 @@ public class PacsRegressionReportBuilder {
 		h << '<title>PACS AEM regression</title>'
 		h << '<style>' << css() << '</style></head><body><main>'
 		h << '<header class="cover"><p class="eyebrow">PACS AEM regression</p>'
-		h << '<h1>Custom-page journey pack</h1>'
+		h << '<h1>AEM regression pack</h1>'
 		h << '<p class="lede">AEM UAT only. Same screenshot cards as PRUDiscovery. '
 		h << 'Tabs are pack areas from the 2026-08-15 sheet. Sitecore is not part of this run.</p>'
 		h << '<dl class="facts"><div><dt>Scenarios</dt><dd>' << rows.size() << '</dd></div>'
@@ -202,6 +202,7 @@ public class PacsRegressionReportBuilder {
 		h << '<table class="difftable"><tr><th>Step</th><th>Status</th><th>aemsite</th></tr>'
 		((List) (r.steps ?: [])).each { Map s ->
 			h << '<tr><td><div class="mono">' << esc(s.name) << '</div>'
+			if (s.detail) h << '<div class="sub">' << esc(s.detail) << '</div>'
 			h << '<div class="sub"><a href="' << escAttr(s.aemUrl) << '">' << esc(s.aemUrl) << '</a></div></td>'
 			h << '<td><span class="chip ' << esc(s.status ?: '') << '">' << esc(s.status ?: '') << '</span></td>'
 			h << '<td class="evcell">' << img(s.aemShot, 'AEM') << '</td></tr>'

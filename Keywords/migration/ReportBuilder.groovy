@@ -348,7 +348,7 @@ public class ReportBuilder {
 		List nav = []
 		tplNav.each { Map m ->
 			((Map) m.t).pages.findAll { it.result != null }.each { Map p -> nav << [g: m.g, t: m.t, p: p] }
-		}
+			}
 		int caseFiles = 0
 		nav.eachWithIndex { Map n, int i ->
 			List cases = casesOf(proj, (Map) n.p)
@@ -484,7 +484,7 @@ public class ReportBuilder {
 				String v = pageVerdict(p)
 				Map tally = caseTallyOf(casesOf(proj, p))
 				h << "<tr><th scope=\"row\"><a class=\"mono\" href=\"${pageHref(p, '../')}\">${esc(shortPath((String) p.aem))}</a></th>"
-				h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run' : v.toLowerCase()}</span></td>"
+					h << "<td><span class=\"chip ${v}\">${v == 'NA' ? 'not run' : v.toLowerCase()}</span></td>"
 				h << '<td class="casetally">' + tallyHtml(tally) + '</td>'
 				h << "<td><a href=\"${pageHref(p, '../')}\">open &rsaquo;</a></td></tr>"
 			}

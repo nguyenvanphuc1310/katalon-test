@@ -2,6 +2,8 @@ package migration
 
 import com.kms.katalon.core.annotation.Keyword
 import com.kms.katalon.core.model.FailureHandling
+import com.kms.katalon.core.testobject.ConditionType
+import com.kms.katalon.core.testobject.TestObject
 import com.kms.katalon.core.util.KeywordUtil
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 
@@ -36,16 +38,52 @@ public class CustomPagesForm {
 		shariah      : 'Shariah',
 	]
 
+	static String lastStartPage = ''
+	static boolean stepFinishedSinceStart = false
+
+	static void resetStartState() {
+		lastStartPage = ''
+		stepFinishedSinceStart = false
+	}
+
+	static void markStepFinished() {
+		stepFinishedSinceStart = true
+	}
+
+	/**
+	 * One Chrome per case by default.
+	 * New Chrome only when startOn is called again for the same page after a step already finished
+	 * (a second independent result that must not reuse quiz/session state).
+	 */
 	@Keyword
 	static void startOn(String pageKey) {
-		try { WebUI.closeBrowser() } catch (Throwable ignore) { }
-		WebUI.openBrowser(PAGE[pageKey])
-		try { WebUI.maximizeWindow() } catch (Throwable ignore) { }
+		String target = PAGE[pageKey]
+		boolean isolate = hasBrowser() && lastStartPage == pageKey && stepFinishedSinceStart
+		if (isolate) {
+			KeywordUtil.logInfo('startOn: new Chrome for a second isolated run on ' + pageKey)
+			try { WebUI.closeBrowser() } catch (Throwable ignore) { }
+		}
+		if (hasBrowser()) {
+			WebUI.navigateToUrl(target, FailureHandling.OPTIONAL)
+		} else {
+			WebUI.openBrowser(target)
+			try { WebUI.maximizeWindow() } catch (Throwable ignore) { }
+		}
+		lastStartPage = pageKey
+		stepFinishedSinceStart = false
 		WebUI.waitForPageLoad(12, FailureHandling.OPTIONAL)
 		dismissCookies()
 		waitUntil(12000) { pageAlive() }
 		waitLandmark(pageKey)
-		pause(1.5)
+		pause(1.2)
+	}
+
+	static boolean hasBrowser() {
+		try {
+			return com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver() != null
+		} catch (Throwable e) {
+			return false
+		}
 	}
 
 	@Keyword
@@ -498,190 +536,349 @@ public class CustomPagesForm {
 		return probeAwardsNav()
 	}
 
-	/** Pic 7 — type name so Start Quiz enables (React), then click only that button. */
+	/** AEM quiz: no name field. Questions already showing, or click Start. */
 	static Map startShariahQuiz() {
+		waitUntil(10000) { truthy(js('return !!document.querySelector(".quiz-wrapper");')) }
 		js('''
-			function smallest(re) {
-				var best = null, n = 1e12;
-				document.querySelectorAll("section, article, form, div").forEach(function (el) {
-					var t = el.innerText || "";
-					if (!re.test(t)) return;
-					if (t.length < n && t.length > 20) { best = el; n = t.length; }
-				});
-				return best;
-			}
-			var root = smallest(/How well do you know Shariah|Tell us your name|Start Quiz/);
-			if (root) {
-				root.setAttribute("data-cp-quiz", "1");
-				var input = root.querySelector("input");
-				if (input) {
-					input.setAttribute("data-cp-quiz-name", "1");
-					var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-					setter.call(input, "test");
-					input.dispatchEvent(new Event("input", {bubbles:true}));
-					input.dispatchEvent(new Event("change", {bubbles:true}));
-				}
-				root.querySelectorAll("button, a, [role=button]").forEach(function (el) {
-					if (/Start Quiz/i.test((el.innerText || "").replace(/\\s+/g, " "))) el.setAttribute("data-cp-quiz-start", "1");
-				});
-			}
+			var wrap = document.querySelector(".quiz-wrapper");
+			if (wrap) try { wrap.scrollIntoView({block:"center"}); } catch (e) {}
 		''')
-		boolean typed = false
-		boolean started = false
-		try {
-			def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
-			def inputs = driver.findElements(org.openqa.selenium.By.cssSelector("[data-cp-quiz-name]"))
-			if (inputs) {
-				inputs[0].click()
-				inputs[0].clear()
-				inputs[0].sendKeys('test')
-				typed = true
+		boolean questions = quizOnQuestion()
+		boolean started = questions
+		if (!questions) {
+			js('''
+				var root = document.getElementById("quiz-intro") || document.querySelector(".quiz-wrapper") || document.body;
+				root.querySelectorAll("button, a, [role=button]").forEach(function (el) {
+					var t = (el.innerText || "").replace(/\\s+/g, " ").trim();
+					if (/^Start( Quiz)?$/i.test(t) || /Start Quiz/i.test(t)) el.setAttribute("data-cp-quiz-start", "1");
+				});
+			''')
+			try {
+				def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
+				def starts = driver.findElements(org.openqa.selenium.By.cssSelector("[data-cp-quiz-start], #startQuizBtn, button#startQuiz"))
+				if (starts && !starts.isEmpty() && starts[0].isDisplayed()) {
+					starts[0].click()
+					started = true
+				}
+			} catch (Throwable e) {
+				KeywordUtil.logInfo('quiz start selenium: ' + (e.message ?: e))
 			}
-			def starts = driver.findElements(org.openqa.selenium.By.cssSelector("[data-cp-quiz-start]"))
-			if (starts) {
-				starts[0].click()
-				started = true
+			if (!quizOnQuestion()) {
+				started = truthy(js('''
+					var el = document.querySelector("[data-cp-quiz-start]");
+					if (!el) return false;
+					el.click();
+					return true;
+				''')) || started
 			}
-		} catch (Throwable e) {
-			KeywordUtil.logInfo('quiz start selenium: ' + (e.message ?: e))
+			pause(0.8)
+			questions = waitUntil(10000) { quizOnQuestion() }
 		}
-		if (!started) {
-			started = truthy(js('''
-				var el = document.querySelector("[data-cp-quiz-start]");
-				if (!el) return false;
-				el.click();
-				return true;
-			'''))
-		}
-		pause(1.2)
-		boolean questions = waitUntil(10000) { quizOnQuestion() }
+		started = started || questions
 		return [
-			found  : bodyText().contains('Shariah') || bodyText().contains('Start Quiz'),
-			typed  : typed || truthy(js('return !!(document.querySelector("[data-cp-quiz-name]") && document.querySelector("[data-cp-quiz-name]").value === "test");')),
-			started: started,
+			found    : truthy(js('return !!document.querySelector(".quiz-wrapper");')),
+			started  : started,
 			questions: questions,
-			url    : currentUrl(),
+			url      : currentUrl(),
 		]
 	}
 
+	static boolean quizElVisible(String css) {
+		return truthy(js('''
+			var el = document.querySelector(arguments[0]);
+			if (!el) return false;
+			if (el.style && el.style.display === "none") return false;
+			var s = window.getComputedStyle(el);
+			return s.display !== "none" && s.visibility !== "hidden";
+		''', css))
+	}
+
 	static boolean quizOnQuestion() {
-		return bodyText().contains('select one answer only') ||
-			bodyText().contains('here is your first question') ||
-			(bodyText() =~ /(?m)^\\s*1\\.\\s/).find() ||
-			truthy(js('return /What is Shariah Investing/.test(document.body.innerText || "");'))
+		return quizElVisible('#quiz-question-container')
 	}
 
 	static boolean quizOnResult() {
-		String t = bodyText()
-		return t.contains('BEGINNER LEVEL') || t.contains('INTERMEDIATE') || t.contains('ADVANCED') ||
-			t.contains('Your understanding of Shariah')
+		if (quizElVisible('#quiz-score-container')) return true
+		String t = quizScoreText().toUpperCase()
+		return t.contains('BEGINNER') || t.contains('INTERMEDIATE') || t.contains('EXPERT') ||
+			t.contains('ADVANCED') || t.contains('YOUR UNDERSTANDING OF SHARIAH')
+	}
+
+	static TestObject quizCss(String css) {
+		TestObject to = new TestObject('quiz:' + css)
+		to.addProperty('css', ConditionType.EQUALS, css)
+		return to
+	}
+
+	static boolean waitForScoreContainer() {
+		try {
+			WebUI.waitForElementVisible(quizCss('#quiz-score-container'), 12, FailureHandling.OPTIONAL)
+		} catch (Throwable ignore) { }
+		return waitUntil(4000) { quizOnResult() }
+	}
+
+	static String quizScoreText() {
+		return (js('''
+			var el = document.getElementById("quiz-score-container");
+			if (!el) return "";
+			var h3 = el.querySelector("h3");
+			var bits = [];
+			if (h3) bits.push((h3.innerText || "").replace(/\\s+/g, " ").trim());
+			bits.push((el.innerText || "").replace(/\\s+/g, " ").trim());
+			return bits.join(" | ");
+		''') ?: '').toString()
+	}
+
+	/** AEM scoreTiers: Beginner Level / Intermediate Level / Expert Level (Title Case). */
+	static String quizScoreLevel(String raw) {
+		String upper = (raw ?: '').toUpperCase()
+		if (upper.contains('EXPERT')) return 'EXPERT'
+		if (upper.contains('BEGINNER')) return 'BEGINNER'
+		if (upper.contains('INTERMEDIATE')) return 'INTERMEDIATE'
+		if (upper.contains('ADVANCED')) return 'ADVANCED'
+		return ''
 	}
 
 	/** Sheet CP-028: correct = Great Job; incorrect = the other feedback. */
 	static String quizFeedbackKind() {
-		String t = bodyText()
-		if (t.contains('Great Job')) return 'correct'
-		String low = t.toLowerCase()
-		if (low.contains('incorrect') || low.contains('not quite') || low.contains('try again')
-			|| low.contains('wrong') || low.contains('unfortunately') || low.contains('not the right')) {
-			return 'incorrect'
-		}
-		return ''
+		return (js('''
+			var fb = document.getElementById("quiz-feedback-container");
+			var wrap = document.querySelector(".quiz-wrapper");
+			var t = "";
+			var cls = "";
+			if (fb && fb.style.display !== "none") {
+				t = fb.innerText || "";
+				cls = (fb.className || "") + " " + (fb.innerHTML || "");
+			}
+			if (!t && wrap) t = wrap.innerText || "";
+			if (/Great [Jj]ob|Well done|That.?s right|Correct!/i.test(t) || /feedback-correct|is-correct|quiz-correct/i.test(cls)) return "correct";
+			if (/not quite right|incorrect|not quite|oops|wrong|unfortunately|not the right|that.?s not|better luck|oh no/i.test(t)
+				|| /feedback-incorrect|is-incorrect|quiz-wrong/i.test(cls)) return "incorrect";
+			return "";
+		''') ?: '').toString()
 	}
 
 	static int quizQuestionNo() {
-		def m = (bodyText() =~ /(?m)(\\d+)\\.\\s+/)
-		if (m.find()) {
-			try { return m.group(1) as int } catch (Exception ignore) { }
-		}
-		return 0
+		Object n = js('''
+			var box = document.getElementById("quiz-question-container");
+			if (!box || box.style.display === "none") return 0;
+			var m = (box.innerText || "").match(/(\\d+)\\.\\s/);
+			return m ? parseInt(m[1], 10) : 0;
+		''')
+		try { return (n as String).toInteger() } catch (Exception ignore) { return 0 }
 	}
 
 	static boolean quizNameScreen() {
-		return bodyText().contains('Tell us your name') || bodyText().contains('Start Quiz')
+		return quizOnQuestion() || quizElVisible('#quiz-intro')
 	}
 
-	/** A–D option buttons on the quiz card (not site nav, not Next). */
-	static Map answerQuizInCard(String which) {
+	/** Plan which `.answer-opt` cards to click (quiz-data when present). */
+	static Map planAnswerOpts(String which) {
 		return probe('''
 			var which = arguments[0] || "first";
-			function smallest(re) {
-				var best = null, n = 1e12;
-				document.querySelectorAll("section, article, form, div").forEach(function (el) {
-					var t = el.innerText || "";
-					if (!re.test(t) || t.length > 4000) return;
-					if (t.length < n && t.length > 20) { best = el; n = t.length; }
-				});
-				return best;
+			var box = document.getElementById("quiz-question-container");
+			if (!box || box.style.display === "none") {
+				return JSON.stringify({leftPage:false, answerCount:0, indexes:[], multi:false});
 			}
-			if (/how-to-submit-a-claim/.test(location.pathname)) {
-				return JSON.stringify({leftPage: true, answerCount: 0, feedback: false, url: location.pathname});
-			}
-			var root = smallest(/select one answer only|here is your first question|What is Shariah|BEGINNER LEVEL/i)
-				|| document.querySelector("[data-cp-quiz]");
-			if (!root) return JSON.stringify({leftPage:false, answerCount:0, feedback:false, url: location.pathname});
-			var usable = [];
-			root.querySelectorAll("button, [role=button], div, label, li").forEach(function (el) {
-				var t = (el.innerText || "").replace(/\\s+/g, " ").trim();
-				if (!/^[A-D][\\.\\)\\:]/.test(t)) return;
-				if (t.length > 220) return;
-				usable.push(el);
-			});
-			usable.sort(function (a, b) { return (a.innerText || "").length - (b.innerText || "").length; });
-			var uniq = [];
-			var seen = {};
-			usable.forEach(function (el) {
-				var letter = ((el.innerText || "").trim().charAt(0) || "").toUpperCase();
-				if (seen[letter]) return;
-				seen[letter] = true;
-				uniq.push(el);
-			});
-			var picked = "";
-			var idx = which === "last" && uniq.length ? uniq.length - 1 : 0;
-			if (uniq[idx]) {
-				try { uniq[idx].click(); picked = (uniq[idx].innerText || "").trim(); } catch (e) {}
+			var opts = box.querySelectorAll(".answer-opt");
+			var n = opts.length;
+			var multi = /select all that apply/i.test(box.innerText || "");
+			var correct = [];
+			try {
+				var raw = document.querySelector("script.quiz-data");
+				var data = raw ? JSON.parse(raw.textContent || "{}") : null;
+				var list = data && (data.questions || data.quiz || data.items || (Array.isArray(data) ? data : null));
+				var qn = 0;
+				var qm = (box.innerText || "").match(/(\\d+)\\.\\s/);
+				if (qm) qn = parseInt(qm[1], 10) - 1;
+				var q = list && list[qn] ? list[qn] : null;
+				if (q) {
+					if ((q.inputType || q.questionType || q.type || "") === "checkbox") multi = true;
+					var answers = q.answers || q.options || q.choices || [];
+					answers.forEach(function (a, i) {
+						if (a === true || a === 1 || a === "true") { correct.push(i); return; }
+						if (typeof a === "object" && a) {
+							if (a.isCorrect === true || a.isCorrect === "true" || a.correct === true || a.correct === "true") correct.push(i);
+						}
+					});
+				}
+			} catch (e) {}
+			var indexes = [];
+			if (which === "last") {
+				var wrong = [];
+				for (var i = 0; i < n; i++) if (correct.indexOf(i) < 0) wrong.push(i);
+				indexes = wrong.length ? [wrong[wrong.length - 1]] : (n ? [n - 1] : []);
+			} else if (correct.length) {
+				indexes = correct;
+			} else if (multi && n >= 2) {
+				indexes = [0, Math.min(2, n - 1)];
+			} else {
+				indexes = n ? [0] : [];
 			}
 			return JSON.stringify({
 				leftPage: /how-to-submit-a-claim/.test(location.pathname),
-				answerCount: uniq.length,
-				picked: picked,
-				feedback: /Great Job|understand|incorrect|right|wrong|well done/i.test(root.innerText || ""),
-				url: location.pathname,
-				sample: (root.innerText || "").replace(/\\s+/g, " ").trim().slice(0, 220)
+				answerCount: n,
+				indexes: indexes,
+				multi: multi
 			});
 		''', which)
 	}
 
-	static boolean clickQuizNext() {
-		return truthy(js('''
-			function smallest(re) {
-				var best = null, n = 1e12;
-				document.querySelectorAll("section, article, form, div").forEach(function (el) {
-					var t = el.innerText || "";
-					if (!re.test(t) || t.length > 4000) return;
-					if (t.length < n && t.length > 20) { best = el; n = t.length; }
-				});
-				return best;
+	static boolean clickAnswerIndexes(List indexes) {
+		if (!indexes) return false
+		boolean any = false
+		try {
+			def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
+			indexes.each { idx ->
+				int i
+				try { i = (idx as String).toInteger() } catch (Exception e) { return }
+				def cards = driver.findElements(org.openqa.selenium.By.cssSelector('#quiz-question-container .answer-opt[data-index="' + i + '"]'))
+				if (!cards || cards.isEmpty()) {
+					def all = driver.findElements(org.openqa.selenium.By.cssSelector('#quiz-question-container .answer-opt'))
+					if (all && all.size() > i) cards = [all.get(i)]
+				}
+				if (!cards || cards.isEmpty()) return
+				def card = cards[0]
+				js('arguments[0].scrollIntoView({block:"center"});', card)
+				pause(0.15)
+				try {
+					card.click()
+					any = true
+				} catch (Throwable clickErr) {
+					def inner = card.findElements(org.openqa.selenium.By.cssSelector('input.ans-checkbox, .checkbox-label'))
+					if (inner && !inner.isEmpty()) {
+						try { inner[0].click(); any = true } catch (Throwable ignore) {
+							js('arguments[0].click();', card)
+							any = true
+						}
+					} else {
+						js('arguments[0].click();', card)
+						any = true
+					}
+				}
 			}
-			var root = smallest(/select one answer only|Great Job|Next|Submit/i) || document.querySelector("[data-cp-quiz]");
-			if (!root) return false;
-			var hit = null;
-			root.querySelectorAll("button, [role=button], a").forEach(function (el) {
-				var t = (el.innerText || "").replace(/\\s+/g, " ").trim();
-				if (/^Next$|^Submit$|^Continue$/.test(t)) hit = el;
-			});
-			if (!hit) return false;
-			hit.click();
-			return true;
+		} catch (Throwable e) {
+			KeywordUtil.logInfo('quiz answer click: ' + (e.message ?: e))
+		}
+		if (!any) {
+			any = truthy(js('''
+				var box = document.getElementById("quiz-question-container");
+				if (!box) return false;
+				var opts = box.querySelectorAll(".answer-opt");
+				if (!opts.length) return false;
+				try { opts[0].click(); return true; } catch (e) { return false; }
+			'''))
+		}
+		return any
+	}
+
+	static Map selectAnswerOpts(String which) {
+		Map plan = planAnswerOpts(which)
+		List indexes = []
+		if (plan.indexes instanceof List) {
+			indexes = (List) plan.indexes
+		} else if (plan.indexes) {
+			indexes = plan.indexes.toString().split(',').toList()
+		}
+		boolean clicked = clickAnswerIndexes(indexes)
+		if (!quizHasSelection()) {
+			clicked = truthy(js('''
+				var wanted = (arguments[0] || "").toString().split(",");
+				var box = document.getElementById("quiz-question-container");
+				if (!box) return false;
+				var opts = box.querySelectorAll(".answer-opt");
+				var ok = false;
+				function clickAt(i) {
+					if (isNaN(i)) return;
+					var opt = opts[i];
+					if (!opt) return;
+					var cb = opt.querySelector("input.ans-checkbox");
+					try { (cb || opt).click(); ok = true; } catch (e) {}
+				}
+				if (wanted.length && wanted[0] !== "") {
+					for (var w = 0; w < wanted.length; w++) clickAt(parseInt(wanted[w], 10));
+				} else if (opts.length) {
+					clickAt(0);
+				}
+				return ok;
+			''', indexes.join(','))) || clicked
+		}
+		pause(0.35)
+		plan.picked = indexes.join(',')
+		plan.clicked = clicked
+		plan.selected = quizHasSelection()
+		return plan
+	}
+
+	static boolean quizHasSelection() {
+		return truthy(js('''
+			var box = document.getElementById("quiz-question-container");
+			if (!box) return false;
+			var cbs = box.querySelectorAll("input.ans-checkbox");
+			for (var i = 0; i < cbs.length; i++) if (cbs[i].checked) return true;
+			var opts = box.querySelectorAll(".answer-opt.selected, .answer-opt.active, .answer-opt.checked");
+			return opts.length > 0;
 		'''))
 	}
 
-	/** Sheet CP-028: one question, one path, Next must advance. */
+	static boolean quizBtnVisible(String id, boolean mustEnable) {
+		return truthy(js('''
+			var b = document.getElementById(arguments[0]);
+			if (!b) return false;
+			if (arguments[1] && b.disabled) return false;
+			if (b.style && b.style.display === "none") return false;
+			var s = window.getComputedStyle(b);
+			return s.display !== "none" && s.visibility !== "hidden";
+		''', id, mustEnable))
+	}
+
+	static boolean quizSubmitEnabled() {
+		return quizBtnVisible('submitQuizBtn', true)
+	}
+
+	static boolean quizNextVisible() {
+		return quizBtnVisible('nextQuizBtn', false)
+	}
+
+	static boolean clickQuizButton(String id, boolean mustEnable) {
+		try {
+			def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
+			def btns = driver.findElements(org.openqa.selenium.By.id(id))
+			if (!btns || btns.isEmpty()) return false
+			def b = btns[0]
+			if (!b.isDisplayed()) return false
+			if (mustEnable && !b.isEnabled()) return false
+			js('arguments[0].scrollIntoView({block:"center"});', b)
+			b.click()
+			return true
+		} catch (Throwable e) {
+			return truthy(js('''
+				var b = document.getElementById(arguments[0]);
+				if (!b) return false;
+				if (arguments[1] && b.disabled) return false;
+				b.click();
+				return true;
+			''', id, mustEnable))
+		}
+	}
+
+	static boolean clickQuizSubmit() {
+		if (!waitUntil(5000) { quizSubmitEnabled() }) return false
+		return clickQuizButton('submitQuizBtn', true)
+	}
+
+	static boolean clickQuizNext() {
+		if (!waitUntil(5000) { quizNextVisible() }) return false
+		return clickQuizButton('nextQuizBtn', false)
+	}
+
+	/** One question: .answer-opt → #submitQuizBtn → feedback → #nextQuizBtn. */
 	static Map playShariahOneThenNext(String which) {
 		Map start = startShariahQuiz()
 		waitUntil(10000) { quizOnQuestion() }
 		int q1 = quizQuestionNo()
-		Map step = answerQuizInCard(which)
+		Map step = selectAnswerOpts(which)
+		boolean submitted = clickQuizSubmit()
 		waitUntil(5000) { quizFeedbackKind() || quizOnResult() }
 		String kind = quizFeedbackKind()
 		pause(0.3)
@@ -691,32 +888,30 @@ public class CustomPagesForm {
 		int q2 = quizQuestionNo()
 		boolean sequenced = nextHit && (quizOnResult() || (q2 > 0 && q1 > 0 && q2 == q1 + 1))
 		return [
-			started    : start.started,
-			typed      : start.typed,
-			found      : start.found,
-			answerCount: step.answerCount,
-			answered   : num(step, 'answerCount') >= 4 ? 1 : 0,
-			picked     : step.picked,
+			started     : start.started || start.questions,
+			found       : start.found,
+			answerCount : step.answerCount,
+			answered    : num(step, 'answerCount') >= 1 ? 1 : 0,
+			picked      : step.picked,
+			clicked     : step.clicked,
+			submitted   : submitted,
 			feedbackKind: kind,
-			feedback   : kind == 'correct' || kind == 'incorrect',
-			sequenced  : sequenced,
-			q1         : q1,
-			q2         : q2,
-			leftPage   : flag(step, 'leftPage'),
-			url        : currentUrl(),
+			feedback    : kind == 'correct' || kind == 'incorrect',
+			sequenced   : sequenced,
+			q1          : q1,
+			q2          : q2,
+			leftPage    : flag(step, 'leftPage'),
+			url         : currentUrl(),
 		]
 	}
 
-	/**
-	 * Sheet CP-029: all 5 questions, result tier, restart back to name.
-	 */
+	/** All 5: .answer-opt → Submit → Next until #quiz-score-container. Does not click Restart. */
 	static Map playShariahQuiz(String which) {
 		Map start = startShariahQuiz()
-		if (!quizOnQuestion()) {
-			waitUntil(8000) { quizOnQuestion() }
-		}
+		if (!quizOnQuestion()) waitUntil(8000) { quizOnQuestion() }
 		List kinds = []
 		int answered = 0
+		int submits = 0
 		int nexts = 0
 		int lastQ = 0
 		boolean sequenced = true
@@ -727,11 +922,16 @@ public class CustomPagesForm {
 			int qNow = quizQuestionNo()
 			if (lastQ && qNow && qNow != lastQ + 1) sequenced = false
 			lastQ = qNow ?: lastQ
-			Map step = answerQuizInCard(which)
+			Map step = selectAnswerOpts(which)
 			if (flag(step, 'leftPage')) {
 				return start + [leftPage: true, hasScore: false, answered: answered]
 			}
 			if (num(step, 'answerCount') < 1) break
+			if (!clickQuizSubmit()) {
+				sequenced = false
+				break
+			}
+			submits++
 			answered++
 			waitUntil(4000) { quizFeedbackKind() || quizOnResult() }
 			String kind = quizFeedbackKind()
@@ -741,51 +941,73 @@ public class CustomPagesForm {
 			if (clickQuizNext()) {
 				nexts++
 				pause(0.8)
-			} else {
+			} else if (!quizOnResult()) {
 				sequenced = false
 			}
 		}
-		waitUntil(5000) { quizOnResult() }
-		String t = bodyText()
-		String level = t.contains('BEGINNER LEVEL') ? 'BEGINNER LEVEL' :
-			(t.contains('INTERMEDIATE') ? 'INTERMEDIATE' : (t.contains('ADVANCED') ? 'ADVANCED' : ''))
-		boolean hasScore = quizOnResult()
-		boolean restartClicked = truthy(js('''
-			var hit = null;
-			document.querySelectorAll("button, a").forEach(function (el) {
-				var x = (el.innerText || "").replace(/\\s+/g, " ").trim();
-				if (/restart|try again|play again|retake|start again/i.test(x)) hit = el;
-			});
-			if (!hit) return false;
-			hit.click();
-			return true;
-		'''))
-		boolean reset = false
-		if (restartClicked) {
-			pause(1.0)
-			reset = quizNameScreen()
-		}
+		boolean scoreVisible = waitForScoreContainer()
+		String scoreText = quizScoreText()
+		KeywordUtil.logInfo('CP-029 #quiz-score-container text: ' + scoreText)
+		String level = quizScoreLevel(scoreText)
 		return [
-			started      : start.started,
-			typed        : start.typed,
+			started      : start.started || start.questions,
 			found        : start.found,
 			answerCount  : answered > 0 ? 4 : 0,
 			answered     : answered,
+			submits      : submits,
 			nexts        : nexts,
-			sequenced    : sequenced && nexts >= 1,
+			sequenced    : sequenced && submits >= 1,
 			feedbackKinds: kinds,
 			feedback     : !kinds.isEmpty(),
-			hasScore     : hasScore,
+			hasScore     : scoreVisible || quizOnResult(),
+			scoreText    : scoreText,
 			level        : level,
-			restart      : restartClicked,
-			reset        : reset,
 			leftPage     : currentUrl().contains('how-to-submit-a-claim'),
 			url          : currentUrl(),
 		]
 	}
 
+	static Map restartShariahQuiz() {
+		boolean restartClicked = false
+		try {
+			def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
+			def rootBtns = driver.findElements(org.openqa.selenium.By.cssSelector('#quiz-score-container button, #quiz-score-container a, .quiz-wrapper button, .quiz-wrapper a'))
+			for (def el : rootBtns) {
+				String x = (el.getText() ?: '').replaceAll(/\s+/, ' ').trim()
+				if (x =~ /(?i)restart|try again|play again|retake|start again/) {
+					js('arguments[0].scrollIntoView({block:"center"});', el)
+					el.click()
+					restartClicked = true
+					break
+				}
+			}
+		} catch (Throwable e) {
+			KeywordUtil.logInfo('quiz restart selenium: ' + (e.message ?: e))
+		}
+		if (!restartClicked) {
+			restartClicked = truthy(js('''
+				var root = document.getElementById("quiz-score-container") || document.querySelector(".quiz-wrapper");
+				if (!root) return false;
+				var hit = null;
+				root.querySelectorAll("button, a, [role=button]").forEach(function (el) {
+					var x = (el.innerText || "").replace(/\\s+/g, " ").trim();
+					if (/restart|try again|play again|retake|start again/i.test(x)) hit = el;
+				});
+				if (!hit) return false;
+				hit.click();
+				return true;
+			'''))
+		}
+		boolean reset = false
+		if (restartClicked) {
+			pause(1.0)
+			reset = waitUntil(5000) { quizNameScreen() }
+		}
+		return [restart: restartClicked, reset: reset]
+	}
+
 	static Map completeQuizThenRestart() {
-		return playShariahQuiz('first')
+		return playShariahQuiz('first') + restartShariahQuiz()
 	}
 
 	static Map sessionPartialQuiz() {
@@ -899,7 +1121,8 @@ public class CustomPagesForm {
 	}
 
 	static Map probe(String script, Object... args) {
-		Object raw = js(script, args)
+		List argList = (args != null && args.length > 0) ? Arrays.asList(args) : null
+		Object raw = WebUI.executeJavaScript(script, argList)
 		if (raw == null) return [:]
 		if (raw instanceof Map) return raw
 		try {
