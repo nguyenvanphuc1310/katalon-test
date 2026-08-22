@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Custom pages CP-009. AEM UAT only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_CP_009</name>
+   <tag>custompages,CP-009</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>c4a034cf-c246-4c6d-b0ff-f1001d7aaf3d</testCaseGuid>
+</TestCaseEntity>

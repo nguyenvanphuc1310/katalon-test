@@ -14,10 +14,10 @@
    <rerunImmediately>true</rerunImmediately>
    <testSuiteGuid>c4003dd6-2dde-4786-89c5-dec160435817</testSuiteGuid>
    <testCaseLink>
-      <guid>a6477198-d08a-4cc6-87c4-601fa9cf1213</guid>
+      <guid>5143ea87-5c4a-4587-ad2c-9474de117aa8</guid>
       <isReuseDriver>false</isReuseDriver>
       <isRun>true</isRun>
-      <testCaseId>Test Cases/migration-aem/templates/custom-pages/prudiscovery/TC_DS_002</testCaseId>
+      <testCaseId>Test Cases/migration-aem/checks/TC_Build_PRUDiscovery_Report</testCaseId>
       <usingDataBindingAtTestSuiteLevel>false</usingDataBindingAtTestSuiteLevel>
    </testCaseLink>
 </TestSuiteEntity>

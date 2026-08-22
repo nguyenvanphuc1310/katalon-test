@@ -381,6 +381,7 @@ public class PRUDiscoveryCases {
 		Map result = [
 			testId      : id,
 			name        : meta.name,
+			section     : 'prudiscovery',
 			preconditions: meta.pre,
 			expected    : meta.expected,
 			actual      : '',
@@ -388,7 +389,7 @@ public class PRUDiscoveryCases {
 			detail      : '',
 			steps       : [],
 		]
-		File ev = new File(PRUDiscoveryReportBuilder.runDir(), 'evidence/' + id)
+		File ev = new File(PacsRegressionReportBuilder.evidenceDir('prudiscovery'), id)
 		ev.mkdirs()
 		try {
 			PRUDiscoveryForm.startCase()
@@ -398,7 +399,7 @@ public class PRUDiscoveryCases {
 		} finally {
 			try { WebUI.closeBrowser() } catch (Throwable ignore) { }
 		}
-		PRUDiscoveryReportBuilder.record(result)
+		PacsRegressionReportBuilder.record(result)
 		if (result.status == 'FAIL') {
 			KeywordUtil.markFailed(id + ' FAIL: ' + (result.detail ?: result.expected))
 		} else {

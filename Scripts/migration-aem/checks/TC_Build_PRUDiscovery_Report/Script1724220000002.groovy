@@ -1,4 +1,4 @@
-import migration.PRUDiscoveryReportBuilder
+import migration.PacsRegressionReportBuilder
 
-// Reads Reports/PRUDiscovery/latest/results.json and writes Reports/prudiscovery-report/index.html
-PRUDiscoveryReportBuilder.build()
+// Writes Reports/pacs-regression-report/index.html (PRUDiscovery tab plus any later sections)
+PacsRegressionReportBuilder.build()

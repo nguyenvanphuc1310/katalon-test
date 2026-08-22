@@ -1,0 +1,19 @@
+testId,section,scenario,aemPath,suite
+CP-004,ppc,Plan and HI option mapping,/en/prupanel-connect/ppc-ep/,run
+CP-005,ppc,Descriptions and selection state,/en/prupanel-connect/ppc-ep/,run
+CP-006,ppc,Authoring persistence via publish reload,/en/prupanel-connect/ppc-ep/,run
+CP-007,prushield,Graph panel and toggle,/en/products/health/medical/prushield/,run
+CP-008,prushield,Empty graph in this browser tab only,/en/products/health/medical/prushield/,run
+CP-009,prushield,Graph persist on reload plus keyboard,/en/products/health/medical/prushield/,run
+CP-013,pruchat,Widget bootstrap and primary interaction,/en/products/wealth/ilp/faq/,run
+CP-014,pruchat,Block widget in this tab only,/en/products/wealth/ilp/faq/,run
+CP-015,pruchat,Accessibility and responsive behavior,/en/products/wealth/ilp/faq/,run
+CP-022,opus,Page section rendering and interactions,/en/priority-programme/opus/,run
+CP-023,opus,Malformed JSON in this tab plus links,/en/priority-programme/opus/,run
+CP-024,opus,Responsive keyboard plus persist on reload,/en/priority-programme/opus/,run
+CP-025,awards,Template modes,/en/agencyawardsnight/,run
+CP-026,awards,Gallery/DAM behavior,/en/agencyawardsnight/,run
+CP-027,awards,Structure persist plus session bad JSON,/en/agencyawardsnight/,run
+CP-028,shariah,Quiz progression and feedback,/en/products/wealth/investments/prulink-islamic-global-equity-index-fund/,run
+CP-029,shariah,Score tier and restart on publish,/en/products/wealth/investments/prulink-islamic-global-equity-index-fund/,run
+CP-030,shariah,Partial quiz in this tab plus keyboard,/en/products/wealth/investments/prulink-islamic-global-equity-index-fund/,run
