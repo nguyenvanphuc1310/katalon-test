@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-001 — PRUAdviser search known match. AEM UAT Find a PRUAdviser only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_API_001</name>
+   <tag>pruadvisers,API-001</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a11b22c3-d44e-4f55-8667-788990011223</testCaseGuid>
+</TestCaseEntity>

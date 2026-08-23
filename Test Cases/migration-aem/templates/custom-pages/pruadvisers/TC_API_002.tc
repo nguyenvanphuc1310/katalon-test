@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-002 — PRUAdviser search no match. AEM UAT Find a PRUAdviser only.</description>
+   <name>TC_API_002</name>
+   <tag>pruadvisers,API-002</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b22c33d4-e55f-4066-9778-899011223344</testCaseGuid>
+</TestCaseEntity>

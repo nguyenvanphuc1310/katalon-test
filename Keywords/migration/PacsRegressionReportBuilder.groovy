@@ -99,6 +99,12 @@ public class PacsRegressionReportBuilder {
 		startRun('formpreflight')
 	}
 
+	/** Clear only PRUAdvisers. Leaves Discovery, Custom pages, Contact Us, and preflight in place. */
+	@Keyword
+	static void startPRUAdvisersRun() {
+		startRun('pruadvisers')
+	}
+
 	@Keyword
 	static void record(Map scenario) {
 		if (!scenario.section) scenario.section = 'prudiscovery'

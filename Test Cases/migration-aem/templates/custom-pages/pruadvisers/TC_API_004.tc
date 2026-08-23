@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-004 — PRUAdviser search malformed/missing source data. This-tab mock on AEM UAT Find a PRUAdviser.</description>
+   <name>TC_API_004</name>
+   <tag>pruadvisers,API-004</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>d44e55f6-0788-4288-b99a-011223344566</testCaseGuid>
+</TestCaseEntity>

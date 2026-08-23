@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-003 — PRUAdviser search short query and stale-result behavior. AEM UAT Find a PRUAdviser only.</description>
+   <name>TC_API_003</name>
+   <tag>pruadvisers,API-003</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>c33d44e5-f667-4177-a889-900122334455</testCaseGuid>
+</TestCaseEntity>
