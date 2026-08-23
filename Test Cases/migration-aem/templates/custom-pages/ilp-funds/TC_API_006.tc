@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-006 — ILP Funds overview render. AEM UAT only. Does not assert volatile market figures.</description>
+   <name>TC_API_006</name>
+   <tag>ilpfunds,API-006</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>e66f7718-29aa-40bb-8ccd-344556677800</testCaseGuid>
+</TestCaseEntity>

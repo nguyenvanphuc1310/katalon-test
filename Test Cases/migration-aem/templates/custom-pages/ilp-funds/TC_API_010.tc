@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-010 — ILP Funds sync authorization/error. GET status only. Does not mutate production data.</description>
+   <name>TC_API_010</name>
+   <tag>ilpfunds,API-010</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>2aadb5c6-6dee-44ff-c012-788990011244</testCaseGuid>
+</TestCaseEntity>

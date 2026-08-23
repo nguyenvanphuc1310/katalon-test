@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-008 — ILP Funds compare. AEM UAT only.</description>
+   <name>TC_API_008</name>
+   <tag>ilpfunds,API-008</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>088b993a-4bcc-42dd-aee0-566778899022</testCaseGuid>
+</TestCaseEntity>

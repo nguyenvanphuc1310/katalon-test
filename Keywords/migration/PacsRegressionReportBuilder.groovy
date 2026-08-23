@@ -20,7 +20,7 @@ public class PacsRegressionReportBuilder {
 	static final String OUT_FOLDER = 'Reports/pacs-regression-report'
 
 	static final List SECTION_ORDER = [
-		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'formpreflight', 'pruadvisers',
+		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'formpreflight', 'pruadvisers', 'ilpfunds',
 	]
 
 	static final Map SECTION_TITLE = [
@@ -34,6 +34,7 @@ public class PacsRegressionReportBuilder {
 		contactus    : 'Contact Us',
 		formpreflight: 'Custom form preflight',
 		pruadvisers  : 'PRUAdvisers',
+		ilpfunds     : 'ILP Funds',
 	]
 
 	@Keyword
@@ -103,6 +104,12 @@ public class PacsRegressionReportBuilder {
 	@Keyword
 	static void startPRUAdvisersRun() {
 		startRun('pruadvisers')
+	}
+
+	/** Clear only ILP Funds. Leaves other pack tabs in place. */
+	@Keyword
+	static void startIlpFundsRun() {
+		startRun('ilpfunds')
 	}
 
 	@Keyword

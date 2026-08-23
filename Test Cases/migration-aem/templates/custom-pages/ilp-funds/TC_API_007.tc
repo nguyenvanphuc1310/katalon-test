@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-007 — ILP Funds fund detail. AEM UAT only.</description>
+   <name>TC_API_007</name>
+   <tag>ilpfunds,API-007</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>f77a8829-3abb-41cc-9dde-455667788911</testCaseGuid>
+</TestCaseEntity>
