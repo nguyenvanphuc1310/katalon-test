@@ -20,19 +20,20 @@ public class PacsRegressionReportBuilder {
 	static final String OUT_FOLDER = 'Reports/pacs-regression-report'
 
 	static final List SECTION_ORDER = [
-		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'pruadvisers',
+		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'formpreflight', 'pruadvisers',
 	]
 
 	static final Map SECTION_TITLE = [
-		prudiscovery: 'PRUDiscovery',
-		ppc         : 'PPC Extended Panel',
-		prushield   : 'PRUShield',
-		pruchat     : 'PRUChat Widget',
-		opus        : 'Opus',
-		awards      : 'Agency Awards Night',
-		shariah     : 'Shariah Quiz',
-		contactus   : 'Contact Us',
-		pruadvisers : 'PRUAdvisers',
+		prudiscovery : 'PRUDiscovery',
+		ppc          : 'PPC Extended Panel',
+		prushield    : 'PRUShield',
+		pruchat      : 'PRUChat Widget',
+		opus         : 'Opus',
+		awards       : 'Agency Awards Night',
+		shariah      : 'Shariah Quiz',
+		contactus    : 'Contact Us',
+		formpreflight: 'Custom form preflight',
+		pruadvisers  : 'PRUAdvisers',
 	]
 
 	@Keyword
@@ -90,6 +91,12 @@ public class PacsRegressionReportBuilder {
 	@Keyword
 	static void startContactUsRun() {
 		startRun('contactus')
+	}
+
+	/** Clear only Custom form preflight. Leaves Discovery, Custom pages, and Contact Us in place. */
+	@Keyword
+	static void startCustomFormPreflightRun() {
+		startRun('formpreflight')
 	}
 
 	@Keyword
