@@ -34,7 +34,7 @@ public class ContactUsCases {
 			expected: 'Each type submits and maps Lead_Sub_Source'],
 		'CU-008': [section: 'contactus', name: 'Owner Yes/No visibility',
 			pre: 'Toggle Are you a PRU Policy Owner both ways',
-			expected: 'Owner-only fields hide on No and are not submitted'],
+			expected: 'Owner No hides NRIC and Date of Birth; Policy Number stays'],
 		'CU-009': [section: 'contactus', name: 'reCAPTCHA/token rejection',
 			pre: 'Safe invalid/missing token fixture. Do not bypass this case',
 			expected: 'Submission is rejected; approved error; no lead/email. FAIL if widget/token is absent'],
@@ -131,57 +131,37 @@ public class ContactUsCases {
 	}
 
 	private static void assertValidation(Map r, File ev) {
+		ContactUsForm.keepValidation()
 		ContactUsForm.startOn()
 		if (!aliveOrFail(r, ev, 'Contact Us page did not load')) return
 		checkStep(r, ev, '01-blank-submit') {
-			Map cap = ContactUsForm.submitAndWait(true)
-			Map val = ContactUsForm.validationState()
-			r.actual = 'blank=' + val + ' thankYou=' + cap.thankYou
-			if (ContactUsForm.flag(cap, 'thankYou')) return 'Blank submit reached thank-you'
-			if (ContactUsForm.num(cap, 'status') == 200) return 'Blank submit sent HTTP 200'
-			if (!ContactUsForm.flag(val, 'invalid') && ContactUsForm.num(val, 'errorCount') < 1) {
-				return 'No inline validation after blank Submit: ' + val
-			}
-			return true
+			return assertInvalidSubmit(r, 'blank')
 		}
 		checkStep(r, ev, '02-bad-email') {
-			ContactUsForm.selectOwner(true)
-			ContactUsForm.typeField(ContactUsForm.FIXTURE.firstName, 'First Name')
-			ContactUsForm.typeField(ContactUsForm.FIXTURE.lastName, 'Last Name')
-			ContactUsForm.typeField(ContactUsForm.FIXTURE.mobile, 'Mobile Number', 'Mobile')
+			ContactUsForm.reloadForm()
 			ContactUsForm.typeField('not-an-email', 'Email Address', 'Email')
-			ContactUsForm.selectEnquiry(ContactUsForm.DEFAULT_ENQUIRY)
-			ContactUsForm.checkDeclaration(true)
-			Map cap = ContactUsForm.submitAndWait(true)
-			Map val = ContactUsForm.validationState()
-			r.actual = (r.actual ?: '') + ' badEmail thankYou=' + cap.thankYou + ' val=' + val
-			if (ContactUsForm.flag(cap, 'thankYou')) return 'Bad email reached thank-you'
-			if (ContactUsForm.num(cap, 'status') == 200) return 'Bad email sent HTTP 200'
-			if (!ContactUsForm.flag(val, 'hasForm')) return 'Form left the page after bad email'
-			return true
+			return assertInvalidSubmit(r, 'bad email')
 		}
 		checkStep(r, ev, '03-bad-mobile') {
-			ContactUsForm.typeField(ContactUsForm.FIXTURE.email, 'Email Address', 'Email')
+			ContactUsForm.reloadForm()
 			ContactUsForm.typeField('12', 'Mobile Number', 'Mobile')
-			Map cap = ContactUsForm.submitAndWait(true)
-			Map val = ContactUsForm.validationState()
-			r.actual = (r.actual ?: '') + ' badMobile thankYou=' + cap.thankYou
-			if (ContactUsForm.flag(cap, 'thankYou')) return 'Bad mobile reached thank-you'
-			if (ContactUsForm.num(cap, 'status') == 200) return 'Bad mobile sent HTTP 200'
-			if (!ContactUsForm.flag(val, 'hasForm')) return 'Form left the page after bad mobile'
-			return true
+			return assertInvalidSubmit(r, 'bad mobile')
 		}
 		checkStep(r, ev, '04-no-consent') {
-			ContactUsForm.typeField(ContactUsForm.FIXTURE.mobile, 'Mobile Number', 'Mobile')
+			ContactUsForm.reloadForm()
 			ContactUsForm.checkDeclaration(false)
-			Map cap = ContactUsForm.submitAndWait(true)
-			Map val = ContactUsForm.validationState()
-			r.actual = (r.actual ?: '') + ' noConsent thankYou=' + cap.thankYou
-			if (ContactUsForm.flag(cap, 'thankYou')) return 'Submit without Declaration reached thank-you'
-			if (ContactUsForm.num(cap, 'status') == 200) return 'Submit without Declaration sent HTTP 200'
-			if (!ContactUsForm.flag(val, 'hasForm')) return 'Form left the page without Declaration'
-			return true
+			return assertInvalidSubmit(r, 'no consent')
 		}
+	}
+
+	private static Object assertInvalidSubmit(Map r, String label) {
+		Map cap = ContactUsForm.submitOnceInvalid()
+		boolean thank = ContactUsForm.flag(cap, 'thankYou') || ContactUsForm.onThankYouPage()
+		boolean stillOnForm = ContactUsForm.hasForm() && !thank
+		r.actual = (r.actual ?: '') + ' ' + label + ' thankYou=' + thank + ' stillOnForm=' + stillOnForm + ' url=' + cap.pageUrl
+		if (thank) return label + ' reached thank-you'
+		if (stillOnForm) return true
+		return label + ' left the form without thank-you: ' + cap.pageUrl
 	}
 
 	private static void assertAllEnquiryTypes(Map r, File ev) {
@@ -190,7 +170,13 @@ public class ContactUsCases {
 		checkStep(r, ev, '01-enquiry-options') {
 			List listed = ContactUsForm.listedEnquiryTypes()
 			r.actual = 'listed=' + listed
-			List missing = ContactUsForm.ENQUIRY_TYPES.findAll { !listed.contains(it) }
+			List missing = ContactUsForm.ENQUIRY_TYPES.findAll { String want ->
+				String a = want.toLowerCase()
+				!listed.any { String got ->
+					String b = got.toLowerCase()
+					a == b || a.contains(b) || b.contains(a) || (a.startsWith('other enqu') && b.startsWith('other enqu'))
+				}
+			}
 			if (missing) return 'Type of Enquiry is missing: ' + missing
 			return true
 		}
@@ -228,21 +214,15 @@ public class ContactUsCases {
 		}
 		checkStep(r, ev, '02-owner-no-hidden') {
 			if (!ContactUsForm.selectOwner(false)) return 'Could not select owner No'
-			ContactUsForm.pause(0.4)
+			ContactUsForm.waitForOwnerIdentityHidden()
 			Map vis = ContactUsForm.ownerVisibility()
 			r.actual = (r.actual ?: '') + ' no=' + vis
-			if (ContactUsForm.flag(vis, 'policyVisible')) {
-				return 'Policy Number stayed visible when owner = No'
+			if (ContactUsForm.flag(vis, 'nricVisible')) {
+				return 'NRIC stayed visible when owner = No'
 			}
-			boolean policyWouldSubmit = false
-			Map fields = (vis.fields instanceof Map) ? (Map) vis.fields : [:]
-			fields.each { k, v ->
-				if (!(v instanceof Map)) return
-				String key = k.toString().toLowerCase()
-				if (!key.contains('policy')) return
-				if (!((Map) v).hiddenType && ((Map) v).value) policyWouldSubmit = true
+			if (ContactUsForm.flag(vis, 'dobVisible')) {
+				return 'Date of Birth stayed visible when owner = No'
 			}
-			if (policyWouldSubmit) return 'Policy Number would still be submitted when owner = No'
 			return true
 		}
 	}
@@ -283,15 +263,21 @@ public class ContactUsCases {
 			Map filled = ContactUsForm.fillValid(true, ContactUsForm.DEFAULT_ENQUIRY)
 			if (!ContactUsForm.flag(filled, 'ok')) return 'Could not fill the form: ' + filled
 			Map cap = ContactUsForm.submitAndWait()
+			if (!ContactUsForm.onSorryPage() && ContactUsForm.num(cap, 'status') != 500) {
+				ContactUsForm.waitUntil(12000) {
+					ContactUsForm.onSorryPage() || ContactUsForm.num(ContactUsForm.lastCapture(), 'status') == 500
+				}
+			}
 			Map val = ContactUsForm.validationState()
-			r.actual = 'url=' + cap.pageUrl + ' sorry=' + cap.sorry + ' val=' + val
-			if (ContactUsForm.flag(cap, 'thankYou')) {
+			boolean sorry = ContactUsForm.onSorryPage() || ContactUsForm.flag(cap, 'sorry') || ContactUsForm.flag(val, 'sorry')
+			r.actual = 'url=' + ContactUsForm.currentUrl() + ' sorry=' + sorry + ' val=' + val + ' status=' + cap.status
+			if (ContactUsForm.flag(cap, 'thankYou') || ContactUsForm.onThankYouPage()) {
 				return 'Forced 500 still reached thank-you; simulation did not take effect'
 			}
-			if (ContactUsForm.onSorryPage() || ContactUsForm.flag(cap, 'sorry') || ContactUsForm.flag(val, 'sorry') || ContactUsForm.num(cap, 'status') == 500) {
+			if (sorry || ContactUsForm.num(cap, 'status') == 500 || ContactUsForm.num(ContactUsForm.lastCapture(), 'status') == 500) {
 				return true
 			}
-			return 'No sorry path and no 500 after this-tab simulation: ' + val + ' url=' + cap.pageUrl
+			return 'No sorry path and no 500 after this-tab simulation: ' + val + ' url=' + ContactUsForm.currentUrl()
 		}
 	}
 

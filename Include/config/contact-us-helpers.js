@@ -208,9 +208,13 @@ function deepInput(from){
 function cuHasForm(){ return !!formRoot(); }
 function cuOnSorry(){
   var u=(location.href||"").toLowerCase();
+  if (/\/sorry|we-are-sorry|couldn|unable-to-process|process-your-enquiry/.test(u) && u.indexOf("contact-us")<0) return true;
   if (u.indexOf("/sorry")>=0) return true;
   var t=((document.title||"")+" "+(document.body && document.body.innerText || "")).toLowerCase();
-  return t.indexOf("couldn't process your enquiry")>=0 || t.indexOf("could not process your enquiry")>=0 || t.indexOf("back to contact us")>=0;
+  if (t.indexOf("couldn't process your enquiry")>=0 || t.indexOf("could not process your enquiry")>=0) return true;
+  if (t.indexOf("back to contact us")>=0) return true;
+  if (t.indexOf("we couldn't process")>=0 || t.indexOf("we could not process")>=0) return true;
+  return false;
 }
 function cuThankYou(){
   var u=(location.href||"").toLowerCase();
@@ -891,9 +895,32 @@ function cuMarkSubmit(){
   try{ btn.scrollIntoView({block:"center"}); }catch(e){}
   return true;
 }
+function cuKeepNativeValidation(){
+  window.__cuKeepValidation=true;
+  window.__cuBlockNativeSubmit=true;
+  window.__cuCaptchaPassed=false;
+  var form=contactForm();
+  if (form){
+    form.noValidate=false;
+    form.removeAttribute("novalidate");
+  }
+  return true;
+}
+function cuClickSubmitOnce(){
+  cuKeepNativeValidation();
+  persistSnap(cuSnapshotFields());
+  var btn=cuFindSubmit();
+  if (!btn) return false;
+  fireClick(btn);
+  return true;
+}
 function cuClickSubmit(){
   persistSnap(cuSnapshotFields());
   cuBindUtmsFromUrl();
+  if (window.__cuCaptchaPassed && !window.__cuKeepValidation){
+    cuDisableCaptcha();
+    cuKickCaptchaSuccess();
+  }
   var btn=cuFindSubmit();
   if (btn){
     try{ btn.disabled=false; btn.removeAttribute("disabled"); }catch(e){}
@@ -1003,8 +1030,9 @@ function cuOwnerVisibility(){
   });
   return JSON.stringify({
     found:true,
-    policyVisible:!!(policy && visible(policy)),
-    nricVisible:!!(nric && visible(nric)),
+    policyVisible:cuFieldShown("policy"),
+    nricVisible:cuFieldShown("nric"),
+    dobVisible:cuFieldShown("dob"),
     fields:fields
   });
 }
@@ -1044,35 +1072,131 @@ function cuEnsureCaptchaField(){
   form.appendChild(ta);
   return ta;
 }
+function cuEnsureCaptchaOnAllForms(token){
+  document.querySelectorAll("form#show-owner, form#hide-owner, form").forEach(function(form){
+    var box=form.querySelector("textarea[name=g-recaptcha-response], input[name=g-recaptcha-response]");
+    if (!box){
+      box=document.createElement("textarea");
+      box.name="g-recaptcha-response";
+      box.id=form.id ? (form.id+"-g-recaptcha-response") : "g-recaptcha-response";
+      box.style.display="none";
+      form.appendChild(box);
+    }
+    box.value=token||"";
+  });
+}
+function cuMarkPageCaptchaValid(token){
+  ["captchaSuccess","captchaVerified","isCaptchaChecked","recaptchaVerified","isCaptchaValid","recaptchaSuccess","__cuCaptchaPassed"].forEach(function(k){
+    try{ window[k]=true; }catch(e){}
+  });
+  var names=Object.getOwnPropertyNames(window);
+  for (var i=0;i<names.length;i++){
+    var n=names[i];
+    if (!/captcha|recaptcha/i.test(n)) continue;
+    var v=window[n];
+    if (typeof v==="boolean"){
+      try{ window[n]=true; }catch(e){}
+    }
+    if (typeof v==="function" && /success|verify|complete|valid|callback|checked/i.test(n)){
+      try{ v(token); }catch(e){}
+    }
+  }
+}
 function setCaptchaToken(token){
   if (!token) return;
+  window.__cuFakeToken=token;
   window.__cuRealToken=token;
+  window.__cuCaptchaPassed=true;
   var box=cuEnsureCaptchaField();
   if (box) box.value=token;
+  cuEnsureCaptchaOnAllForms(token);
   document.querySelectorAll("textarea[name=g-recaptcha-response], input[name=g-recaptcha-response], #g-recaptcha-response").forEach(function(el){ el.value=token; });
-  window.__cuCaptchaPassed=true;
-  window.captchaSuccess=true;
-  window.captchaVerified=true;
-  window.isCaptchaChecked=true;
+  cuMarkPageCaptchaValid(token);
 }
-function cuSaveRealGrecaptcha(){
-  if (!window.grecaptcha || window.__cuRealGrecaptcha) return;
-  try{
-    window.__cuRealGrecaptcha={
-      execute:window.grecaptcha.execute && window.grecaptcha.execute.bind(window.grecaptcha),
-      ready:window.grecaptcha.ready && window.grecaptcha.ready.bind(window.grecaptcha),
-      getResponse:window.grecaptcha.getResponse && window.grecaptcha.getResponse.bind(window.grecaptcha)
-    };
-    if (window.grecaptcha.enterprise && window.grecaptcha.enterprise.execute){
-      window.__cuRealGrecaptcha.ent=window.grecaptcha.enterprise.execute.bind(window.grecaptcha.enterprise);
-    }
-  }catch(e){}
+function cuCaptchaNodes(){
+  return document.querySelectorAll(".g-recaptcha, #gCaptchaId, .grecaptcha-badge, iframe[src*='recaptcha'], iframe[title*='reCAPTCHA'], iframe[title*='recaptcha']");
+}
+function cuHideCaptcha(){
+  if (!document.getElementById("cu-hide-captcha")){
+    var s=document.createElement("style");
+    s.id="cu-hide-captcha";
+    s.textContent=".g-recaptcha, #gCaptchaId, .grecaptcha-badge, iframe[src*='recaptcha']{display:none!important;visibility:hidden!important;pointer-events:none!important;height:0!important;width:0!important;overflow:hidden!important;}";
+    (document.head||document.documentElement).appendChild(s);
+  }
+  cuCaptchaNodes().forEach(function(el){
+    el.setAttribute("data-cu-ignored","1");
+    try{
+      el.style.setProperty("display","none","important");
+      el.style.setProperty("visibility","hidden","important");
+      el.style.setProperty("pointer-events","none","important");
+    }catch(e){}
+  });
+}
+function cuCaptchaErrorShown(){
+  var nodes=document.querySelectorAll("p, span, small, label, li, div, [class*='error'], [class*='captcha'], [role=alert]");
+  for (var i=0;i<nodes.length;i++){
+    var t=((nodes[i].innerText||"")+"").replace(/\s+/g," ").trim();
+    if (!/please complete recaptcha/i.test(t) || t.length>80) continue;
+    var r=nodes[i].getBoundingClientRect ? nodes[i].getBoundingClientRect() : {width:0,height:0};
+    if (r.height>2 && r.height<120 && r.width>20) return true;
+  }
+  return false;
+}
+function cuHideCaptchaError(){
+  var nodes=document.querySelectorAll("p, span, small, label, li, div, [class*='error'], [class*='captcha'], [role=alert]");
+  for (var i=0;i<nodes.length;i++){
+    var el=nodes[i];
+    var t=((el.innerText||el.getAttribute("aria-label")||"")+"").replace(/\s+/g," ").trim();
+    if (!/please complete recaptcha/i.test(t) || t.length>80) continue;
+    if (el.querySelector && (el.querySelector("form") || el.querySelector("input-atom") || el.querySelector("header") || el.querySelector("main"))) continue;
+    var r=el.getBoundingClientRect ? el.getBoundingClientRect() : {width:0,height:0};
+    if (r.height>90 || r.width>720) continue;
+    try{ el.style.display="none"; el.style.visibility="hidden"; }catch(e){}
+  }
 }
 function cuUnhideCaptcha(){
+  var css=document.getElementById("cu-hide-captcha");
+  if (css) try{ css.remove(); }catch(e){}
   document.querySelectorAll("[data-cu-ignored]").forEach(function(el){
-    try{ el.style.display=""; }catch(e){}
+    try{ el.style.display=""; el.style.visibility=""; el.style.pointerEvents=""; }catch(e){}
     el.removeAttribute("data-cu-ignored");
   });
+}
+function cuResolveCallback(cb){
+  if (typeof cb==="function") return cb;
+  if (typeof cb==="string" && typeof window[cb]==="function") return window[cb];
+  return null;
+}
+function cuRenderStub(token){
+  return function(container, params){
+    params=params||{};
+    var cb=cuResolveCallback(params.callback || params["callback"]);
+    if (cb){
+      window.__cuPageCaptchaCb=cb;
+      try{ cb(token); }catch(e){}
+    }
+    return 0;
+  };
+}
+function cuCallbackNames(){
+  var names=["onCaptchaSuccess","onRecaptchaSuccess","onCaptchaComplete","recaptchaCallback","verifyCallback","captchaCallback"];
+  document.querySelectorAll("[data-callback], [data-sitekey]").forEach(function(el){
+    var n=el.getAttribute("data-callback");
+    if (n) names.push(n);
+  });
+  return names;
+}
+function cuFireCaptchaCallback(token){
+  var fired=false;
+  if (typeof window.__cuPageCaptchaCb==="function"){
+    try{ window.__cuPageCaptchaCb(token); fired=true; }catch(e){}
+  }
+  cuCallbackNames().forEach(function(name){
+    if (typeof window[name]==="function"){
+      try{ window[name](token); fired=true; }catch(e){}
+    }
+  });
+  return fired;
 }
 function cuUnstickAtoms(){
   var form=contactForm();
@@ -1095,23 +1219,90 @@ function cuUnstickAtoms(){
     }catch(e){}
   });
 }
-function installExecuteStub(token){
-  if (!window.grecaptcha) window.grecaptcha={};
-  window.grecaptcha.getResponse=function(){ return token; };
-  window.grecaptcha.execute=function(){ return Promise.resolve(token); };
-  window.grecaptcha.ready=function(fn){ if (fn) try{ fn(); }catch(e){} };
-  if (window.grecaptcha.enterprise){
-    try{ window.grecaptcha.enterprise.execute=function(){ return Promise.resolve(token); }; }catch(e){}
+function cuStampCaptchaWidgets(){
+  var nodes=document.querySelectorAll(".g-recaptcha, #gCaptchaId, .google-captcha-text .g-recaptcha");
+  for (var i=0;i<nodes.length;i++){
+    var el=nodes[i];
+    el.dataset.initialized="true";
+    el.dataset.widgetId=String(i);
+    el.setAttribute("data-initialized","true");
+    el.setAttribute("data-widget-id", String(i));
   }
+  document.querySelectorAll(".captcha-error-message").forEach(function(el){
+    try{ el.remove(); }catch(e){}
+  });
+  return nodes.length;
+}
+function installExecuteStub(token){
+  function apply(obj){
+    if (!obj) return obj;
+    try{ obj.getResponse=function(){ return token; }; }catch(e){}
+    try{ obj.execute=function(){ return Promise.resolve(token); }; }catch(e){}
+    try{ obj.ready=function(fn){ if (fn) try{ fn(); }catch(e){} return Promise.resolve(); }; }catch(e){}
+    try{
+      obj.render=function(container, params){
+        var el=typeof container==="string"?document.querySelector(container):container;
+        if (el){
+          el.dataset.initialized="true";
+          if (!el.dataset.widgetId) el.dataset.widgetId="0";
+        }
+        var cb=cuResolveCallback(params && (params.callback || params["callback"]));
+        if (cb){
+          window.__cuPageCaptchaCb=cb;
+          try{ cb(token); }catch(e){}
+        }
+        return Number(el && el.dataset.widgetId || 0);
+      };
+    }catch(e){}
+    try{ obj.reset=function(){}; }catch(e){}
+    if (obj.enterprise){
+      try{ obj.enterprise.execute=function(){ return Promise.resolve(token); }; }catch(e){}
+      try{ obj.enterprise.getResponse=function(){ return token; }; }catch(e){}
+      try{ obj.enterprise.render=obj.render; }catch(e){}
+    }
+    return obj;
+  }
+  if (!window.grecaptcha) window.grecaptcha={};
+  apply(window.grecaptcha);
+  if (window.__cuGrecaptchaHooked) return;
+  try{
+    var current=window.grecaptcha;
+    Object.defineProperty(window, "grecaptcha", {
+      configurable:true,
+      get:function(){ return current; },
+      set:function(v){ current=apply(v||{}); }
+    });
+    window.__cuGrecaptchaHooked=true;
+  }catch(e){}
+}
+function cuWatchCaptcha(token){
+  if (window.__cuCaptchaWatch) return token;
+  window.__cuCaptchaWatch=setInterval(function(){
+    if (!window.__cuCaptchaPassed) return;
+    try{
+      cuStampCaptchaWidgets();
+      setCaptchaToken(token);
+      installExecuteStub(token);
+      cuHideCaptcha();
+      cuHideCaptchaError();
+    }catch(e){}
+  }, 400);
+  return token;
 }
 function cuDisableCaptcha(){
-  cuUnhideCaptcha();
-  cuUnstickAtoms();
-  var token="03AGdBq25"+Array(120).join("A");
+  if (window.__cuKeepValidation) return false;
+  var token=window.__cuFakeToken || ("03AGdBq25"+Array(120).join("A"));
+  window.__cuFakeToken=token;
+  window.__cuCaptchaPassed=true;
+  cuStampCaptchaWidgets();
   setCaptchaToken(token);
   installExecuteStub(token);
-  window.recaptchaVerified=true;
-  window.isCaptchaValid=true;
+  cuHideCaptcha();
+  cuUnstickAtoms();
+  cuWatchCaptcha(token);
+  cuFireCaptchaCallback(token);
+  cuMarkPageCaptchaValid(token);
+  cuHideCaptchaError();
   var form=contactForm();
   if (form){
     form.querySelectorAll("button, input[type=submit]").forEach(function(btn){
@@ -1132,15 +1323,13 @@ function cuFinishCaptcha(){
   return 120;
 }
 function cuKickCaptchaSuccess(){
-  var token=window.__cuRealToken||"";
+  var token=window.__cuRealToken || window.__cuFakeToken || "";
   if (!token){
     var box=document.querySelector("textarea[name=g-recaptcha-response], input[name=g-recaptcha-response]");
     token=(box && box.value)||"";
   }
-  if (typeof window.onCaptchaSuccess==="function"){
-    try{ window.onCaptchaSuccess(token); return true; }catch(e){}
-  }
-  return false;
+  if (window.__cuCaptchaPassed) cuDisableCaptcha();
+  return cuFireCaptchaCallback(token);
 }
 function cuPassCaptcha(){
   cuPrepareCaptcha();
@@ -1152,18 +1341,23 @@ function cuIgnoreCaptcha(){
 }
 function cuClearCaptcha(){
   window.__cuCaptchaPassed=false;
+  window.__cuFakeToken="";
   window.captchaSuccess=false;
   window.captchaVerified=false;
   window.isCaptchaChecked=false;
+  window.recaptchaVerified=false;
+  window.isCaptchaValid=false;
+  if (window.__cuCaptchaWatch){
+    try{ clearInterval(window.__cuCaptchaWatch); }catch(e){}
+    window.__cuCaptchaWatch=null;
+  }
+  cuUnhideCaptcha();
   if (window.grecaptcha){
     try{ window.grecaptcha.getResponse=function(){ return ""; }; }catch(e){}
   }
   var els=document.querySelectorAll("textarea[name=g-recaptcha-response], input[name=g-recaptcha-response], #g-recaptcha-response");
   var n=0;
   els.forEach(function(el){ el.value=""; n++; });
-  document.querySelectorAll("[data-cu-ignored]").forEach(function(el){
-    try{ el.style.display=""; }catch(e){}
-  });
   if (typeof window.onCaptchaExpired==="function"){
     try{ window.onCaptchaExpired(); }catch(e){}
   }

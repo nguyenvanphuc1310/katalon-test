@@ -65,10 +65,13 @@ public class ContactUsForm {
 	static String lastStartPage = ''
 	static boolean stepFinishedSinceStart = false
 	static boolean captchaBypass = true
+	static boolean keepNativeValidation = false
 	/** Kept on the Java side because /en/thank-you/ is a full navigation and wipes page JS. */
 	static Map lastFilled = [:]
 	static Boolean lastOwnerYes = null
 	static String lastEnquiry = ''
+	static int identitySeq = 0
+	static Map lastIdentity = [:]
 
 	static String helpersJs() {
 		File f = new File(RunConfiguration.getProjectDir() + '/' + HELPERS_FILE)
@@ -83,9 +86,17 @@ public class ContactUsForm {
 		lastStartPage = ''
 		stepFinishedSinceStart = false
 		captchaBypass = true
+		keepNativeValidation = false
 		lastFilled = [:]
 		lastOwnerYes = null
 		lastEnquiry = ''
+	}
+
+	/** CU-005 only. No captcha bypass, no happy-path fill, no native submit. */
+	static void keepValidation() {
+		keepNativeValidation = true
+		captchaBypass = false
+		try { fjs('return cuKeepNativeValidation();') } catch (Throwable ignore) { }
 	}
 
 	static void markStepFinished() {
@@ -111,16 +122,31 @@ public class ContactUsForm {
 		}
 		lastStartPage = 'contactus'
 		stepFinishedSinceStart = false
-		captchaBypass = true
 		WebUI.waitForPageLoad(12, FailureHandling.OPTIONAL)
 		dismissCookies()
 		waitUntil(12000) { pageAlive() }
 		waitUntil(12000) { hasForm() }
 		installProbe()
 		fjs('return cuResetPersist();')
-		if (captchaBypass) fjs('return cuDisableCaptcha();')
+		if (keepNativeValidation) {
+			captchaBypass = false
+			fjs('return cuKeepNativeValidation();')
+		} else if (captchaBypass) {
+			fjs('return cuDisableCaptcha();')
+		}
 		if (withUtm) fjs('return cuBindUtmsFromUrl();')
 		pause(1.0)
+	}
+
+	static Map nextIdentity() {
+		identitySeq++
+		long n = Math.abs((System.currentTimeMillis() * 10L + identitySeq) % 10000000L)
+		String tail = String.format('%07d', n)
+		lastIdentity = [
+			email : 'test.automation.' + identitySeq + '.' + tail + '@example.com',
+			mobile: '9' + tail,
+		]
+		return lastIdentity
 	}
 
 	static void reloadForm() {
@@ -129,7 +155,12 @@ public class ContactUsForm {
 		dismissCookies()
 		waitUntil(12000) { pageAlive() && hasForm() }
 		installProbe()
-		if (captchaBypass) fjs('return cuDisableCaptcha();')
+		if (keepNativeValidation) {
+			captchaBypass = false
+			fjs('return cuKeepNativeValidation();')
+		} else if (captchaBypass) {
+			fjs('return cuDisableCaptcha();')
+		}
 		pause(0.8)
 	}
 
@@ -175,11 +206,13 @@ public class ContactUsForm {
 	}
 
 	static boolean onSorryPage() {
-		String u = (currentUrl() ?: '').toLowerCase()
-		if (u.contains('/sorry')) return true
-		String t = (bodyText() ?: '').toLowerCase()
-		return t.contains("couldn't process your enquiry") || t.contains('could not process your enquiry') ||
-			t.contains('we couldn\'t process') || t.contains('back to contact us')
+		return truthy(fjs('return cuOnSorry();')) || {
+			String u = (currentUrl() ?: '').toLowerCase()
+			if (u.contains('/sorry')) return true
+			String t = (bodyText() ?: '').toLowerCase()
+			return t.contains("couldn't process your enquiry") || t.contains('could not process your enquiry') ||
+				t.contains('we couldn\'t process') || t.contains('back to contact us')
+		}()
 	}
 
 	static void rememberSnapshot() {
@@ -208,12 +241,13 @@ public class ContactUsForm {
 		boolean dobOn = fieldShown('dob')
 		boolean policyOn = fieldShown('policy')
 		boolean fcOn = fieldShown('fc')
+		Map idn = nextIdentity()
 		Map payload = [
 			firstName: FIXTURE.firstName,
 			lastName : FIXTURE.lastName,
-			mobile   : FIXTURE.mobile,
-			email    : FIXTURE.email,
-			comment  : FIXTURE.comment,
+			mobile   : idn.mobile,
+			email    : idn.email,
+			comment  : FIXTURE.comment + ' [' + identitySeq + ']',
 		]
 		if (nricOn) payload.nric = FIXTURE.nric
 		if (dobOn) payload.dob = FIXTURE.dob
@@ -230,8 +264,8 @@ public class ContactUsForm {
 			owner   : ownerOk,
 			first   : visibleHas(vis, 'first', FIXTURE.firstName),
 			last    : visibleHas(vis, 'last', FIXTURE.lastName),
-			mobile  : visibleHas(vis, 'mobile', FIXTURE.mobile),
-			email   : visibleHas(vis, 'email', FIXTURE.email),
+			mobile  : visibleHas(vis, 'mobile', idn.mobile.toString()),
+			email   : visibleHas(vis, 'email', idn.email.toString()),
 			nric    : nricOn ? typeField(FIXTURE.nric, 'NRIC', 'Last 4') : true,
 			dob     : dobOn ? typeDob(FIXTURE.dob) : true,
 			enquiry : selectEnquiry(enquiry ?: DEFAULT_ENQUIRY),
@@ -240,6 +274,7 @@ public class ContactUsForm {
 			fc      : fcOn ? typeFc(FIXTURE.fcMobile) : true,
 			decl    : checkDeclaration(true),
 			visible : vis,
+			identity: idn,
 		]
 		out.captcha = passUatCaptcha()
 		out.ok = flag(out, 'owner') && flag(out, 'first') && flag(out, 'last') &&
@@ -247,6 +282,9 @@ public class ContactUsForm {
 		lastOwnerYes = ownerYes
 		lastEnquiry = enquiry ?: DEFAULT_ENQUIRY
 		rememberSnapshot()
+		if (lastFilled == null) lastFilled = [:]
+		lastFilled.Email__c = idn.email
+		lastFilled.Mobile__c = idn.mobile
 		return out
 	}
 
@@ -355,6 +393,26 @@ public class ContactUsForm {
 		return ensured || (truthy(fjs('return cuDeclarationState();')) == on)
 	}
 
+	static boolean clickSubmitOnce() {
+		return truthy(fjs('return cuClickSubmitOnce();'))
+	}
+
+	/** CU-005: one Submit click, no captcha, no retry. Stay on the form. */
+	static Map submitOnceInvalid() {
+		keepValidation()
+		rememberSnapshot()
+		boolean clicked = clickSubmitOnce()
+		waitUntil(2000) { thankYou() || onSorryPage() || hasForm() }
+		Map cap = [:]
+		cap.clicked = clicked
+		cap.thankYou = thankYou()
+		cap.sorry = onSorryPage()
+		cap.pageUrl = currentUrl()
+		cap.status = 0
+		cap.validation = validationState()
+		return cap
+	}
+
 	static boolean clickSubmit() {
 		boolean marked = truthy(fjs('return cuMarkSubmit();'))
 		boolean jsClicked = truthy(fjs('return cuClickSubmit();'))
@@ -379,21 +437,24 @@ public class ContactUsForm {
 	}
 
 	static Map submitAndWait(boolean expectValidation) {
+		if (expectValidation) return submitOnceInvalid()
 		installProbe()
-		passUatCaptcha()
+		if (!expectValidation) passUatCaptcha()
 		if (lastEnquiry) fjs('return cuApplyEnquiryValue(arguments[0]);', lastEnquiry)
 		fjs('return cuBindUtmsFromUrl();')
 		rememberSnapshot()
 		int before = num(lastCapture(), 'count')
 		boolean clicked = clickSubmit()
-		waitUntil(5000) {
+		waitUntil(8000) {
 			if (thankYou() || onSorryPage()) return true
 			if (num(lastCapture(), 'count') > before) return true
-			return expectValidation && validationHasError()
+			return expectValidation && fieldValidationError()
 		}
-		if (!expectValidation && !thankYou() && !onSorryPage() && !validationHasError()) {
-			fjs('return cuKickCaptchaSuccess();')
-			clicked = truthy(fjs('return cuForceSubmit();')) || clicked
+		if (!expectValidation && !thankYou() && !onSorryPage() && (captchaErrorShown() || num(lastCapture(), 'count') <= before)) {
+			KeywordUtil.logInfo('submitAndWait: recaptcha still blocking; bypass and click again')
+			passUatCaptcha()
+			fjs('return cuHideCaptchaError();')
+			clicked = clickSubmit() || clicked
 			waitUntil(16000) {
 				if (thankYou() || onSorryPage()) return true
 				if (num(lastCapture(), 'count') > before) return true
@@ -403,7 +464,7 @@ public class ContactUsForm {
 			waitUntil(15000) {
 				if (thankYou() || onSorryPage()) return true
 				if (num(lastCapture(), 'count') > before) return true
-				return expectValidation && validationHasError()
+				return expectValidation && fieldValidationError()
 			}
 		}
 		pause(0.8)
@@ -438,9 +499,13 @@ public class ContactUsForm {
 		rememberSnapshot()
 		int before = num(lastCapture(), 'count')
 		boolean first = clickSubmit()
+		if (captchaErrorShown()) {
+			passUatCaptcha()
+			first = clickSubmit() || first
+		}
 		pause(0.12)
 		boolean second = clickSubmit()
-		waitUntil(20000) { thankYou() || num(lastCapture(), 'count') > before }
+		waitUntil(20000) { thankYou() || onSorryPage() || num(lastCapture(), 'count') > before }
 		pause(0.8)
 		Map cap = lastCapture()
 		cap.clickedFirst = first
@@ -483,6 +548,13 @@ public class ContactUsForm {
 		return fprobe('return cuOwnerVisibility();')
 	}
 
+	static void waitForOwnerIdentityHidden() {
+		waitUntil(8000) {
+			Map vis = ownerVisibility()
+			return !flag(vis, 'nricVisible') && !flag(vis, 'dobVisible')
+		}
+	}
+
 	static Map recaptchaInfo() {
 		return fprobe('return cuRecaptcha();')
 	}
@@ -491,7 +563,21 @@ public class ContactUsForm {
 		if (!captchaBypass) return false
 		String u = currentUrl().toLowerCase()
 		if (!u.contains('aem-uat.prudential.com.sg')) return false
-		return truthy(fjs('return cuDisableCaptcha();'))
+		boolean ok = truthy(fjs('return cuDisableCaptcha();'))
+		fjs('return cuKickCaptchaSuccess();')
+		return ok
+	}
+
+	static boolean captchaErrorShown() {
+		return truthy(fjs('return cuCaptchaErrorShown();'))
+	}
+
+	static boolean fieldValidationError() {
+		Map v = validationState()
+		if (!flag(v, 'invalid') && num(v, 'errorCount') < 1) return false
+		List errors = (v.errors instanceof List) ? (List) v.errors : []
+		if (!errors) return flag(v, 'invalid')
+		return errors.any { !it.toString().toLowerCase().contains('recaptcha') }
 	}
 
 	static boolean clearCaptchaToken() {

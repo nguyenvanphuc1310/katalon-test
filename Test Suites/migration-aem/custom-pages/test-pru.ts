@@ -14,7 +14,7 @@
    <rerunImmediately>true</rerunImmediately>
    <testSuiteGuid>c4003dd6-2dde-4786-89c5-dec160435817</testSuiteGuid>
    <testCaseLink>
-      <guid>e9a9e710-dbed-4c17-b2e7-30b202832ecf</guid>
+      <guid>d0f1fec8-2834-4148-b153-7cf2254849d8</guid>
       <isReuseDriver>false</isReuseDriver>
       <isRun>true</isRun>
       <testCaseId>Test Cases/migration-aem/templates/custom-pages/contact-us/TC_CU_007</testCaseId>
