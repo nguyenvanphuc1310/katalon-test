@@ -20,7 +20,7 @@ public class PacsRegressionReportBuilder {
 	static final String OUT_FOLDER = 'Reports/pacs-regression-report'
 
 	static final List SECTION_ORDER = [
-		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'formpreflight', 'pruadvisers', 'ilpfunds',
+		'prudiscovery', 'ppc', 'prushield', 'pruchat', 'opus', 'awards', 'shariah', 'contactus', 'formpreflight', 'pruadvisers', 'ilpfunds', 'ppcspecialists',
 	]
 
 	static final Map SECTION_TITLE = [
@@ -34,7 +34,8 @@ public class PacsRegressionReportBuilder {
 		contactus    : 'Contact Us',
 		formpreflight: 'Custom form preflight',
 		pruadvisers  : 'PRUAdvisers',
-		ilpfunds     : 'ILP Funds',
+		ilpfunds       : 'ILP Funds',
+		ppcspecialists : 'PPC Specialists',
 	]
 
 	@Keyword
@@ -110,6 +111,12 @@ public class PacsRegressionReportBuilder {
 	@Keyword
 	static void startIlpFundsRun() {
 		startRun('ilpfunds')
+	}
+
+	/** Clear only PPC Specialists. Leaves the Custom pages PPC Extended Panel tab in place. */
+	@Keyword
+	static void startPpcSpecialistsRun() {
+		startRun('ppcspecialists')
 	}
 
 	@Keyword

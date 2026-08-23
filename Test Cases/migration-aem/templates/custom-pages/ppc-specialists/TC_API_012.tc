@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-012 — PPC Specialists no-result and controlled API error. AEM UAT /en/ppc-specialists/ only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_API_012</name>
+   <tag>ppcspecialists,API-012</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>b02c22d3-e445-4066-9778-89900b012002</testCaseGuid>
+</TestCaseEntity>

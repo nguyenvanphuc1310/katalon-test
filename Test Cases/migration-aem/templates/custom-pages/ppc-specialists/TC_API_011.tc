@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>API-011 — PPC Specialists known provider search. AEM UAT /en/ppc-specialists/ only. Evidence in PacsRegressionReportBuilder.</description>
+   <name>TC_API_011</name>
+   <tag>ppcspecialists,API-011</tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>a01b11c2-d334-4f55-8667-78899a011001</testCaseGuid>
+</TestCaseEntity>
