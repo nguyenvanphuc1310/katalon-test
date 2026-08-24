@@ -104,6 +104,18 @@
          <value>'baseline'</value>
          <variableId>f784b504-b575-4fd9-9ddb-704cba901ccb</variableId>
       </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://www.prudential.com.sg'</value>
+         <variableId>fbecf2b9-09fa-4e69-927d-5cba6f2a208e</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://aem-uat.prudential.com.sg'</value>
+         <variableId>587b615a-28c7-4345-9c52-59d32607881e</variableId>
+      </variableLink>
    </testCaseLink>
    <testCaseLink>
       <guid>9004a045-c723-4816-8517-a41b76125e19</guid>

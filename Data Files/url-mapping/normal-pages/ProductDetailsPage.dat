@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "Product Details Page" page type (normal-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>ProductDetailsPage</name>
+   <tag>normal,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>6de1e7c4-78de-4af3-baff-c437cd04b7b6</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/normal-pages/product-details-page.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

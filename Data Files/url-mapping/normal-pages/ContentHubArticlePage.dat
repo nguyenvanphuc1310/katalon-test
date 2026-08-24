@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "Content Hub Article Page" page type (normal-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>ContentHubArticlePage</name>
+   <tag>normal,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>0508a3b8-78c4-484a-bc57-241864dc472f</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/normal-pages/content-hub-article-page.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

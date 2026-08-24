@@ -104,6 +104,18 @@
          <value>'compare'</value>
          <variableId>f784b504-b575-4fd9-9ddb-704cba901ccb</variableId>
       </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://www.prudential.com.sg'</value>
+         <variableId>fbecf2b9-09fa-4e69-927d-5cba6f2a208e</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://aem-uat.prudential.com.sg'</value>
+         <variableId>587b615a-28c7-4345-9c52-59d32607881e</variableId>
+      </variableLink>
    </testCaseLink>
    <testCaseLink>
       <guid>ead25d04-c145-46f5-86be-87a0b7004cfc</guid>

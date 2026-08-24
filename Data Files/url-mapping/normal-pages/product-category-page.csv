@@ -1,0 +1,26 @@
+sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype
+/products,/en/products,Product Category Page,normal,product-category-page
+/products/campaigns/health-protection,/en/products/campaigns/health-protection,Product Category Page,normal,product-category-page
+/products/legacy-planning,/en/products/legacy-planning,Product Category Page,normal,product-category-page
+/products/legacy-planning/all-legacy-plans,/en/products/legacy-planning/all-legacy-plans,Product Category Page,normal,product-category-page
+/products/promotions,/en/products/promotions,Product Category Page,normal,product-category-page
+/products/Investment/funds/prulink-funds/prulink-asian-income-and-growth-fund,/en/products/Investment/funds/prulink-funds/prulink-asian-income-and-growth-fund,Product Category Page,normal,product-category-page
+/products/Investment/funds,/en/products/Investment/funds,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/funds,/en/products/wealth-accumulation/funds,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/ilp,/en/products/wealth-accumulation/ilp,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/investments,/en/products/wealth-accumulation/investments,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/retirement,/en/products/wealth-accumulation/retirement,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/savings,/en/products/wealth-accumulation/savings,Product Category Page,normal,product-category-page
+/products/wealth-accumulation/savings-and-retirement,/en/products/wealth-accumulation/savings-and-retirement,Product Category Page,normal,product-category-page
+/products/health-insurance,/en/products/health-insurance,Product Category Page,normal,product-category-page
+/products/health-insurance/accident,/en/products/health-insurance/accident,Product Category Page,normal,product-category-page
+/products/health-insurance/critical-illness,/en/products/health-insurance/critical-illness,Product Category Page,normal,product-category-page
+/products/health-insurance/enterprise,/en/products/health-insurance/enterprise,Product Category Page,normal,product-category-page
+/products/health-insurance/medical,/en/products/health-insurance/medical,Product Category Page,normal,product-category-page
+/products/health-insurance/medical-and-accident,/en/products/health-insurance/medical-and-accident,Product Category Page,normal,product-category-page
+/products/life-insurance,/en/products/life-insurance,Product Category Page,normal,product-category-page
+/products/life-insurance/maternity-insurance,/en/products/life-insurance/maternity-insurance,Product Category Page,normal,product-category-page
+/products/life-insurance/mortgage-insurance,/en/products/life-insurance/mortgage-insurance,Product Category Page,normal,product-category-page
+/products/life-insurance/term-life-insurance,/en/products/life-insurance/term-life-insurance,Product Category Page,normal,product-category-page
+/products/life-insurance/whole-and-term-insurance,/en/products/life-insurance/whole-and-term-insurance,Product Category Page,normal,product-category-page
+/products/life-insurance/whole-life-insurance,/en/products/life-insurance/whole-life-insurance,Product Category Page,normal,product-category-page

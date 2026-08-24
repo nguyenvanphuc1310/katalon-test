@@ -1,0 +1,13 @@
+sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype
+/wedo,/en/wedo,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub,/en/wedo/wedohub,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-health,/en/wedo/wedohub/do-health,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-health/everybodyclub,/en/wedo/wedohub/do-health/everybodyclub,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-health/everybodyclub/articles,/en/wedo/wedohub/do-health/everybodyclub/articles,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-health/everybodyclub/gyms,/en/wedo/wedohub/do-health/everybodyclub/gyms,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-family,/en/wedo/wedohub/do-family,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedohub/do-wealth,/en/wedo/wedohub/do-wealth,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedolife,/en/wedo/wedolife,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedolife/do-health,/en/wedo/wedolife/do-health,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedolife/do-family,/en/wedo/wedolife/do-family,Content Hub Landing Page,normal,content-hub-landing-page
+/wedo/wedoinnovation,/en/wedo/wedoinnovation,Content Hub Landing Page,normal,content-hub-landing-page

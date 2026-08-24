@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "Product Comparison Page" page type (normal-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>ProductComparisonPage</name>
+   <tag>normal,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>70c7318c-6f24-4aca-93d0-97dc0048e158</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/normal-pages/product-comparison-page.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

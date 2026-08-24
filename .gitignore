@@ -21,7 +21,9 @@ build
 CLAUDE.md
 
 Data Files/baselines/
-Data Files/url-mapping/normal-pages/general-content-detail-page.csv
+
+# Generated work lists — CaptureGaps.write() rebuilds them from what is on disk
+Data Files/url-mapping/retry/
 
 # Katalon writes one of these per run, in the project root
 .temp-*-args-*.txt

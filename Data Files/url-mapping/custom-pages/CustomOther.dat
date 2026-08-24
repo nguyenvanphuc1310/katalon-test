@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "Custom Page (other)" page type (custom-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>CustomOther</name>
+   <tag>custom,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>a95f7681-3ab1-4cde-a9ed-16407ac0b438</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/custom-pages/custom-other.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

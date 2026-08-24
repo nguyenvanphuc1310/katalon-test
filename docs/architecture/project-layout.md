@@ -33,9 +33,16 @@ the check wrote only because both go through it.
 ## Data
 
 - `Data Files/aem-url-mapping.csv` — **the** source of URLs.
-  Columns: `sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype`.
+  Columns: `sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype`. Its URLs are **absolute**:
+  `ReportBuilder` renders them as the report's clickable links.
 - `Data Files/url-mapping/<group>/<slug>.csv` + `.dat` — generated slices, one per page type,
-  bound to that page type's test case by the suites.
+  bound to that page type's test case by the suites. **15 exist** (10 normal, 5 custom), covering
+  all 1,823 master rows; the CSV is named by the pagetype slug, the `.dat` by its PascalCase form,
+  and that `.dat` name must equal the `testDataId` the group suites reference.
+  **Every** slice carries **paths** (`/en/lifestage`) instead of absolute URLs, with the scheme +
+  host supplied per environment by the suite (since 2026-08-24).
+  Master and slice still have to agree, now **by path** — `AuditUtils.normalizeKey()` and
+  `slugOf()` both strip the host, so the two forms index and name files identically.
 - `Data Files/site-profiles.json` — per-host extraction selectors. Adding a CMS is a JSON
   block, not a code change. The `id` carries a version (`@5`) so a snapshot taken before a
   shape change is identifiable.
@@ -48,11 +55,13 @@ Five on disk, all under `Test Cases/migration-aem/`:
 - `checks/TC_Check_Content_Text` — the check itself (`sitecoreurl`, `pageurl`, `mode`).
 - `checks/TC_Build_Parity_Report` — a three-line wrapper over `ReportBuilder.build()`.
 - `templates/normal-pages/TC_GeneralContentDetailPage`, `templates/normal-pages/TC_LbuHomepage`,
-  `templates/custom-pages/TC_IlpFund` — one per page type. Each guards on `pagetype` and
-  calls the content check.
+  `templates/custom-pages/TC_IlpFund` — one per page type. Each guards on `pagetype`, joins
+  `sitecorehost`/`aemhost` onto the row's paths via `AuditUtils.absolute()`, and calls the
+  content check. All three are identical in shape.
 
 The target is one template per page type (26 of them). The remaining 23 are wired into the
-group suites but have not been written.
+group suites but have not been written — though since 2026-08-24 **10 of them already have their
+`.csv` + `.dat`**, so what is missing is the test case, not the data.
 
 `TC_Build_Baseline_Summary` was **deleted on 2026-08-20** together with `Exports.groovy`, and
 the step was removed from the three baseline suites that ran it. `Reports/baseline-summary.html`
@@ -61,14 +70,26 @@ JSON — see [../guides/running-tests.md](../guides/running-tests.md#after-a-cap
 
 ## Test suites
 
-Nine on disk, all under `Test Suites/migration-aem/`:
+Ten on disk, all under `Test Suites/migration-aem/`:
 
 - `<group>/by-page/TS_<Type>_Compare` — one page type: `TS_GeneralContentDetailPage_Compare`
   and `TS_IlpFund_Compare`. The proven type (`GeneralContentDetailPage`) also has
   `_Baseline`, `_Capture` and `_Recompare`. **These five are the runnable ones.**
 - `<group>/TS_<Group>_PreT0_Baseline` / `TS_<Group>_PostT0_Compare` — whole group, four of
   them. They cannot start until the missing page-type test cases exist.
-- No test-suite collections (`.tsc`) exist yet.
+- `<group>/by-page/TSC_<Type>_Crawl` — one **test suite collection**, the tenth file:
+  `normal-pages/by-page/TSC_GeneralContentDetailPage_Crawl`. It runs `_Baseline` and
+  `_Capture` at the same time in two browsers, since the two sides write different files and
+  share no state. See [../guides/running-tests.md](../guides/running-tests.md#crawling-both-sides-at-once).
+
+**A collection is a `.ts` file, not a `.tsc` file.** `TestSuiteCollectionEntity.getFileExtension()`
+returns `.ts`, the same extension a suite uses; Katalon tells the two apart by the root element
+(`<TestSuiteCollectionEntity>` vs `<TestSuiteEntity>`) and by nothing else. Naming a collection
+`.tsc` puts a file on disk that Studio never lists, with no error to say why — the `TSC_` name
+prefix is what separates them for a reader. The collection's own fields are `executionMode`
+(`SEQUENTIAL` | `PARALLEL`), `maxConcurrentInstances`, `delayBetweenInstances`, and a
+`<testSuiteRunConfigurations>` wrapper whose entries name a suite by the same display-id path
+form a `testCaseId` uses.
 
 **Suites bind the data file and set `mode` themselves.** Editing a test case's variables by
 hand is for investigating one page, not for running a suite.

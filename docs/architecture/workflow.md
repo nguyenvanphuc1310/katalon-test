@@ -182,7 +182,10 @@ flowchart LR
 ```
 
 `aem-url-mapping.csv` is the single source of URLs; the per-type files are generated slices of it
-and must stay in sync. Selectors never live in code — they live in `site-profiles.json`.
+and must stay in sync. The master's URLs are absolute (the report links to them); a slice may hold
+**paths** and take its scheme + host from the suite, so the check can be pointed at another
+environment without rewriting the rows. Sync is then checked **by path**, not by string equality.
+Selectors never live in code — they live in `site-profiles.json`.
 
 ## 5. The re-judge loop
 

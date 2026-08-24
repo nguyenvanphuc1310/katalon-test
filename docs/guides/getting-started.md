@@ -169,13 +169,15 @@ run records `NOT_RUN` and `recompare` honours it; a hard failure here means some
 
 ## 7. Known gaps — what you cannot run yet
 
-The docs describe more suites than the repository contains. As of 2026-08-19, on disk:
-**6 test cases, 9 suites, no test-suite collections.**
+The docs describe more suites than the repository contains. As of 2026-08-24, on disk:
+**6 test cases, 9 suites, 1 test suite collection, 16 data files.** The data half of the
+scaffolding is ahead of the code half: 15 page types have a `.csv` + `.dat`, but only 3 have a
+test case, so 12 of those slices cannot yet be run by anything.
 
 | Runnable | Not runnable |
 |---|---|
 | `normal-pages/by-page/TS_GeneralContentDetailPage_{Baseline,Capture,Compare,Recompare}` | `normal-pages/TS_Normal_PreT0_Baseline` / `TS_Normal_PostT0_Compare` — bind 19 page-type test cases, of which only `TC_GeneralContentDetailPage` and `TC_LbuHomepage` exist |
 | `custom-pages/by-page/TS_IlpFund_Compare` (its final `TC_Build_Mastersheet_Column` step is missing, so the mastersheet column is not written) | `custom-pages/TS_Custom_PreT0_Baseline` / `TS_Custom_PostT0_Compare` — bind 7 test cases, of which only `TC_IlpFund` exists |
-| | any suite named `collections/TSC_…` — **no `.tsc` file exists in this repository** |
+| `normal-pages/by-page/TSC_GeneralContentDetailPage_Crawl` — the only collection: baseline + capture in parallel | any collection for another page type — only General Content Detail has one |
 
 Tracked in [../overview/project-tracking.md](../overview/project-tracking.md).

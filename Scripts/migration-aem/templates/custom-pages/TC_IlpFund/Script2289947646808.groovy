@@ -4,6 +4,8 @@ import com.kms.katalon.core.model.FailureHandling
 import com.kms.katalon.core.util.KeywordUtil
 import com.kms.katalon.core.webui.keyword.WebUiBuiltInKeywords as WebUI
 
+import migration.AuditUtils
+
 /*
  * Parent test for the "ILP Fund" page type (custom-pages).
  *
@@ -18,6 +20,13 @@ if (pagetype != 'ilp-fund') {
 	KeywordUtil.logInfo("SKIP ${pageurl} — page type '${pagetype}' is not covered by this test case")
 	return
 }
+
+// The CSV carries paths; the suite carries the environment. Join them here, before anything is
+// logged or navigated, so everything downstream — profileFor(), slugOf(), navigateToUrl() —
+// still sees one absolute URL and nothing below this line knows the mapping changed shape.
+sitecoreurl = AuditUtils.absolute(sitecorehost, sitecoreurl)
+pageurl = AuditUtils.absolute(aemhost, pageurl)
+
 KeywordUtil.logInfo("=== ${mode.toUpperCase()} | ILP Fund | ${pageurl} ===")
 
 WebUI.callTestCase(findTestCase('migration-aem/checks/TC_Check_Content_Text'),

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "Agency Awards Night" page type (custom-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>AgencyAwardsNight</name>
+   <tag>custom,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>d3e673d1-1442-4274-98fb-b780c95a085a</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/custom-pages/agency-awards-night.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "LBU Contact Us Page" page type (normal-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>LbuContactUsPage</name>
+   <tag>normal,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>2565073a-0c56-48cd-8fee-64dd32760f73</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/normal-pages/lbu-contact-us-page.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

@@ -242,6 +242,18 @@
          <value>'compare'</value>
          <variableId>4761f407-5b7b-4baf-aafa-087b457f55ce</variableId>
       </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://www.prudential.com.sg'</value>
+         <variableId>6251c295-ce11-4542-a0d5-b560c86d2c23</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://aem-uat.prudential.com.sg'</value>
+         <variableId>48802c88-70bb-4bf0-8f55-6e39aed69ce7</variableId>
+      </variableLink>
    </testCaseLink>
    <testCaseLink>
       <guid>fe4920d8-c6f7-408d-abd1-eac967d699e2</guid>
@@ -425,6 +437,18 @@
          <type>SCRIPT_VARIABLE</type>
          <value>'compare'</value>
          <variableId>4c4271b5-5be9-4ccd-9b41-5c702cb0e5e3</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://www.prudential.com.sg'</value>
+         <variableId>c62a74f7-df9a-4adc-b86e-5c44810d38c8</variableId>
+      </variableLink>
+      <variableLink>
+         <testDataLinkId></testDataLinkId>
+         <type>SCRIPT_VARIABLE</type>
+         <value>'https://aem-uat.prudential.com.sg'</value>
+         <variableId>ae0981ac-1ef6-4793-b569-453780a1d561</variableId>
       </variableLink>
    </testCaseLink>
    <testCaseLink>

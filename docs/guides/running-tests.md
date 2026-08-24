@@ -15,13 +15,14 @@ score weight changes.
 
 ## Which suite
 
-All paths are under `Test Suites/migration-aem/`. These five are the suites that actually
-execute today:
+All paths are under `Test Suites/migration-aem/`. These five suites and one collection are what
+actually execute today:
 
 | Goal | Suite | mode | VPN |
 |---|---|---|---|
 | Live baseline, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | `baseline` | no |
 | Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | `capture` | yes |
+| **Both sides at once, two browsers** | `normal-pages/by-page/TSC_GeneralContentDetailPage_Crawl` | `baseline` + `capture` | yes |
 | Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` | `compare` | yes |
 | Re-judge, no crawl | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | `recompare` | no |
 | PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | `compare` | yes |
@@ -30,11 +31,64 @@ Every compare/recompare suite ends with `TC_Build_Parity_Report`, so any run reg
 report. The `baseline` suites end with the last page they capture — they write snapshots and
 nothing else, so verify them by reading the snapshot JSON (below).
 
+### Crawling both sides at once
+
+`TSC_GeneralContentDetailPage_Crawl` is a **test suite collection**, not a suite: it runs
+`TS_GeneralContentDetailPage_Baseline` and `TS_GeneralContentDetailPage_Capture` side by side
+in two browsers (`executionMode=PARALLEL`, `maxConcurrentInstances=2`). Waiting for 270 live
+pages before starting 270 AEM pages costs the sum of the two crawls; running them together
+costs the slower one. The capture half goes through the VPN to AEM UAT and is normally the
+slower, so expect roughly a 40-50% saving rather than a half.
+
+Overlapping them is safe because the two sides do not write the same files:
+
+| Written by | baseline | capture |
+|---|---|---|
+| `ContentSnapshot.capture()` | `<slug>.sitecore.json` / `.html` / `.rejected.json` | `<slug>.aem.json` / … |
+| `AuditUtils.recordResult()` | only on the `NOT_RUN` path | only on the `NOT_RUN` path |
+
+Snapshot names carry the side, so they can never collide. The one file both halves can write is
+`Reports/parity-results/<slug>/content.txt`, and only for a URL that serves a document — both
+write the same `NOT_RUN` text with `setText`, which replaces the whole file, so the worst case is
+one truncated write that the next run of either side repairs.
+
+Two rules for this collection:
+
+- **Keep the VPN up for the whole run.** The capture half needs it, and the baseline half is
+  then tunnelled through it too. `www.prudential.com.sg` is public so it normally still resolves,
+  but a full-tunnel VPN that blocks or throttles outbound traffic will slow or break the baseline
+  half — that is the one thing a short trial run has to establish.
+- **Never add a `compare` or `recompare` suite to it.** Those end with `TC_Build_Parity_Report`,
+  which is a single writer over the whole of `Reports/parity-report/`. Judge after the crawl, by
+  running `TS_GeneralContentDetailPage_Recompare` on its own.
+
+### Pointing a run at another environment
+
+**Every** slice under `Data Files/url-mapping/` holds **paths** (`/lifestage`, `/en/lifestage`),
+not URLs. The scheme + host comes from two script variables on the template's link in each suite —
+`TC_GeneralContentDetailPage`, `TC_LbuHomepage` and `TC_IlpFund` all take them:
+
+| Variable | Default |
+|---|---|
+| `sitecorehost` | `https://www.prudential.com.sg` |
+| `aemhost` | `https://aem-uat.prudential.com.sg` |
+
+To retarget a run — another AEM stage, author instead of publish — edit those two values in the
+suite. **Do not edit the CSV**: its rows are environment-independent on purpose, and they are
+kept in sync with `Data Files/aem-url-mapping.csv` by path.
+
+`AuditUtils.absolute()` joins them and passes an already-absolute value straight through, so a
+slice that still held full URLs would be unaffected by these variables. Confirm the binding took
+by reading the first log line of the run — the
+`=== COMPARE | General Content Detail Page | … ===` banner must show a **full URL**. A bare
+`/en/…` there means the variable never bound; check the `variableId`s in the suite against
+`TC_GeneralContentDetailPage.tc`, because a mismatch binds nothing and says nothing.
+
 **Not runnable yet.** The four group suites (`normal-pages/TS_Normal_PreT0_Baseline`,
 `TS_Normal_PostT0_Compare`, `custom-pages/TS_Custom_PreT0_Baseline`,
 `TS_Custom_PostT0_Compare`) bind 19 and 7 page-type test cases respectively, of which only
-`TC_GeneralContentDetailPage`, `TC_LbuHomepage` and `TC_IlpFund` have been written. There
-are **no test-suite collections** (`.tsc`) in the repository. `TS_IlpFund_Compare` and the
+`TC_GeneralContentDetailPage`, `TC_LbuHomepage` and `TC_IlpFund` have been written.
+`TS_IlpFund_Compare` and the
 group compare suites also end with `TC_Build_Mastersheet_Column`, which does not exist as a
 test case either — only as `ReportBuilder.mastersheetColumn`. See
 [getting-started.md](getting-started.md#7-known-gaps--what-you-cannot-run-yet).

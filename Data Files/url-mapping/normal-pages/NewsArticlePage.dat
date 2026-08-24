@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataFileEntity>
+   <description>URL mapping for the "News Article Page" page type (normal-pages). Generated from Data Files/aem-url-mapping.csv</description>
+   <name>NewsArticlePage</name>
+   <tag>normal,url-mapping</tag>
+   <containsHeaders>true</containsHeaders>
+   <csvSeperator>COMMA</csvSeperator>
+   <dataFileGUID>d3bf9542-2736-4507-80d0-21644a685a26</dataFileGUID>
+   <dataSourceUrl>Data Files/url-mapping/normal-pages/news-article-page.csv</dataSourceUrl>
+   <driver>CSV</driver>
+   <isInternalPath>true</isInternalPath>
+   <query></query>
+   <secureUserAccount>false</secureUserAccount>
+   <sheetName></sheetName>
+   <usingGlobalDBSetting>false</usingGlobalDBSetting>
+</DataFileEntity>

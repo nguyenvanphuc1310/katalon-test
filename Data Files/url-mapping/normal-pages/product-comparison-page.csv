@@ -1,0 +1,9 @@
+sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype
+/products/legacy-planning/compare,/en/products/legacy-planning/compare,Product Comparison Page,normal,product-comparison-page
+/products/wealth-accumulation/investments/compare,/en/products/wealth-accumulation/investments/compare,Product Comparison Page,normal,product-comparison-page
+/products/wealth-accumulation/savings/compare,/en/products/wealth-accumulation/savings/compare,Product Comparison Page,normal,product-comparison-page
+/products/health-insurance/critical-illness/compare,/en/products/health-insurance/critical-illness/compare,Product Comparison Page,normal,product-comparison-page
+/products/life-insurance/maternity-insurance/compare,/en/products/life-insurance/maternity-insurance/compare,Product Comparison Page,normal,product-comparison-page
+/products/life-insurance/term-life-insurance/compare,/en/products/life-insurance/term-life-insurance/compare,Product Comparison Page,normal,product-comparison-page
+/products/life-insurance/whole-life-insurance/compare,/en/products/life-insurance/whole-life-insurance/compare,Product Comparison Page,normal,product-comparison-page
+/products/wealth-accumulation/investments/compare,/en/products/wealth/investments/compare,Product Comparison Page,normal,product-comparison-page

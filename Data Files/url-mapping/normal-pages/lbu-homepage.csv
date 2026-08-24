@@ -1,2 +1,3 @@
 sitecoreurl,aemurl,aemtemplate,pagegroup,pagetype
-https://www.prudential.com.sg/,https://aem-uat.prudential.com.sg/en/,LBU Homepage,normal,lbu-homepage
+/,/en/,LBU Homepage,normal,lbu-homepage
+/enterprise,/en/enterprise,LBU Homepage,normal,lbu-homepage

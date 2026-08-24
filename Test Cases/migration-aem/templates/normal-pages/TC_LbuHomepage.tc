@@ -41,4 +41,18 @@
       <masked>false</masked>
       <name>pagetype</name>
    </variable>
+   <variable>
+      <defaultValue>'https://www.prudential.com.sg'</defaultValue>
+      <description>Scheme + host prepended to the sitecoreurl path column — set per environment at the suite</description>
+      <id>c62a74f7-df9a-4adc-b86e-5c44810d38c8</id>
+      <masked>false</masked>
+      <name>sitecorehost</name>
+   </variable>
+   <variable>
+      <defaultValue>'https://aem-uat.prudential.com.sg'</defaultValue>
+      <description>Scheme + host prepended to the aemurl path column — set per environment at the suite</description>
+      <id>ae0981ac-1ef6-4793-b569-453780a1d561</id>
+      <masked>false</masked>
+      <name>aemhost</name>
+   </variable>
 </TestCaseEntity>
