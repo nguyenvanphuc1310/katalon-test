@@ -79,8 +79,8 @@ public class ReportBuilder {
 
 	/** Most severe first: the reading order of the blocks on a page */
 	static final List FINDING_ORDER = ['MISSING_ON_AEM', 'NUMBER_CHANGED',
-		'WRONG_TAB', 'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY',
-		'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW', 'ONLY_ON_AEM']
+		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY',
+		'WRONG_TAB', 'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW', 'ONLY_ON_AEM']
 
 	static final Map FINDING_TITLE = [
 		MISSING_ON_AEM: 'Missing on the new page',
@@ -97,7 +97,7 @@ public class ReportBuilder {
 	static final Map FINDING_HINT = [
 		MISSING_ON_AEM: 'Not found anywhere on the new page.',
 		NUMBER_CHANGED: 'Same sentence, different figures — a sum, an age, a percentage, a policy term.',
-		WRONG_TAB: 'On the new page, but under a different tab.',
+		WRONG_TAB: 'On the new page, under a different tab. The text survived, so this does not fail the page.',
 		SCOPE_ASYMMETRY: 'The two pages were not read on equal terms, so these findings rest on a weaker measurement.',
 		COUNT_MISMATCH: 'On the new page, but fewer times than on the live page — the missing appearances are missing content.',
 		TEXT_CHANGED: 'Same place, reworded — the live wording is not on the new page.',
@@ -105,13 +105,71 @@ public class ReportBuilder {
 		STATE_ONLY_ON_NEW: 'A tab or section that exists only on the new page.',
 		ONLY_ON_AEM: 'Extra text on the new page. The live page is a subset baseline, so this never fails.']
 
-	/** The six that fail a page. Kept identical to ContentCompare.ERRORS. */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED',
+	/**
+	 * The columns of a findings table, per verdict, as `[header, row key]` pairs.
+	 * `FINDING_COLUMNS_DEFAULT` for any verdict not named here.
+	 *
+	 * The header is per verdict because the same three fields carry different things under
+	 * different verdicts, and a header that is right for one block is a lie on another:
+	 *
+	 * - `TEXT_CHANGED` and `NUMBER_CHANGED` name the two sites. Only in those two do the cells
+	 *   line up with them — the live wording, and the AEM wording that replaced it — and they are
+	 *   the only two whose rows are read CHARACTER BY CHARACTER (`S$30,000` against `$10,000`,
+	 *   `10%4` against `10%3`), where "Text" beside "Note" answers none of the question the row
+	 *   is asking.
+	 * - `MISSING_ON_AEM` and `ONLY_ON_AEM` have NO note column, because they have no note:
+	 *   `ContentCompare` writes `''` for both by construction, so the column was 1,828 blank cells
+	 *   whose header nonetheless promised a reader something was there. A missing text has no
+	 *   counterpart to describe — that IS the finding.
+	 * - everything else keeps `Text`/`Note`: `STATE_ONLY_ON_NEW` puts the **AEM** text in `text`,
+	 *   and `WRONG_TAB`, `COUNT_MISMATCH`, `SCOPE_ASYMMETRY` and `STATE_ONLY_ON_LIVE` put a
+	 *   sentence of explanation in `note`, not the AEM wording.
+	 *
+	 * The row key must name a field `readFindings` actually sets, or the cell renders empty in
+	 * silence. `path` is the only one with a fallback — an empty one renders as an em dash.
+	 */
+	static final List FINDING_COLUMNS_DEFAULT = [
+		['Where on the live page', 'path'], ['Text', 'text'], ['Note', 'note']]
+
+	/** The live wording against the AEM wording that replaced it. */
+	static final List FINDING_COLUMNS_SIDES = [
+		['Where on the live page', 'path'], ['Sitecore', 'text'], ['AEM', 'note']]
+
+	/** No note column: these verdicts never write one. */
+	static final List FINDING_COLUMNS_NO_NOTE = [
+		['Where on the live page', 'path'], ['Text', 'text']]
+
+	static final Map FINDING_COLUMNS = [
+		TEXT_CHANGED  : FINDING_COLUMNS_SIDES,
+		NUMBER_CHANGED: FINDING_COLUMNS_SIDES,
+		MISSING_ON_AEM: FINDING_COLUMNS_NO_NOTE,
+		ONLY_ON_AEM   : FINDING_COLUMNS_NO_NOTE]
+
+	/** The five that fail a page. Kept identical to ContentCompare.ERRORS. */
+	static final List ERRORS = ['MISSING_ON_AEM', 'NUMBER_CHANGED',
 		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 	/** Worth reading, but they do not fail the page */
-	static final List WARNINGS = ['STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
+	static final List WARNINGS = ['WRONG_TAB', 'STATE_ONLY_ON_LIVE', 'STATE_ONLY_ON_NEW']
 	/** Never a problem: the live page is a subset baseline */
 	static final List INFOS = ['ONLY_ON_AEM']
+
+	/**
+	 * Verdicts that are read and classified, but never drawn as a findings block.
+	 *
+	 * SCOPE_ASYMMETRY is a statement about the CRAWL, not about a live text. Drawn as a block it
+	 * put a red "Fails the page" panel of one row on 27 pages, 19 of them URLs that 404 on both
+	 * sides — where all it reported was that the two error pages have different markup. The page
+	 * still fails: the verdict comes from content.txt, not from this list, and score.csv carries
+	 * the measurements in `confidenceWhy`, which renders as the low-confidence callout above the
+	 * blocks. One sentence in place of a table of one row.
+	 *
+	 * `ContentCompare.NO_CSV` stops new runs writing the row at all; this list is what keeps the
+	 * report honest about the findings.csv files already on disk. They must stay in step.
+	 *
+	 * These verdicts stay in ERRORS so readFindings' unknown-verdict warning does not fire on them,
+	 * and they are excluded from the failed-text counts by hand — see checkStatsOf.
+	 */
+	static final List NOT_RENDERED = ['SCOPE_ASYMMETRY']
 
 	/**
 	 * Severity is spelled out as well as coloured. This report is printed, forwarded and read on
@@ -127,10 +185,29 @@ public class ReportBuilder {
 
 	// ---------------------------------------------------------------- entry points
 
-	/** Report that reads its evidence in place from Reports/ (for the test team) */
+	/**
+	 * Report that reads its evidence in place from Reports/ (for the test team)
+	 *
+	 * Everything is logged before it is rethrown. The 2026-08-21 build failed with nothing in the
+	 * log but the string `java.lang.StackOverflowError` — no frames, no file, no page — because
+	 * the JVM's fast-throw optimisation strips the trace off an implicit error once its throw site
+	 * is hot, which a recursive regex loop becomes immediately. That cost a reproduction to
+	 * diagnose what a stack trace would have named. Printing it here does not defeat fast-throw,
+	 * but it does name the failing keyword, and it states the one fact the reader most needs:
+	 * render() swaps a finished directory into place, so the previous report is still readable.
+	 */
 	@Keyword
 	static String build() {
-		return render()
+		try {
+			return render()
+		} catch (Throwable t) {
+			StringWriter sw = new StringWriter()
+			t.printStackTrace(new PrintWriter(sw))
+			KeywordUtil.logInfo("Parity report build FAILED: ${t}\n${sw}\n" +
+				'The previous report under Reports/parity-report/ is untouched — this build wrote ' +
+				'to a temporary directory and never reached the swap.')
+			throw t
+		}
 	}
 
 
@@ -177,20 +254,34 @@ public class ReportBuilder {
 	 *
 	 * `AuditUtils.slugOf` collapses every run of non-alphanumerics to `_`, so `/a/b-c` and `/a-b/c`
 	 * are the same slug. The scheme is deliberately NOT changed here: it names every file already
-	 * on disk, so changing it is a migration, and there are no collisions in the mapping today.
-	 * What was missing is any way to find out — this makes the collision loud while it is still
-	 * cheap to fix. The risk scales with the mapping: 20 rows today against a target near 1,700.
+	 * on disk, so changing it is a migration. What was missing is any way to find out — this makes
+	 * the collision loud while it is still cheap to fix. The risk scales with the mapping: 281 rows
+	 * today against a target near 1,700.
+	 *
+	 * Slugs are bucketed CASE-INSENSITIVELY, because the collision that matters is a collision of
+	 * FILE NAMES and macOS ships APFS case-insensitive. Comparing the slugs exactly, as this did
+	 * until 2026-08-21, misses that entirely: `…/sustainability/Responsible Investment` and
+	 * `…/sustainability/responsible-investment` produce two different slugs and one directory, so
+	 * the second page overwrote the first's snapshot, findings.csv and verdict, the report counted
+	 * two pages compared, rendered one file, and pointed both links at it — in silence, which is
+	 * exactly what this check exists to prevent. A case-only collision is still reported when the
+	 * project is opened on a case-sensitive volume: it is a latent bug there, not a safe one.
 	 */
 	private static void warnOnSlugCollisions(List pages) {
 		Map bySlug = [:]
 		pages.each { Object p ->
 			Map page = (Map) p
-			bySlug.get(page.slug, []) << page.aem
+			bySlug.get(((String) page.slug).toLowerCase(), []) << page
 		}
-		bySlug.each { Object slug, Object urls ->
-			List all = ((List) urls).unique()
+		bySlug.each { Object key, Object entries ->
+			List all = ((List) entries)*.aem.unique()
 			if (all.size() > 1) {
-				KeywordUtil.markWarning("Slug collision: ${all.size()} URLs share the slug '${slug}' " +
+				List slugs = ((List) entries)*.slug.unique()
+				String how = slugs.size() > 1
+						? "produce slugs differing only in case (${slugs.join(', ')}), which are one file " +
+						'name on a case-insensitive filesystem'
+						: "produce the same slug '${slugs[0]}'"
+				KeywordUtil.markWarning("Slug collision: ${all.size()} URLs ${how}, " +
 					"and therefore share one snapshot, one findings.csv and one verdict — ${all.join(' | ')}. " +
 					'Only the last one checked is represented in the report.')
 			}
@@ -211,6 +302,27 @@ public class ReportBuilder {
 			detail: lines.size() > 1 ? lines.drop(1).join('\n').trim() : '']
 	}
 
+	private static final java.util.regex.Pattern LEGACY_NOTE_LABEL =
+		~/^(?:figures changed:[^;]*; )?new page says: /
+
+	/**
+	 * Drops the label that `note` used to carry in front of the AEM wording.
+	 *
+	 * `TEXT_CHANGED` wrote `new page says: <the AEM text>`, and `NUMBER_CHANGED` put a
+	 * `figures changed: [30000] -> [10000]; ` preamble in front of that. The column header names
+	 * the side now, so the label inside the cell only repeated it. `ContentCompare` stopped writing
+	 * both; this strips them on the way in as well, because otherwise every findings.csv already on
+	 * disk would keep rendering the old way until all 1,823 pages had been crawled again — a full
+	 * crawl spent on a caption.
+	 *
+	 * Anchored at `^`, and the preamble is `[^;]*` rather than `.*?` so it cannot walk past the
+	 * first `; ` into the AEM text. The figure sets render as `[30000]` / `[30000, 5]` — commas,
+	 * never a semicolon.
+	 */
+	private static String stripNoteLabel(String note) {
+		return note.replaceFirst(LEGACY_NOTE_LABEL, '')
+	}
+
 	/**
 	 * findings.csv parsed into rows.
 	 *
@@ -220,7 +332,18 @@ public class ReportBuilder {
 	 * reads "no findings" on a page that failed. That is not hypothetical — it shipped once; see
 	 * docs/reference/report-contract.md.
 	 *
-	 * Both ways a row can vanish are now logged, because silence is the whole failure mode here.
+	 * A quoted field is `[^"]*(?:""[^"]*)*` and must NEVER be written as the more obvious
+	 * `(?:[^"]|"")*`. They match the same language, but `(?:A|B)*` compiles to a RECURSIVE
+	 * Loop/Branch pair in java.util.regex — one set of stack frames per matched character — while
+	 * a single-char class under `*` compiles to a Curly that iterates. The alternation form ran
+	 * for a year on a 9-page corpus and then killed the build the first time the mapping widened
+	 * to 270 pages: one 1760-char row (the SCB PDPA consent clause, ~700-char text beside an
+	 * ~800-char note) exhausted the stack, and `build()` died with a bare StackOverflowError that
+	 * carried no frames at all. Measured afterwards: even on a FRESH 1 MB stack that row matches
+	 * with zero frames to spare, and render() runs hundreds of frames deep inside Katalon's
+	 * runner. Recursion depth here is now the number of `""` escape pairs, not the field length.
+	 *
+	 * All three ways a row can vanish are now logged, because silence is the whole failure mode here.
 	 * A row that does not match the pattern is a contract break. A row that matches but carries a
 	 * verdict listed in neither ERRORS, WARNINGS nor INFOS renders nowhere (findingBlocks walks
 	 * FINDING_ORDER) and is counted nowhere (checkStatsOf tallies the three lists), so the page
@@ -234,17 +357,31 @@ public class ReportBuilder {
 		if (!f.exists()) return []
 		List rows = []
 		int unparsed = 0
+		int overflowed = 0
 		f.readLines('UTF-8').drop(1).each { String line ->
 			if (!line.trim()) return
-			def m = (line =~ /^(\w+),(\w*),"((?:[^"]|"")*)","((?:[^"]|"")*)","((?:[^"]|"")*)"(?:,[-0-9.]+)?$/)
-			if (m.find()) rows << [verdict: m.group(1), kind: m.group(2),
-				path: m.group(3).replace('""', '"'), text: m.group(4).replace('""', '"'),
-				note: m.group(5).replace('""', '"')]
-			else unparsed++
+			try {
+				def m = (line =~ /^(\w+),(\w*),"([^"]*(?:""[^"]*)*)","([^"]*(?:""[^"]*)*)","([^"]*(?:""[^"]*)*)"(?:,[-0-9.]+)?$/)
+				if (m.find()) rows << [verdict: m.group(1), kind: m.group(2),
+					path: m.group(3).replace('""', '"'), text: m.group(4).replace('""', '"'),
+					note: stripNoteLabel(m.group(5).replace('""', '"'))]
+				else unparsed++
+			} catch (StackOverflowError soe) {
+				// The pattern above no longer recurses per character, so this should never fire.
+				// It exists because the alternative, once, was the whole build dying with no
+				// frames and no message: losing one named row beats losing the entire report.
+				// Safe to catch — the regex engine's frames are gone by the time we get here.
+				overflowed++
+			}
 		}
 		if (unparsed > 0) {
 			KeywordUtil.markWarning("${f.getPath()}: ${unparsed} row(s) did not match the findings contract " +
 				'and are missing from the report — see docs/reference/report-contract.md')
+		}
+		if (overflowed > 0) {
+			KeywordUtil.markWarning("${f.getPath()}: ${overflowed} row(s) exhausted the stack while being parsed " +
+				'and are missing from the report. The findings pattern has started recursing again — ' +
+				'see the comment on readFindings and docs/reference/report-contract.md')
 		}
 		Set unknown = rows.collect { (String) it.verdict }.findAll {
 			!ERRORS.contains(it) && !WARNINGS.contains(it) && !INFOS.contains(it)
@@ -300,7 +437,10 @@ public class ReportBuilder {
 			verdict: res ? (String) res.verdict : 'NA',
 			items  : itemsCompared(res == null ? null : (String) res.detail),
 			rows   : rows,
-			failed : rows.count { ERRORS.contains(it.verdict) },
+			// NOT_RENDERED verdicts are excluded: this number is printed as "N of M live text(s) did
+			// not survive", and the asymmetry finding is not a live text. Counting it there put a
+			// failed text on pages where every text was found.
+			failed : rows.count { ERRORS.contains(it.verdict) && !NOT_RENDERED.contains(it.verdict) },
 			warned : rows.count { WARNINGS.contains(it.verdict) },
 			extra  : rows.count { INFOS.contains(it.verdict) },
 			// null, not 0, when no score was written: "not scored" and "scored zero" are opposite
@@ -449,11 +589,26 @@ public class ReportBuilder {
 
 	// ---------------------------------------------------------------- rendering
 
+	/**
+	 * Renders into a temporary directory and swaps it into place only once every file is written.
+	 *
+	 * This used to delete Reports/parity-report/ as its first act and render into the hole. Any
+	 * failure after that line therefore destroyed a good report to produce nothing — which is
+	 * exactly what happened on 2026-08-21: the build died partway and left two asset files, an
+	 * empty templates/ and an empty pages/, with the previous report already gone. A report is
+	 * read far more often than it is built, and the last good one is worth more than a fast swap.
+	 *
+	 * Safe because every link the report emits is relative and none of them names this directory:
+	 * templateHref prefixes `templates/`, checkFile is a bare filename, head() points at
+	 * `assets/_site/`. Renaming the directory cannot break navigation.
+	 */
 	private static String render() {
 		String proj = RunConfiguration.getProjectDir()
 		List pages = collectPages(proj)
 
-		File root = new File(proj + "/Reports/parity-report")
+		File dest = new File(proj + "/Reports/parity-report")
+		File root = new File(proj + "/Reports/.parity-report.tmp")
+		// A tmp left behind is the wreckage of an earlier failed build, not work in progress.
 		if (root.exists()) root.deleteDir()
 		root.mkdirs()
 		writeStaticAssets(root)
@@ -497,9 +652,20 @@ public class ReportBuilder {
 			}
 		}
 
-		KeywordUtil.logInfo("Parity report -> " + index.getAbsolutePath() +
+		// Everything is written: the report is now complete, and only now does the old one go.
+		if (dest.exists() && !dest.deleteDir()) {
+			throw new IOException("Could not remove the previous report at ${dest.getPath()} — " +
+				"the new one is complete and waiting at ${root.getPath()}")
+		}
+		if (!root.renameTo(dest)) {
+			throw new IOException("Could not move the finished report from ${root.getPath()} to " +
+				"${dest.getPath()} — the report is complete, only the swap failed")
+		}
+
+		File published = new File(dest, 'index.html')
+		KeywordUtil.logInfo("Parity report -> " + published.getAbsolutePath() +
 			" (${tplNav.size()} template file(s), ${nav.size()} page file(s), ${caseFiles} test-case file(s))")
-		return index.getAbsolutePath()
+		return published.getAbsolutePath()
 	}
 
 	/** index.html: the run, then one row per template. No individual page is listed here. */
@@ -751,7 +917,7 @@ public class ReportBuilder {
 				: '<span class="navbtn off">Next &rsaquo;</span>')
 		h << '</div></div>'
 
-		h << "<article class=\"page ${failed > 0 ? 'has-findings' : ''}\">"
+		h << "<article class=\"page ${failed > 0 || verdict == 'FAIL' ? 'has-findings' : ''}\">"
 		h << "<div class=\"page-head\"><h1>${esc(title)}</h1>"
 		h << "<p class=\"sub\">on <a class=\"mono\" href=\"${escAttr(p.slug)}.html\">${esc(pageName)}</a>"
 		h << " &middot; ${esc(CHECK_DESC[id] ?: '')}</p>"
@@ -762,8 +928,15 @@ public class ReportBuilder {
 			h << 'This URL does not serve a page to compare.</p>'
 		} else {
 			h << "<p class=\"page-status\"><span class=\"badge ${verdict}\">${verdict}</span> "
+			// A page can FAIL with no failed text: the verdict comes from content.txt, and the reason
+			// may be one that findings.csv does not carry a row for (see NOT_RENDERED). Saying "all
+			// were found" beside a red FAIL badge would be the report arguing with itself.
 			h << (failed > 0
 					? "<b class=\"bad\">${failed}</b> of ${s.items} live text(s) did not survive the migration."
+					: verdict == 'FAIL' && s.items == 0
+					? "Nothing on this page was compared &mdash; see below."
+					: verdict == 'FAIL'
+					? "No live text is missing. This page fails for a reason no single text records &mdash; see below."
 					: "All ${s.items} live text(s) were found on the new page.")
 			h << '</p>'
 			h << '<dl class="facts">'
@@ -782,11 +955,15 @@ public class ReportBuilder {
 			if (s.score != null && verdict == 'FAIL' && (s.score as double) >= WARN_SCORE) {
 				h << '<p class="callout">This page scores above the pass mark and still fails: it carries a '
 				h << 'finding that no score can offset &mdash; a changed figure, or a comparison whose two '
-				h << 'sides did not read the same amount of content. The finding is below.</p>'
+				h << 'sides did not read the same amount of content.'
+				// Only when there IS a block to point at. An unread comparison is reported by the
+				// low-confidence callout below instead, and draws no block of its own.
+				h << (failed > 0 ? ' The finding is below.' : '') + '</p>'
 			}
 			if (s.lowConf && s.confWhy) {
 				h << "<p class=\"callout warn\">Low confidence &mdash; ${esc(s.confWhy)}. "
-				h << 'Read the findings rather than the score.</p>'
+				h << (failed > 0 ? 'Read the findings rather than the score.'
+						: 'Re-capture this page before reading anything else it reports.') + '</p>'
 			}
 			// The failing texts open, everything else folded: this file is read to fix failures.
 			h << findingBlocks((List) s.rows, ERRORS, true)
@@ -828,7 +1005,7 @@ public class ReportBuilder {
 	 */
 	private static String findingBlocks(List rows, List verdicts, boolean open) {
 		StringBuilder h = new StringBuilder()
-		FINDING_ORDER.findAll { verdicts.contains(it) }.each { String v ->
+		FINDING_ORDER.findAll { verdicts.contains(it) && !NOT_RENDERED.contains(it) }.each { String v ->
 			List got = rows.findAll { it.verdict == v }
 			if (!got) return
 			String lvl = level(v)
@@ -837,9 +1014,15 @@ public class ReportBuilder {
 			h << "<b>${esc(FINDING_TITLE[v])}</b>"
 			h << "<span class=\"tally\">${got.size()} text${got.size() == 1 ? '' : 's'}</span></summary>"
 			h << "<p class=\"sub\">${esc(FINDING_HINT[v])}</p>"
-			h << '<table class="difftable"><tr><th>Where on the live page</th><th>Text</th><th>Note</th></tr>'
+			List cols = (List) (FINDING_COLUMNS[v] ?: FINDING_COLUMNS_DEFAULT)
+			h << '<table class="difftable"><tr>' + cols.collect { "<th>${esc((String) ((List) it)[0])}</th>" }.join('') + '</tr>'
 			got.each { Map r ->
-				h << "<tr><td>${esc(r.path ?: '—')}</td><td>${esc(r.text)}</td><td>${esc(r.note)}</td></tr>"
+				h << '<tr>' + cols.collect { List c ->
+					String val = (String) (r[(String) c[1]] ?: '')
+					// Only `path` gets a placeholder: a blank text or note is a blank cell, not an em dash.
+					if (c[1] == 'path' && !val) val = '—'
+					return "<td>${esc(val)}</td>"
+				}.join('') + '</tr>'
 			}
 			h << '</table></details>'
 		}

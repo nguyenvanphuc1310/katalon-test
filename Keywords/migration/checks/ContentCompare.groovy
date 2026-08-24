@@ -106,6 +106,26 @@ public class ContentCompare {
 	 */
 	static final int AFFIX_EXTRA_MAX = 40
 
+	/**
+	 * A brand prefix the two CMSes disagree about where to break.
+	 *
+	 * Sitecore writes the product name as PRU + an inline element carrying the rest —
+	 * `<h1>PRU<span>Shield</span> / PRU<span>Extra</span> Premium Rate Tables</h1>` — so the
+	 * collector emits "Shield" and "Extra" as items in their own right. AEM writes "PRUShield"
+	 * as one text node, and wraps "PRU" instead, which MIN_LEN then drops for being 3 characters.
+	 * The live fragment therefore has no fragment to answer it, and the word-boundary test below
+	 * rejects the only place it does occur, because the character to its left is the "u" of "PRU".
+	 *
+	 * Measured over the 192 captured page pairs, this is one defect and not a class of them:
+	 * every one of the 9 findings it produces is the prefix "pru", on 4 pages. The bounds are
+	 * what keep it that narrow. The LOWER bound is the load-bearing one — without it "here" is
+	 * answered by "there are many ways to make or receive payment", which is a coincidence and
+	 * not a counterpart, and it silently lifted en_claims_and_support_payments by two findings.
+	 * The upper bound stops a whole word gluing itself to the label.
+	 */
+	static final int GLUE_PREFIX_MIN = 3
+	static final int GLUE_PREFIX_MAX = 4
+
 	static boolean foundAsWholeItem(String n, List items) {
 		if (!n) return true
 		return items.any { Object it ->
@@ -129,6 +149,17 @@ public class ContentCompare {
 				int end = at + n.length()
 				boolean rightOk = (end >= o.length()) || !Character.isLetterOrDigit(o.charAt(end))
 				if (leftOk && rightOk) return true
+				// The same word, with the brand prefix glued to its front and no separator to
+				// break on: the live page's "Shield" against the new page's "PRUShield". The run
+				// to the left has to be a whole short word of its own — it must itself start at a
+				// boundary — so this reads "<prefix><label>" and not "somewhere inside a word".
+				if (rightOk && at > 0 && Character.isLetter(o.charAt(at - 1))) {
+					int j = at - 1
+					while (j > 0 && Character.isLetter(o.charAt(j - 1))) j--
+					int runLen = at - j
+					if (runLen >= GLUE_PREFIX_MIN && runLen <= GLUE_PREFIX_MAX &&
+						(j == 0 || !Character.isLetterOrDigit(o.charAt(j - 1)))) return true
+				}
 				at = o.indexOf(n, at + 1)
 			}
 			return false
@@ -333,13 +364,12 @@ public class ContentCompare {
 				// it is exactly what makes a changed sum assured look like a rewording — so the
 				// numbers are compared on their own and outrank the overlap score.
 				Set want = numbers(n), got = numbers(norm(textOf(best)))
-				if (want != got) {
-					findings << [verdict: 'NUMBER_CHANGED', path: item.path, kind: item.kind, text: textOf(item),
-						note: "figures changed: ${(want - got) ?: '(none)'} -> ${(got - want) ?: '(none)'}; new page says: " + textOf(best)]
-				} else {
-					findings << [verdict: 'TEXT_CHANGED', path: item.path, kind: item.kind, text: textOf(item),
-						note: 'new page says: ' + textOf(best)]
-				}
+				// The note is the AEM wording and nothing else. The report's column header names the
+				// side, so a "new page says:" label inside the cell only repeated it; NUMBER_CHANGED's
+				// figure delta went the same way — the two figures now sit side by side in the two
+				// columns. Both verdicts therefore write the same row, and only the verdict differs.
+				findings << [verdict: want != got ? 'NUMBER_CHANGED' : 'TEXT_CHANGED', path: item.path,
+					kind: item.kind, text: textOf(item), note: textOf(best)]
 			} else {
 				findings << [verdict: 'MISSING_ON_AEM', path: item.path, kind: item.kind, text: textOf(item), note: '']
 			}
@@ -478,8 +508,16 @@ public class ContentCompare {
 	 * fails the page because the alternative is worse — as a warning it let a page whose new side
 	 * collected one element out of the whole document read PASS, which is the single most expensive
 	 * thing this check can do. A page that cannot be judged must not report that it passed.
+	 *
+	 * WRONG_TAB is NOT an error (2026-08-24). It only ever fires when the live text IS on the new
+	 * page, under a different tab — so the answer to this check's one question, did the TEXT
+	 * survive, is yes. What it reports is layout, and layout is out of scope here for the same
+	 * reason LINK_CHANGED was removed. It stays as a warning, and weighs 0, because where a text
+	 * sits is still worth reading: on en_lifestage_young_family 2 of its 17 rows were a
+	 * product-filter CTA genuinely attached to the wrong product, and the other 15 were one block
+	 * the live page repeats inside every tab and AEM renders once at page level.
 	 */
-	static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED',
+	static final List ERRORS = ['MISSING_ON_AEM', 'NUMBER_CHANGED',
 		'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 
 	/**
@@ -497,11 +535,11 @@ public class ContentCompare {
 	static final Map WEIGHTS = [
 		MISSING_ON_AEM    : 1.0d,  // not on the new page at all: a whole item gone
 		NUMBER_CHANGED    : 1.0d,  // a different figure is a different statement — also HARD_FAIL
-		WRONG_TAB         : 0.5d,  // on the page, behind the wrong tab: findable, but not where the reader looks
 		STATE_ONLY_ON_LIVE: 0.5d,  // a live tab with no counterpart: everything under it is at risk
 		COUNT_MISMATCH    : 0.3d,  // some of its appearances survived
 		TEXT_CHANGED      : 0.1d,  // the text is there, reworded
 		ONLY_ON_AEM       : 0.0d,  // the live page is a subset baseline: extra text is never a loss
+		WRONG_TAB         : 0.0d,  // on the page, behind another tab: the text survived, only its place moved
 		STATE_ONLY_ON_NEW : 0.0d,
 		SCOPE_ASYMMETRY   : 0.0d]
 
@@ -517,6 +555,23 @@ public class ContentCompare {
 	 * en_lifestage regression the verdict was created to stop, re-entering through the score.
 	 */
 	static final List HARD_FAIL = ['NUMBER_CHANGED', 'SCOPE_ASYMMETRY']
+
+	/**
+	 * Findings that carry the verdict but are never written to findings.csv.
+	 *
+	 * findings.csv is the per-TEXT evidence: one row is one live text and what became of it, and the
+	 * report tabulates it under "N of M live texts did not survive". SCOPE_ASYMMETRY is not a text.
+	 * It is a statement about the crawl, and written into that file it rendered as a one-row "Fails
+	 * the page" block on 27 pages — 19 of them URLs that 404 on BOTH sides, where the only thing the
+	 * block reported was that the two error pages have different markup. That is noise in a report
+	 * about migrated content.
+	 *
+	 * Suppressed from the CSV, NOT from the result: the finding stays in `result.findings`, so it
+	 * still fails the page through HARD_FAIL, still counts in `summary()`, and its measurements are
+	 * still recorded locally — in score.csv's `confidenceWhy` (see grade()) and in the content.txt
+	 * summary line. Nothing is lost; it stops being tabulated as a failed text.
+	 */
+	static final List NO_CSV = ['SCOPE_ASYMMETRY']
 
 	/** At or above this score the page passes */
 	static final double PASS_SCORE = 95.0d
@@ -567,8 +622,13 @@ public class ContentCompare {
 		if (hard > 0) g = 'FAIL'
 
 		String why = ''
-		if (findings.any { it.verdict == 'SCOPE_ASYMMETRY' }) {
-			why = 'the two sides did not read comparable content, so the denominator is not the page'
+		// The asymmetry finding is kept out of findings.csv (see NO_CSV), so this string is where its
+		// measurements survive on disk. Carry the numbers, not just the conclusion: "9 element(s)
+		// scanned on the live page against 38" is what tells a reader it is looking at two 404s.
+		Map asym = (Map) findings.find { it.verdict == 'SCOPE_ASYMMETRY' }
+		if (asym) {
+			why = 'the two sides did not read comparable content, so the denominator is not the page — ' +
+				(asym.text ?: '')
 		} else if (items < LOW_CONFIDENCE_ITEMS) {
 			why = "only ${items} live items were compared, so one finding moves the score by " +
 				"${String.format('%.1f', 100.0d / items)} points"
@@ -582,7 +642,7 @@ public class ContentCompare {
 	@Keyword
 	static void write(Map result, String outDir) {
 		List csv = ['verdict,kind,path,text,note,weight']
-		((List) result.findings).each { f ->
+		((List) result.findings).findAll { !NO_CSV.contains(it.verdict) }.each { f ->
 			csv << [f.verdict, f.kind, AuditUtils.csvq(f.path), AuditUtils.csvq(f.text), AuditUtils.csvq(f.note),
 				String.format('%.1f', (WEIGHTS[f.verdict] ?: 0.0d) as double)].join(',')
 		}

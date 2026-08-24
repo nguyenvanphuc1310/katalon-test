@@ -104,21 +104,34 @@ Each check id names its own evidence folder through `CHECK_EVIDENCE` in `ReportB
 
 ### What `text` and `note` hold
 
-The two columns carry different things under different verdicts, which is why the report's column
-headers are **per verdict** (`ReportBuilder.FINDING_COLUMNS`, defaulting to
-`FINDING_COLUMNS_DEFAULT`) rather than one row of headers for all nine blocks.
+The two columns carry different things under different verdicts, so the report's columns are
+declared **per verdict** — `ReportBuilder.FINDING_COLUMNS`, defaulting to
+`FINDING_COLUMNS_DEFAULT`, as `[header, row key]` pairs — rather than one row of headers for all
+nine blocks. A header right for one block is a lie on another, and a block can have **two** columns
+rather than three.
 
-| Verdict | `text` | `note` |
-|---|---|---|
-| `TEXT_CHANGED`, `NUMBER_CHANGED` | the **Sitecore** wording | the **AEM** wording, bare |
-| `MISSING_ON_AEM` | the Sitecore wording | empty — there is no AEM counterpart |
-| `ONLY_ON_AEM`, `STATE_ONLY_ON_NEW` | the **AEM** text (`path` is an AEM location too) | a sentence, or empty |
-| `WRONG_TAB`, `COUNT_MISMATCH`, `STATE_ONLY_ON_LIVE` | the Sitecore wording, or a gap description | a sentence of **explanation**, not AEM text |
-| `SCOPE_ASYMMETRY` | *(no longer written — see below; older files hold a gap description)* | *(a sentence of explanation)* |
+| Verdict | `text` | `note` | columns drawn |
+|---|---|---|---|
+| `TEXT_CHANGED`, `NUMBER_CHANGED` | the **Sitecore** wording | the **AEM** wording, bare | `Where on the live page / Sitecore / AEM` |
+| `MISSING_ON_AEM` | the Sitecore wording | **always empty** — there is no AEM counterpart | `Where on the live page / Text` |
+| `ONLY_ON_AEM` | the **AEM** text (`path` is an AEM location too) | **always empty** | `Where on the live page / Text` |
+| `STATE_ONLY_ON_NEW` | the **AEM** tab/section label | a sentence | `… / Text / Note` |
+| `WRONG_TAB`, `COUNT_MISMATCH`, `STATE_ONLY_ON_LIVE` | the Sitecore wording, or a gap description | a sentence of **explanation**, not AEM text | `… / Text / Note` |
+| `SCOPE_ASYMMETRY` | *(no longer written — see below; older files hold a gap description)* | *(a sentence of explanation)* | *(never drawn)* |
 
-Only `TEXT_CHANGED` therefore gets the headers `Where on the live page / Sitecore / AEM`; every
-other block keeps `… / Text / Note`, because naming the sites there would label five blocks out of
-nine wrongly.
+Two rules produced that table:
+
+- **Name the sites only where the row is a comparison.** `TEXT_CHANGED` and `NUMBER_CHANGED` are the
+  only blocks read character by character — `S$30,000` against `$10,000` — and "Text" beside "Note"
+  answers none of the question those rows ask. Naming the sites on the other blocks would label five
+  of nine wrongly, because `text` there is not always the Sitecore side.
+- **Do not draw a column that is always empty.** `MISSING_ON_AEM` and `ONLY_ON_AEM` write `note: ''`
+  in `ContentCompare` by construction, so a `Note` header promised a reader something in 1,828 blank
+  cells. A missing text has no counterpart to describe — that is the finding.
+
+Adding a verdict to `FINDING_COLUMNS` means naming a row key `readFindings` actually sets; a key it
+does not set renders an empty cell **in silence**. `path` is the only column with a fallback (an
+empty one renders as an em dash) — a blank `text` or `note` is drawn blank.
 
 **`note` no longer carries a label in front of the AEM wording** (2026-08-24). It used to read
 `new page says: <AEM text>`, and `NUMBER_CHANGED` prefixed that with
