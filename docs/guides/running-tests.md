@@ -15,7 +15,7 @@ score weight changes.
 
 ## Which suite
 
-All paths are under `Test Suites/migration-aem/`. These five suites and one collection are what
+All paths are under `Test Suites/migration-aem/`. These four suites and one collection are what
 actually execute today:
 
 | Goal | Suite | mode | VPN |
@@ -23,11 +23,10 @@ actually execute today:
 | Live baseline, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | `baseline` | no |
 | Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | `capture` | yes |
 | **Both sides at once, two browsers** | `normal-pages/by-page/TSC_GeneralContentDetailPage_Crawl` | `baseline` + `capture` | yes |
-| Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` | `compare` | yes |
 | Re-judge, no crawl | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | `recompare` | no |
 | PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | `compare` | yes |
 
-Every compare/recompare suite ends with `TC_Build_Parity_Report`, so any run regenerates the
+Every judging suite ends with `TC_Build_Parity_Report`, so any run regenerates the
 report. The `baseline` suites end with the last page they capture — they write snapshots and
 nothing else, so verify them by reading the snapshot JSON (below).
 

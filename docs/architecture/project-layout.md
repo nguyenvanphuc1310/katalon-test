@@ -70,11 +70,11 @@ JSON — see [../guides/running-tests.md](../guides/running-tests.md#after-a-cap
 
 ## Test suites
 
-Ten on disk, all under `Test Suites/migration-aem/`:
+Nine on disk, all under `Test Suites/migration-aem/`:
 
-- `<group>/by-page/TS_<Type>_Compare` — one page type: `TS_GeneralContentDetailPage_Compare`
-  and `TS_IlpFund_Compare`. The proven type (`GeneralContentDetailPage`) also has
-  `_Baseline`, `_Capture` and `_Recompare`. **These five are the runnable ones.**
+- `<group>/by-page/TS_<Type>_*` — one page type. The proven type
+  (`GeneralContentDetailPage`) has `_Baseline`, `_Capture` and `_Recompare`; `TS_IlpFund_Compare`
+  captures and judges in one run. **These four are the runnable ones.**
 - `<group>/TS_<Group>_PreT0_Baseline` / `TS_<Group>_PostT0_Compare` — whole group, four of
   them. They cannot start until the missing page-type test cases exist.
 - `<group>/by-page/TSC_<Type>_Crawl` — one **test suite collection**, the tenth file:

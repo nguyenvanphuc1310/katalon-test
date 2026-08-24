@@ -117,13 +117,16 @@ The gate itself is one list, and it does not care how large the page is:
 
 ```groovy
 // Keywords/migration/checks/ContentCompare.groovy
-static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED']
+static final List ERRORS = ['MISSING_ON_AEM', 'NUMBER_CHANGED',
+	'COUNT_MISMATCH', 'TEXT_CHANGED', 'SCOPE_ASYMMETRY']
 ```
 
-> **Note on the score.** [../reference/verdicts-and-score.md](../reference/verdicts-and-score.md)
-> specifies a 0-100 score alongside the verdict, but `ContentCompare` on disk has no `WEIGHTS` and
-> no `score()`, `write()` emits no `weight` column and no `score.csv`, and `ReportBuilder` renders
-> no score. The verdict path drawn above is the part that actually runs today.
+> **Note on the score.** The 0-100 score specified in
+> [../reference/verdicts-and-score.md](../reference/verdicts-and-score.md) has been implemented
+> since 2026-08-21: `ContentCompare` carries `WEIGHTS`, `HARD_FAIL` and `grade()`, `write()` emits
+> the `weight` column and `score.csv`, and the verdict is **banded on the score**
+> (`PASS >= 95 · WARN 90-95 · FAIL < 90`). The list above is what the report prints in red and
+> counts as "texts failed"; it is no longer the gate on its own.
 
 ## 3. Which suite to run
 
@@ -131,14 +134,13 @@ static final List ERRORS = ['MISSING_ON_AEM', 'WRONG_TAB', 'NUMBER_CHANGED']
 |---|---|
 | Capture the live side, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` |
 | Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` |
-| Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` |
 | Re-judge without re-crawling | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` |
 | PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` |
 
 The group suites (`TS_Normal_*`, `TS_Custom_*`) bind page-type test cases that do not exist yet —
 see [../guides/running-tests.md](../guides/running-tests.md).
 
-The normal order for a new page type is **baseline → capture → compare/recompare**: capture the
+The normal order for a new page type is **baseline → capture → recompare**: capture the
 live side while it is still live, capture the new side once it is built, then re-judge as often as
 the rules change.
 

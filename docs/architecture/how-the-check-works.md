@@ -118,7 +118,7 @@ never fire.
 | Question | Answer |
 |---|---|
 | In the **paired state**? | ✅ done |
-| Not there, but elsewhere on the page? | 🔴 `WRONG_TAB` (only if that state has a counterpart) |
+| Not there, but elsewhere on the page? | 🟡 `WRONG_TAB` (only if that state has a counterpart) — the text survived, so this is a warning that weighs 0 |
 | Present, in the only place it can be judged? | count it → 🔴 `COUNT_MISMATCH` if fewer |
 | Absent, but something scores ≥ 0.9 token overlap? | figures differ → 🔴 `NUMBER_CHANGED`, else 🔴 `TEXT_CHANGED` |
 | Absent entirely | 🔴 `MISSING_ON_AEM` |

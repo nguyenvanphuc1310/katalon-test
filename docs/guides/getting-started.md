@@ -77,7 +77,8 @@ Then the full loop, which does need Chrome and (for the AEM half) the VPN:
 | 3. Capture the new side | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | yes | **yes** |
 | 4. Judge | `normal-pages/by-page/TS_GeneralContentDetailPage_Recompare` | no | no |
 
-`TS_GeneralContentDetailPage_Compare` does steps 3 and 4 in one run.
+`TSC_GeneralContentDetailPage_Crawl` does steps 1 and 3 at the same time in two browsers, which
+is the faster way in; step 2 then applies to both snapshots.
 
 Step 2 is not optional. A capture overwrites its snapshot unconditionally and a crawl that
 read the page wrongly still writes a file and still passes, so the only thing between a

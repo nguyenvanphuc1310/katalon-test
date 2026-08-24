@@ -25,10 +25,10 @@ large page on its own.
 |---|---|---|---:|
 | `MISSING_ON_AEM` | Live-page text found nowhere on the new page | 🔴 counts against the page | 1.0 |
 | `NUMBER_CHANGED` | Same sentence, different figures — a sum, premium, age, percentage or policy term | 🔴 **fails at any score** | 1.0 |
-| `WRONG_TAB` | The text exists but under a different tab | 🔴 counts against the page | 0.5 |
-| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page cannot be judged | 🔴 **fails at any score** | 0.0 |
+| `SCOPE_ASYMMETRY` | The two sides did not read comparable content, so this page cannot be judged | 🔴 **fails at any score** — but writes no `findings.csv` row and draws no block; see below | 0.0 |
 | `COUNT_MISMATCH` | On the new page, but fewer times than on the live page | 🔴 counts against the page | 0.3 |
 | `TEXT_CHANGED` | Same slot, reworded (token overlap ≥ 0.9). Reported once, not as a missing + extra pair | 🔴 counts against the page | 0.1 |
+| `WRONG_TAB` | The text exists, under a different tab | 🟡 warning | 0.0 |
 | `STATE_ONLY_ON_LIVE` | A tab/section of the live page with no counterpart | 🟡 warning | 0.5 |
 | `STATE_ONLY_ON_NEW` | A tab/section only on the new page | 🟡 warning | 0.0 |
 | `ONLY_ON_AEM` | Extra text on the new page — subset rule | ⚪ info | 0.0 |
@@ -89,6 +89,21 @@ content on every product-deck page. What the bound has to exclude is a paragraph
 length answering a short CTA because it happens to begin with the same words, and a character
 count does that.
 
+A label is also accepted when the new page has **glued a 3-4 character prefix to its front**
+(`GLUE_PREFIX_MIN` / `GLUE_PREFIX_MAX`). This is one defect and not a class of them: Sitecore
+writes a product name as `PRU` plus an inline element carrying the rest —
+`<h1>PRU<span>Shield</span> / PRU<span>Extra</span> Premium Rate Tables</h1>` — so the collector
+emits `Shield` and `Extra` as items in their own right, while AEM writes `PRUShield` as one text
+node and wraps `PRU` instead, which `MIN_LEN` drops for being 3 characters. The live fragment
+then has no fragment to answer it, and the word-boundary test rejects the only place it does
+occur, because the character to its left is the `u` of `PRU`.
+
+The **lower** bound is the load-bearing one. Without it `here` is answered by `there are many
+ways to make or receive payment`, which is a coincidence and not a counterpart. Measured over
+the 192 captured page pairs, the rule fires on 9 findings across 4 pages and the glued prefix
+is `pru` every time; without the lower bound it also silently lifted
+`en_claims_and_support_payments` by two findings. (2026-08-24)
+
 ### `COUNT_MISMATCH` fails the page — read `SCOPE_ASYMMETRY` first
 
 A text the live page states twice and the new page states once has lost an appearance, and
@@ -132,6 +147,29 @@ Only text of at least 40 characters is counted at all: counting substrings, `Pro
 occurred 24 times on the live page and 23 on the new one — true, unactionable, and it would
 have failed the page.
 
+#### It fails the page, but it is not written to `findings.csv` and draws no block (2026-08-24)
+
+`ContentCompare.NO_CSV` keeps the finding out of `findings.csv`, and `ReportBuilder.NOT_RENDERED`
+keeps it out of the report for the files already on disk. Both lists exist because
+`findings.csv` is the per-**text** evidence — one row is one live text and what became of it —
+and the report tabulates it as *"N of M live texts did not survive"*. The asymmetry finding is
+not a live text; it is a statement about the crawl. Written there it drew a red one-row
+**Fails the page** panel on 27 pages, **19 of them URLs that 404 on both sides**, where all the
+panel reported was that the two error pages have different markup.
+
+Nothing about the gate changed. The finding is still produced, still in `HARD_FAIL`, and the
+verdict still comes from `content.txt`, which the report reads — not from either list. What the
+reader sees instead is one sentence: the **low-confidence callout**, whose text is `score.csv`'s
+`confidenceWhy`, and which now carries the measurements themselves —
+
+> Low confidence — the two sides did not read comparable content, so the denominator is not the
+> page — 10 element(s) scanned on the live page against 42 on the new page. Re-capture this page
+> before reading anything else it reports.
+
+Keep the two lists in step. `SCOPE_ASYMMETRY` deliberately stays in `ERRORS`, so `readFindings`'
+unknown-verdict warning does not fire on the stale rows; it is excluded from the failed-text
+counts by hand in `checkStatsOf`.
+
 ## Score — the ranking
 
 > **Implemented 2026-08-21.** `ContentCompare.WEIGHTS`, `HARD_FAIL`, `PASS_SCORE`,
@@ -151,10 +189,10 @@ pages comparable — and it is also what makes the score unable to replace the v
 |---|---:|---|
 | `MISSING_ON_AEM` | 1.0 | exactly one item of the live page is gone |
 | `NUMBER_CHANGED` | 1.0 | |
-| `WRONG_TAB` | 0.5 | reachable, just not where the visitor looked |
 | `STATE_ONLY_ON_LIVE` | 0.5 | its contents are already counted item by item; 1.0 would charge the same loss twice |
 | `COUNT_MISMATCH` | 0.3 | the measurement is weaker than the count suggests |
 | `TEXT_CHANGED` | 0.1 | mostly punctuation; a genuine reword is a copy decision |
+| `WRONG_TAB` | 0.0 | the text survived; which tab it sits under is layout, not content |
 | `ONLY_ON_AEM`, `STATE_ONLY_ON_NEW`, `SCOPE_ASYMMETRY` | 0.0 | subset rule / says something about the measurement, not the page |
 
 Weights live in `ContentCompare.WEIGHTS` and are written into `findings.csv` as a `weight`
@@ -182,7 +220,9 @@ them (for colouring **averages** only) and is kept in step by comment, the same 
 
 A score is marked **low confidence** when `SCOPE_ASYMMETRY` fired, or when fewer than 40
 items were compared (one finding then moves the score by more than 2.5 points). The number
-is still shown, with the reason beside it. It is never silently adjusted — adjusting it
+is still shown, with the reason beside it. For `SCOPE_ASYMMETRY` that reason is also the only
+place the finding appears in the report at all, so `confidenceWhy` carries its **measurements**
+and not just its conclusion — see above. It is never silently adjusted — adjusting it
 would hide the reason it is weak. Low-confidence scores are excluded from the site average,
 and when *every* score is low confidence the average is withheld rather than printed as a
 figure that would have to be un-learned later.

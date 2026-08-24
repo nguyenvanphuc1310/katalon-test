@@ -35,6 +35,21 @@ Call it with the **AEM** URL: the slug comes from column 2 of `aem-url-mapping.c
 page absent from that CSV is never rendered at all. The file is named after the check id, so
 a `ga4` check writes `Reports/parity-results/<slug>/ga4.txt`.
 
+### The slug names every file, and file names are not case-sensitive here
+
+`AuditUtils.slugOf` strips the domain and collapses every run of non-alphanumerics to `_`, so
+`/a/b-c` and `/a-b/c` are one slug, one snapshot, one `findings.csv`, one verdict and one page in
+the report — the second page checked silently overwrites the first. The scheme is deliberately
+**not** changed: it names every file already on disk, so changing it is a migration.
+
+`ReportBuilder.warnOnSlugCollisions` makes that loud instead, and it buckets slugs
+**case-insensitively**, because what actually collides is a *file name* and macOS ships APFS
+case-insensitive. Comparing slugs exactly — as it did until 2026-08-22 — misses the case:
+`…/sustainability/Responsible Investment` and `…/sustainability/responsible-investment` are two
+distinct slugs and one directory. That pair is real, it is in the mapping today, and it is why
+the 2026-08-22 report counts **270** pages compared but writes **269** page files.
+
+
 ## Closed lists
 
 - **Check ids.** `CHECK_ORDER` in `ReportBuilder` is `['content']`. A file written under any
@@ -83,9 +98,68 @@ Each check id names its own evidence folder through `CHECK_EVIDENCE` in `ReportB
 
 | File | Format | Notes |
 |---|---|---|
-| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | `weight` is **written** since 2026-08-21 (`ContentCompare.WEIGHTS`); it must nonetheless stay **optional** in the reader's regex — see below |
+| `ContentAudit/<slug>/findings.csv` | `verdict,kind,"path","text","note",weight` | one row per live **text**. `weight` is **written** since 2026-08-21 (`ContentCompare.WEIGHTS`); it must nonetheless stay **optional** in the reader's regex — see below. Verdicts in `ContentCompare.NO_CSV` are **not** written here — see below |
 | `ContentAudit/<slug>/score.csv` | `field,value` | `score`, `grade`, `items`, `lost`, `hardFailures`, `confidence`, `confidenceWhy`. Written by `ContentCompare.write()` and read by `ReportBuilder.readScore()` since 2026-08-21 |
 | `ContentAudit/<slug>/state_pairs.csv` | `pair,sc_id,sc_label,aem_id,aem_label,by,score` | rendered as the tab-pairing table |
+
+### What `text` and `note` hold
+
+The two columns carry different things under different verdicts, which is why the report's column
+headers are **per verdict** (`ReportBuilder.FINDING_COLUMNS`, defaulting to
+`FINDING_COLUMNS_DEFAULT`) rather than one row of headers for all nine blocks.
+
+| Verdict | `text` | `note` |
+|---|---|---|
+| `TEXT_CHANGED`, `NUMBER_CHANGED` | the **Sitecore** wording | the **AEM** wording, bare |
+| `MISSING_ON_AEM` | the Sitecore wording | empty — there is no AEM counterpart |
+| `ONLY_ON_AEM`, `STATE_ONLY_ON_NEW` | the **AEM** text (`path` is an AEM location too) | a sentence, or empty |
+| `WRONG_TAB`, `COUNT_MISMATCH`, `STATE_ONLY_ON_LIVE` | the Sitecore wording, or a gap description | a sentence of **explanation**, not AEM text |
+| `SCOPE_ASYMMETRY` | *(no longer written — see below; older files hold a gap description)* | *(a sentence of explanation)* |
+
+Only `TEXT_CHANGED` therefore gets the headers `Where on the live page / Sitecore / AEM`; every
+other block keeps `… / Text / Note`, because naming the sites there would label five blocks out of
+nine wrongly.
+
+**`note` no longer carries a label in front of the AEM wording** (2026-08-24). It used to read
+`new page says: <AEM text>`, and `NUMBER_CHANGED` prefixed that with
+`figures changed: [30000] -> [10000]; `. The column header names the side now, so the label only
+repeated it. `ContentCompare` stopped writing both, **and** `ReportBuilder.stripNoteLabel()` removes
+them on read — so a `findings.csv` captured before the change renders identically to a fresh one,
+with no re-crawl. Do not delete that strip until every snapshot on disk has been re-compared.
+
+### Findings that are never written, and findings that are never drawn (2026-08-24)
+
+Two lists, one on each side of the contract, and they must stay in step:
+
+| List | Where | Effect |
+|---|---|---|
+| `ContentCompare.NO_CSV` | the producer | the finding is kept in `result.findings` but **not written** to `findings.csv` |
+| `ReportBuilder.NOT_RENDERED` | the renderer | a row with that verdict is read and classified, but **draws no block** |
+
+Today both hold exactly `SCOPE_ASYMMETRY`. The producer's list stops new runs writing the row;
+the renderer's list is what keeps the report honest about the `findings.csv` files **already on
+disk**, which still carry it. Drop the renderer's list before every page has been re-compared and
+27 red panels come back.
+
+Why it is not a row: `findings.csv` is the per-**text** evidence, and the report tabulates it as
+*"N of M live texts did not survive"*. `SCOPE_ASYMMETRY` is not a live text — it is a statement
+about the crawl — so it was being counted as a failed text on pages where every text was found.
+
+**None of this touches the gate.** The finding is still produced and still in
+`ContentCompare.HARD_FAIL`, and the page verdict the report renders comes from `content.txt`, not
+from `findings.csv`. What the reader sees instead is `score.csv`'s `confidenceWhy`, rendered as
+the low-confidence callout, which now carries the measurements themselves.
+
+Three consequences for the renderer, all handled in `renderCheckFile`:
+
+- a page can be **FAIL with zero failed texts**, so the status line must not read *"All N live
+  text(s) were found on the new page"* beside a red badge;
+- the above-the-pass-mark callout must only promise *"The finding is below"* when a block is
+  actually drawn;
+- the low-confidence callout must not say *"read the findings"* when there are none.
+
+`SCOPE_ASYMMETRY` deliberately stays in `ERRORS` so the unknown-verdict warning below does not
+fire on the stale rows, and is excluded from the failed-text counts by hand in `checkStatsOf`.
 
 The score is **read from `score.csv`, never recomputed** by the report. Recomputing it would be
 a second implementation of the formula, free to disagree with the one that actually set the
@@ -96,7 +170,7 @@ wrong. `ReportBuilder` re-declares only `PASS_SCORE`/`WARN_SCORE`, and only to c
 The parsers are strict and **drop rows they cannot match**. That is the worst failure mode a
 report can have — it just goes quiet — which is why the contract has its own assertion harness.
 
-Since 2026-08-21 `readFindings` at least **says so**, on the two ways a row can vanish:
+Since 2026-08-21 `readFindings` at least **says so**, on the three ways a row can vanish:
 
 - a line that does not match the pattern — a contract break;
 - a line that matches but carries a verdict listed in neither `ERRORS`, `WARNINGS` nor `INFOS`.
@@ -104,18 +178,64 @@ Since 2026-08-21 `readFindings` at least **says so**, on the two ways a row can 
   renders nowhere **and** counts nowhere. This is not hypothetical either: 18 `OPTION_MISSING`
   rows, left by the build that predated the verdict's removal, were invisible in the
   2026-08-20 report.
+- a line that exhausts the stack while being matched (added 2026-08-22, see below).
 
-Both log a `KeywordUtil.logWarning` naming the file. A warning in the run log is not a substitute
-for the removed harness — it only fires when someone runs the build and reads the log.
+All three log a `KeywordUtil.markWarning` naming the file. A warning in the run log is not a
+substitute for the removed harness — it only fires when someone runs the build and reads the log.
 
-It has happened. `ReportBuilder`'s findings reader required the five quoted columns and
-nothing after them, while every `findings.csv` on disk ends with `,1.0`. The `$` anchor
-therefore rejected **every row of every page**, and each page rendered "no findings" under a
-`FAIL` verdict — with no error anywhere. Fixed 2026-08-20 by making the trailing weight
-optional (`(?:,[-0-9.]+)?$`). If you touch that pattern, run
-check a rendered page actually lists its findings. An empty page and a correct one look
-identical from the outside, and nothing asserts this any more — the harness that did was
-removed with `tools/` on 2026-08-20.
+### The findings pattern
+
+```
+^(\w+),(\w*),"([^"]*(?:""[^"]*)*)","([^"]*(?:""[^"]*)*)","([^"]*(?:""[^"]*)*)"(?:,[-0-9.]+)?$
+```
+
+Two rules, each of which this project has already paid for once.
+
+**The trailing weight stays optional.** `ReportBuilder`'s findings reader once required the five
+quoted columns and nothing after them, while every `findings.csv` on disk ends with `,1.0`. The
+`$` anchor therefore rejected **every row of every page**, and each page rendered "no findings"
+under a `FAIL` verdict — with no error anywhere. Fixed 2026-08-20 with `(?:,[-0-9.]+)?$`.
+
+**A quoted field is `[^"]*(?:""[^"]*)*` and never `(?:[^"]|"")*`.** The two match the same
+language, but `(?:A|B)*` compiles to a **recursive** `Loop`/`Branch` pair in `java.util.regex` —
+one set of stack frames per matched character — while a single-char class under `*` compiles to a
+`Curly` that iterates. The alternation form survived a 9-page corpus and then killed the build the
+first time the mapping widened to 270 pages: one 1760-char row (the SCB PDPA consent clause, a
+~700-char `text` beside an ~800-char `note`) exhausted the stack and `TC_Build_Parity_Report`
+died with a bare `java.lang.StackOverflowError` carrying **no frames at all**, because the JVM's
+fast-throw optimisation strips the trace off a hot implicit throw. Measured afterwards on
+Katalon's own JRE 21: even on a **fresh** 1 MB stack that row matches with zero frames to spare,
+and `render()` runs hundreds of frames deep inside Katalon's runner. Fixed 2026-08-22; recursion
+depth is now the number of `""` escape pairs, not the length of the field.
+
+If you touch that pattern, re-render and check a rendered page actually lists its findings. An
+empty page and a correct one look identical from the outside, and nothing asserts this any more —
+the harness that did was removed with `tools/` on 2026-08-20. The cheap version of that check is
+to compare totals: `grep -o '<tr><td>' Reports/parity-report/pages/*__content.html | wc -l`
+against the row count of every `findings.csv`. They must be equal *once the `NOT_RENDERED`
+verdicts are discounted* — until every page has been re-compared, the CSVs on disk still carry
+`SCOPE_ASYMMETRY` rows that the report deliberately drops, so the identity is
+`rendered = rows - (SCOPE_ASYMMETRY rows)`. It was 2203 = 2203 on 2026-08-22, and
+**2192 - 27 = 2165** on 2026-08-24.
+
+Count the rows with `awk`, not `tail | grep`: `ContentCompare.write()` joins with `'\n'` and
+emits **no trailing newline**, so `tail -q -n +2 …/*.csv | grep -c .` glues the last row of each
+file to the first row of the next and undercounts by one per page (2192 read as 2048). Use
+`awk 'FNR>1 && NF{n++} END{print n}' Reports/ContentAudit/*/findings.csv`.
+
+## Writing the output directory
+
+`render()` builds the whole report into `Reports/.parity-report.tmp` and renames it over
+`Reports/parity-report/` only once every file is written. It used to delete the output directory
+as its first act and render into the hole, so any failure after that line destroyed a good report
+to produce nothing — which is what the 2026-08-21 crash did, leaving two asset files, an empty
+`templates/` and an empty `pages/`. A report is read far more often than it is built, and the
+last good one is worth more than a fast swap.
+
+This is safe only because **every link the report emits is relative and none of them names the
+output directory**: `templateHref` prefixes `templates/`, `checkFile` returns a bare filename,
+`head()` points at `assets/_site/`. Keep it that way. A `.parity-report.tmp` left on disk is the
+wreckage of a failed build, not work in progress; the next run deletes it.
 
 ## Checklist for a new check (= a new test case)
 

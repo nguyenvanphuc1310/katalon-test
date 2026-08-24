@@ -40,7 +40,6 @@ Suite paths are under `Test Suites/migration-aem/`.
 | Capture the live side, General Content Detail | `normal-pages/by-page/TS_GeneralContentDetailPage_Baseline` | Chrome (the live site is public) |
 | Capture the AEM side only | `normal-pages/by-page/TS_GeneralContentDetailPage_Capture` | Chrome + VPN |
 | Both sides at once, two browsers | `normal-pages/by-page/TSC_GeneralContentDetailPage_Crawl` | 2 x Chrome + VPN |
-| Capture + judge in one run | `normal-pages/by-page/TS_GeneralContentDetailPage_Compare` | Chrome + VPN |
 | PRULink funds, capture + judge | `custom-pages/by-page/TS_IlpFund_Compare` | Chrome + VPN |
 
 Those are all of them. The group suites (`TS_Normal_*`, `TS_Custom_*`) bind page-type test
