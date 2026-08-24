@@ -181,17 +181,18 @@ public class PRUDiscoveryForm {
 	@Keyword
 	static void fillAboutYou(Map f) {
 		if (!pathContains('aboutyou')) open('aboutyou')
-		expandCollapsedSections()
-		click('.pru-toggle[data-value="' + (f.gender ?: 'male') + '"]')
+		selectPruToggle(f.gender ?: 'male')
 		setValue('#ageInput', moneyOr(f.age, '30'))
-		click('[data-group="marital"][data-value="' + (f.marital ?: 'single') + '"]')
-		pause(0.25)
-		expandCollapsedSections()
+		waitSectionVisible('marital')
+		selectIconCard('marital', f.marital ?: 'single')
+		waitSectionVisible('assets')
 		setStepper('children', (f.children ?: 0) as int)
 		setStepper('dependants', (f.dependants ?: 0) as int)
-		((List) (f.assets ?: ['no'])).each { click('[data-group="assets"][data-value="' + it + '"]') }
-		((List) (f.insurance ?: ['no'])).each { click('[data-group="insurance"][data-value="' + it + '"]') }
-		waitNextEnabled(2)
+		((List) (f.assets ?: ['no'])).each { selectIconCard('assets', it.toString()) }
+		waitSectionVisible('insurance')
+		((List) (f.insurance ?: ['no'])).each { selectIconCard('insurance', it.toString()) }
+		WebUI.delay(1)
+		waitNextEnabled(4)
 	}
 
 	@Keyword
@@ -578,8 +579,46 @@ public class PRUDiscoveryForm {
 	static void click(String selector) {
 		js('''
 			var el = document.querySelector(arguments[0]);
-			if (el) el.click();
+			if (!el) return;
+			try { el.scrollIntoView({ block: "center", inline: "nearest" }); } catch (e) {}
+			el.click();
 		''', selector)
+	}
+
+	/** Gender is a toggle. A second click deselects it and hides marital/assets. */
+	static boolean selectPruToggle(String value) {
+		boolean ok = truthy(js('''
+			var el = document.querySelector('.pru-toggle[data-value="' + arguments[0] + '"]');
+			if (!el) return false;
+			try { el.scrollIntoView({ block: "center", inline: "nearest" }); } catch (e) {}
+			if (!el.classList.contains("is-selected")) el.click();
+			return el.classList.contains("is-selected");
+		''', value))
+		if (!ok) KeywordUtil.logInfo('About You gender not selected: ' + value)
+		return ok
+	}
+
+	/** Icon cards stay closed until the previous required field is set. Do not re-click a selected card. */
+	static boolean selectIconCard(String group, String value) {
+		boolean ok = truthy(js('''
+			var el = document.querySelector('[data-group="' + arguments[0] + '"][data-value="' + arguments[1] + '"]');
+			if (!el) return false;
+			try { el.scrollIntoView({ block: "center", inline: "nearest" }); } catch (e) {}
+			if (!el.classList.contains("is-selected")) {
+				var hit = el.querySelector("img, .pru-icon-wrap") || el;
+				hit.click();
+				if (!el.classList.contains("is-selected")) el.click();
+			}
+			return el.classList.contains("is-selected");
+		''', group, value))
+		if (!ok) KeywordUtil.logInfo('About You card not selected: ' + group + '=' + value)
+		return ok
+	}
+
+	static boolean waitSectionVisible(String kind) {
+		return waitUntil(4000) {
+			truthy(js('return !!document.querySelector(".pru-section--' + kind + '.is-visible");'))
+		}
 	}
 
 	static void setStorage(String key, String value) {
