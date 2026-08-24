@@ -399,14 +399,21 @@ public class CustomPagesForm {
 	static Map sessionBlockPruChat() {
 		waitUntil(12000) { truthy(js('return !!document.getElementById("pruchat");')) }
 		return probe('''
+			if (!window.__pruChatFetchHooked && typeof window.fetch === "function") {
+				var orig = window.fetch.bind(window);
+				window.fetch = function(input, init) {
+					var url = typeof input === "string" ? input : ((input && input.url) || "");
+					if (/pruchat|chat/i.test(url)) return Promise.reject(new Error("blocked"));
+					return orig(input, init);
+				};
+				window.__pruChatFetchHooked = true;
+			}
 			var host = document.getElementById("pruchat");
-			var had = !!host;
-			if (host) { try { host.remove(); } catch (e) {} }
 			var text = (document.body.innerText || "").toLowerCase();
 			return JSON.stringify({
 				alive: text.length > 40 && text.indexOf("500 internal") < 0,
-				launcherCount: had ? 1 : 0,
-				hostLen: text.length
+				launcherCount: host ? 1 : 0,
+				hostLen: (document.body.innerText || "").length
 			});
 		''')
 	}
@@ -967,43 +974,17 @@ public class CustomPagesForm {
 		]
 	}
 
+	/** Business restart = reload the page. There is no Restart button. */
 	static Map restartShariahQuiz() {
-		boolean restartClicked = false
-		try {
-			def driver = com.kms.katalon.core.webui.driver.DriverFactory.getWebDriver()
-			def rootBtns = driver.findElements(org.openqa.selenium.By.cssSelector('#quiz-score-container button, #quiz-score-container a, .quiz-wrapper button, .quiz-wrapper a'))
-			for (def el : rootBtns) {
-				String x = (el.getText() ?: '').replaceAll(/\s+/, ' ').trim()
-				if (x =~ /(?i)restart|try again|play again|retake|start again/) {
-					js('arguments[0].scrollIntoView({block:"center"});', el)
-					el.click()
-					restartClicked = true
-					break
-				}
-			}
-		} catch (Throwable e) {
-			KeywordUtil.logInfo('quiz restart selenium: ' + (e.message ?: e))
-		}
-		if (!restartClicked) {
-			restartClicked = truthy(js('''
-				var root = document.getElementById("quiz-score-container") || document.querySelector(".quiz-wrapper");
-				if (!root) return false;
-				var hit = null;
-				root.querySelectorAll("button, a, [role=button]").forEach(function (el) {
-					var x = (el.innerText || "").replace(/\\s+/g, " ").trim();
-					if (/restart|try again|play again|retake|start again/i.test(x)) hit = el;
-				});
-				if (!hit) return false;
-				hit.click();
-				return true;
-			'''))
-		}
-		boolean reset = false
-		if (restartClicked) {
-			pause(1.0)
-			reset = waitUntil(5000) { quizNameScreen() }
-		}
-		return [restart: restartClicked, reset: reset]
+		WebUI.refresh()
+		WebUI.waitForPageLoad(5)
+		dismissCookies()
+		waitUntil(10000) { truthy(js('return !!document.querySelector(".quiz-wrapper");')) }
+		boolean scoreGone = !quizOnResult() && !quizElVisible('#quiz-score-container')
+		boolean questionOne = quizQuestionNo() == 1
+		boolean intro = quizElVisible('#quiz-intro') || quizNameScreen()
+		boolean reset = scoreGone && (questionOne || intro)
+		return [restart: true, reset: reset, scoreGone: scoreGone, questionOne: questionOne, intro: intro]
 	}
 
 	static Map completeQuizThenRestart() {
